@@ -1,4 +1,5 @@
 import React from 'react';
+import { CONTACT_SUBJECTS, COMPANY_INFO } from '../../data';
 import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 
 export default function ContactPage() {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext.jsx';
+import { useCart } from '../../hooks/useCart.js';
 import { ShoppingCart, X, Minus, Plus, Trash2 } from 'lucide-react';
 
 export default function CartDrawer() {

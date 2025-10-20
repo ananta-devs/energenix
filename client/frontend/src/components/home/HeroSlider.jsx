@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { HERO_SLIDES } from '../data.js';
+import { HERO_SLIDES } from '../../data';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function HeroSlider() {

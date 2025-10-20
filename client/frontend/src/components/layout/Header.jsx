@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink as RouterNavLink } from 'react-router-dom';
-import { useCart } from '../context/CartContext.jsx';
+import { useCart } from '../../hooks/useCart.js';
 import { Search, ShoppingCart, User, Menu, X, Sparkles } from 'lucide-react';
 
 function NavLink({ children, to }) {
@@ -18,7 +18,6 @@ function NavLink({ children, to }) {
 
 export default function Header() {
   const { itemCount, setIsOpen } = useCart();
-  const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -64,16 +63,14 @@ export default function Header() {
               <input
                 type="text"
                 placeholder="Search gems..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-transparent outline-none text-sm w-full"
               />
             </div>
 
             {/* Icons */}
-            <button className="p-2 hover:bg-gray-100 rounded-full transition hidden md:block">
+            <Link to="/login" className="p-2 hover:bg-gray-100 rounded-full transition hidden md:block">
               <User className="w-5 h-5 text-gray-700" />
-            </button>
+            </Link>
             
             <button onClick={() => setIsOpen(true)} className="relative p-2 hover:bg-gray-100 rounded-full transition">
               <ShoppingCart className="w-5 h-5 text-gray-700" />
@@ -106,8 +103,6 @@ export default function Header() {
               <input
                 type="text"
                 placeholder="Search gems..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-transparent outline-none text-sm w-full"
               />
             </div>

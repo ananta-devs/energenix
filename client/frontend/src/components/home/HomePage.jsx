@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { PRODUCTS, CATEGORIES, TESTIMONIALS } from '../data.js';
-import HeroSlider from './HeroSlider.jsx';
-import ProductCard from './ProductCard.jsx';
+import { PRODUCTS, CATEGORIES, TESTIMONIALS } from '../../data';
 import { Award, Mail, Star, ArrowRight, TrendingUp } from 'lucide-react';
+import HeroSlider from './HeroSlider.jsx';
+import ProductCard from '../product/ProductCard.jsx';
 
 export default function HomePage() {
-  const featuredProducts = PRODUCTS.filter(p => p.featured);
+
   const trendingProducts = PRODUCTS.filter(p => p.trending);
   const bestsellerProducts = PRODUCTS.filter(p => p.bestseller);
 

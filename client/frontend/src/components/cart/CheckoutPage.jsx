@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext.jsx';
+import { useCart } from '../../hooks/useCart.js';
+import { SHIPPING_METHODS } from '../../data/constants';
 import { ShoppingCart, MapPin, Package, CreditCard, Check } from 'lucide-react';
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [step] = useState(1);
   const [couponCode, setCouponCode] = useState('');
   const [shippingMethod, setShippingMethod] = useState('standard');
 

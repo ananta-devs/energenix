@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { PRODUCTS, CATEGORIES } from '../data.js';
-import ProductCard from './ProductCard.jsx';
+import { PRODUCTS, CATEGORIES } from '../../data';
 import { Filter, Grid, List } from 'lucide-react';
+import ProductCard from './ProductCard.jsx';
 
 export default function CategoryPage() {
   const { categoryId } = useParams();
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('featured');
-  const [priceRange, setPriceRange] = useState([0, 10000]);
-  const [selectedColors, setSelectedColors] = useState([]);
+  // const [priceRange, setPriceRange] = useState([0, 10000]);
+  // const [selectedColors, setSelectedColors] = useState([]);
 
   const filteredProducts = PRODUCTS.filter(p => 
     categoryId === 'all' || p.category === categoryId

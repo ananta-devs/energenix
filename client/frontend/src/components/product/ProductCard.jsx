@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext.jsx';
+import { useCart } from '../../hooks/useCart.js';
 import { Star, Heart, Eye, Check } from 'lucide-react';
 
 export default function ProductCard({ product, onQuickView }) {

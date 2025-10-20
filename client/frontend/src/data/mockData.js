@@ -1,4 +1,4 @@
-
+// data/mockData.js
 import { Sparkles, Award } from 'lucide-react';
 
 export const PRODUCTS = [
