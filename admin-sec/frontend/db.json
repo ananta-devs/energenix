@@ -1,0 +1,226 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Blue Sapphire 2ct",
+      "category": "Sapphire",
+      "carat": 2.0,
+      "color": "Royal Blue",
+      "clarity": "VVS1",
+      "price": 2800,
+      "stock": 15,
+      "status": "in_stock",
+      "image": "/api/placeholder/300/300",
+      "description": "Natural Ceylon blue sapphire with excellent cut"
+    },
+    {
+      "id": 2,
+      "name": "Emerald Cut Diamond",
+      "category": "Diamond",
+      "carat": 1.5,
+      "color": "D",
+      "clarity": "IF",
+      "price": 5200,
+      "stock": 8,
+      "status": "in_stock",
+      "image": "/api/placeholder/300/300",
+      "description": "Flawless emerald cut diamond"
+    },
+    {
+      "id": 3,
+      "name": "Ruby Pendant",
+      "category": "Ruby",
+      "carat": 1.2,
+      "color": "Pigeon Blood Red",
+      "clarity": "VS1",
+      "price": 1800,
+      "stock": 3,
+      "status": "low_stock",
+      "image": "/api/placeholder/300/300",
+      "description": "Natural Burmese ruby pendant"
+    },
+    {
+      "id": 4,
+      "name": "Amethyst Cluster",
+      "category": "Amethyst",
+      "carat": 3.5,
+      "color": "Deep Purple",
+      "clarity": "VVS2",
+      "price": 450,
+      "stock": 25,
+      "status": "in_stock",
+      "image": "/api/placeholder/300/300",
+      "description": "Natural Brazilian amethyst cluster"
+    },
+    {
+      "id": 5,
+      "name": "Emerald Ring",
+      "category": "Emerald",
+      "carat": 2.8,
+      "color": "Intense Green",
+      "clarity": "VS2",
+      "price": 3200,
+      "stock": 0,
+      "status": "out_of_stock",
+      "image": "/api/placeholder/300/300",
+      "description": "Zambian emerald in gold ring setting"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1,
+      "orderNumber": "GS-001",
+      "customer": "John Smith",
+      "customerEmail": "john@example.com",
+      "product": "Blue Sapphire 2ct",
+      "productId": 1,
+      "quantity": 1,
+      "amount": 2800,
+      "status": "delivered",
+      "orderDate": "2024-01-15",
+      "deliveryDate": "2024-01-20",
+      "shippingAddress": "123 Main St, New York, NY"
+    },
+    {
+      "id": 2,
+      "orderNumber": "GS-002",
+      "customer": "Sarah Johnson",
+      "customerEmail": "sarah@example.com",
+      "product": "Emerald Cut Diamond",
+      "productId": 2,
+      "quantity": 1,
+      "amount": 5200,
+      "status": "shipped",
+      "orderDate": "2024-01-18",
+      "deliveryDate": null,
+      "shippingAddress": "456 Oak Ave, Los Angeles, CA"
+    },
+    {
+      "id": 3,
+      "orderNumber": "GS-003",
+      "customer": "Mike Wilson",
+      "customerEmail": "mike@example.com",
+      "product": "Ruby Pendant",
+      "productId": 3,
+      "quantity": 2,
+      "amount": 3600,
+      "status": "processing",
+      "orderDate": "2024-01-20",
+      "deliveryDate": null,
+      "shippingAddress": "789 Pine Rd, Chicago, IL"
+    },
+    {
+      "id": 4,
+      "orderNumber": "GS-004",
+      "customer": "Emily Brown",
+      "customerEmail": "emily@example.com",
+      "product": "Amethyst Cluster",
+      "productId": 4,
+      "quantity": 1,
+      "amount": 450,
+      "status": "pending",
+      "orderDate": "2024-01-21",
+      "deliveryDate": null,
+      "shippingAddress": "321 Elm St, Miami, FL"
+    }
+  ],
+  "customers": [
+    {
+      "id": 1,
+      "name": "John Smith",
+      "email": "john@example.com",
+      "phone": "+1-555-0101",
+      "joinDate": "2023-05-15",
+      "totalOrders": 5,
+      "totalSpent": 12500,
+      "loyaltyLevel": "Gold",
+      "lastPurchase": "2024-01-15",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "name": "Sarah Johnson",
+      "email": "sarah@example.com",
+      "phone": "+1-555-0102",
+      "joinDate": "2023-08-22",
+      "totalOrders": 3,
+      "totalSpent": 8900,
+      "loyaltyLevel": "Silver",
+      "lastPurchase": "2024-01-18",
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "name": "Mike Wilson",
+      "email": "mike@example.com",
+      "phone": "+1-555-0103",
+      "joinDate": "2023-11-10",
+      "totalOrders": 2,
+      "totalSpent": 4200,
+      "loyaltyLevel": "Bronze",
+      "lastPurchase": "2024-01-20",
+      "status": "active"
+    },
+    {
+      "id": 4,
+      "name": "Emily Brown",
+      "email": "emily@example.com",
+      "phone": "+1-555-0104",
+      "joinDate": "2024-01-05",
+      "totalOrders": 1,
+      "totalSpent": 450,
+      "loyaltyLevel": "New",
+      "lastPurchase": "2024-01-21",
+      "status": "active"
+    }
+  ],
+  "inventory": [
+    {
+      "id": 1,
+      "productId": 1,
+      "productName": "Blue Sapphire 2ct",
+      "currentStock": 15,
+      "minimumStock": 5,
+      "reorderLevel": 3,
+      "lastRestocked": "2024-01-10",
+      "status": "adequate"
+    },
+    {
+      "id": 2,
+      "productId": 3,
+      "productName": "Ruby Pendant",
+      "currentStock": 3,
+      "minimumStock": 5,
+      "reorderLevel": 3,
+      "lastRestocked": "2023-12-15",
+      "status": "low_stock"
+    },
+    {
+      "id": 3,
+      "productId": 5,
+      "productName": "Emerald Ring",
+      "currentStock": 0,
+      "minimumStock": 5,
+      "reorderLevel": 3,
+      "lastRestocked": "2023-11-20",
+      "status": "out_of_stock"
+    }
+  ],
+  "analytics": {
+    "monthlySales": [
+      { "month": "Jan", "sales": 124580, "orders": 89, "customers": 45 },
+      { "month": "Feb", "sales": 112340, "orders": 78, "customers": 38 },
+      { "month": "Mar", "sales": 135670, "orders": 92, "customers": 51 },
+      { "month": "Apr", "sales": 118900, "orders": 81, "customers": 42 },
+      { "month": "May", "sales": 142300, "orders": 95, "customers": 48 },
+      { "month": "Jun", "sales": 156780, "orders": 104, "customers": 56 }
+    ],
+    "categoryRevenue": [
+      { "category": "Diamond", "revenue": 45, "color": "#b9f2ff" },
+      { "category": "Sapphire", "revenue": 25, "color": "#0f52ba" },
+      { "category": "Emerald", "revenue": 15, "color": "#50c878" },
+      { "category": "Ruby", "revenue": 10, "color": "#e0115f" },
+      { "category": "Amethyst", "revenue": 5, "color": "#9966cc" }
+    ]
+  }
+}
