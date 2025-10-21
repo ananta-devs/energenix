@@ -15,7 +15,7 @@ export default function HomePage() {
       <HeroSlider />
 
       {/* Categories */}
-      <section className="py-16 bg-gray-50">
+      <section className=" ">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Shop by Category</h2>
@@ -37,27 +37,33 @@ export default function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16">
+      <section className="py-10">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-8">
-            <div>
+          <div className="items-center justify-between mb-8">
+            <div className="text-center mb-12">
+              <TrendingUp className="w-12 h-12 mx-auto text-amber-500 mb-4" />
               <h2 className="text-3xl font-bold mb-2">Trending Now</h2>
               <p className="text-gray-600">Popular choices this season</p>
             </div>
-            <Link to="/category/all" className="text-purple-600 font-semibold hover:underline flex items-center">
-              View All <ArrowRight className="w-4 h-4 ml-1" />
-            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {trendingProducts.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
+          <div className="mt-4 flex justify-center items-center">
+            <Link
+              to="/category/all"
+              className="text-purple-600 font-semibold hover:underline flex items-center text-xl"
+            >
+              View All <ArrowRight className="w-4 h-4 ml-1" />
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Bestsellers */}
-      <section className="py-16">
+      <section className="mb-8">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <Award className="w-12 h-12 mx-auto text-amber-500 mb-4" />
@@ -111,9 +117,9 @@ export default function HomePage() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-6 py-3 rounded-full text-gray-900 outline-none"
+                className="flex-1 px-6 py-3 rounded-full text-gray-900 outline-none bg-white"
               />
-              <button className="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition">
+              <button className="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition cursor-pointer">
                 Subscribe
               </button>
             </div>

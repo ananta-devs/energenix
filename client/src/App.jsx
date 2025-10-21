@@ -1,9 +1,7 @@
-// App.jsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
-import Header from './components/layout/Header.jsx';
 import HomePage from './components/home/HomePage.jsx';
 import CategoryPage from './components/product/CategoryPage.jsx';
 import ProductDetailPage from './components/product/ProductDetailPage.jsx';
@@ -12,7 +10,6 @@ import OrderConfirmationPage from './components/common/OrderConfirmationPage.jsx
 import AboutPage from './components/common/AboutPage.jsx';
 import ContactPage from './components/common/ContactPage.jsx';
 import LoginPage from './components/auth/LoginPage.jsx';
-import Footer from './components/layout/Footer.jsx';
 import CartDrawer from './components/cart/CartDrawer.jsx';
 import MainLayout from './components/layout/MainLayout.jsx';
 

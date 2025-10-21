@@ -66,7 +66,7 @@ export default function Footer() {
                 placeholder="Your email"
                 className="flex-1 px-4 py-2 rounded-l-lg bg-gray-800 border border-gray-700 outline-none focus:border-purple-600"
               />
-              <button className="px-4 py-2 bg-purple-600 rounded-r-lg hover:bg-purple-700 transition">
+              <button className="px-4 py-2 bg-purple-600 rounded-r-lg hover:bg-purple-700 transition cursor-pointer">
                 <ArrowRight className="w-5 h-5" />
               </button>
             </div>

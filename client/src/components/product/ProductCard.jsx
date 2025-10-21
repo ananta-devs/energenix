@@ -6,12 +6,25 @@ import { Star, Heart, Eye, Check } from 'lucide-react';
 export default function ProductCard({ product, onQuickView }) {
   const { addItem } = useCart();
   const [showToast, setShowToast] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
     addItem(product);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2000);
+  };
+
+  const handleWishlist = (e) => {
+    e.stopPropagation();
+    setIsWishlisted(!isWishlisted);
+  };
+
+  const handleQuickView = (e) => {
+    e.stopPropagation();
+    if (onQuickView) {
+      onQuickView(product);
+    }
   };
 
   return (
@@ -38,14 +51,20 @@ export default function ProductCard({ product, onQuickView }) {
       {/* Quick Actions */}
       <div className="absolute top-3 right-3 z-10 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition">
         <button
-          onClick={(e) => { e.stopPropagation(); onQuickView?.(product); }}
+          onClick={handleQuickView}
           className="bg-white p-2 rounded-full shadow-lg hover:bg-purple-50 transition"
           aria-label="Quick view"
         >
           <Eye className="w-5 h-5 text-purple-600" />
         </button>
-        <button className="bg-white p-2 rounded-full shadow-lg hover:bg-purple-50 transition" aria-label="Add to wishlist">
-          <Heart className="w-5 h-5 text-purple-600" />
+        <button 
+          onClick={handleWishlist}
+          className="bg-white p-2 rounded-full shadow-lg hover:bg-red-50 transition" 
+          aria-label="Add to wishlist"
+        >
+          <Heart 
+            className={`w-5 h-5 transition-colors ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-purple-600'}`} 
+          />
         </button>
       </div>
 
