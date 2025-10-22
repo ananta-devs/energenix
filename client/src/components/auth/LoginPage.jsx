@@ -1,9 +1,8 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Phone, Lock, User, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-
-// Auth Context
-const AuthContext = createContext();
-const useAuth = () => useContext(AuthContext);
+import { useAuth } from '../../context/AuthContext.jsx';
+import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 
 // Custom Hook for OTP Timer
 const useOtpTimer = (initialTime = 30) => {
@@ -30,31 +29,6 @@ const useOtpTimer = (initialTime = 30) => {
   return { timeLeft, isActive, startTimer };
 };
 
-// Toast Component
-const Toast = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 4000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  const colors = {
-    success: 'bg-green-500',
-    error: 'bg-red-500',
-    info: 'bg-blue-500'
-  };
-
-  const Icon = type === 'success' ? CheckCircle : XCircle;
-
-  return (
-    <div className={`fixed top-4 right-4 ${colors[type]} text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in z-50 max-w-md`}>
-      <Icon size={20} />
-      <span className="font-medium">{message}</span>
-      <button onClick={onClose} className="ml-4 hover:opacity-80 text-xl leading-none">×</button>
-    </div>
-  );
-};
-
-// Input Field Component
 const InputField = ({ label, icon: Icon, error, ...props }) => {
   return (
     <div className="mb-4">
@@ -233,6 +207,7 @@ const SignUpPage = ({ onNavigate }) => {
       })
       .then((data) => {
         showToast(data.msg, 'success');
+        // No login here, as OTP verification is required first
         onNavigate('verify-otp', { from: 'signup', contact: formData.email });
       })
       .catch((err) => {
@@ -336,7 +311,7 @@ const OtpVerificationPage = ({ onNavigate, pageData }) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email: pageData.contact, otp }),
+      body: JSON.stringify({ email: pageData.contact, otp, from: pageData.from }),
     })
       .then(async (res) => {
         if (res.ok) {
@@ -348,8 +323,11 @@ const OtpVerificationPage = ({ onNavigate, pageData }) => {
       })
       .then((data) => {
         localStorage.setItem('token', data.token);
-        showToast('Verification successful!', 'success');
-        setTimeout(() => onNavigate('signin'), 1000);
+        if (pageData?.from === 'signup') {
+          setTimeout(() => onNavigate('signin'), 1000);
+        } else if (pageData?.from === 'forgot-password') {
+          onNavigate('reset-password', { contact: pageData.contact, otp });
+        }
       })
       .catch((err) => {
         showToast(err.message, 'error');
@@ -410,6 +388,7 @@ const OtpVerificationPage = ({ onNavigate, pageData }) => {
 
 // Sign In Page
 const SignInPage = ({ onNavigate }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     identifier: '',
     password: '',
@@ -417,7 +396,7 @@ const SignInPage = ({ onNavigate }) => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { showToast } = useAuth();
+  const { showToast, login } = useAuth();
 
   const handleSubmit = () => {
     const newErrors = {};
@@ -451,9 +430,10 @@ const SignInPage = ({ onNavigate }) => {
         }
       })
       .then((data) => {
-        localStorage.setItem('token', data.token);
+        const decoded = jwtDecode(data.token);
+        login(data.token, { fullName: decoded.user.fullName, email: decoded.user.email });
         showToast('Login successful!', 'success');
-        // You can redirect to another page here, e.g., onNavigate('dashboard');
+        navigate('/');
       })
       .catch((err) => {
         showToast(err.message, 'error');
@@ -546,11 +526,31 @@ const ForgotPasswordPage = ({ onNavigate }) => {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      showToast('OTP sent successfully!', 'success');
-      onNavigate('verify-otp', { from: 'forgot-password', contact });
-    }, 1000);
+    fetch('http://localhost:4000/api/auth/forgot-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: contact }),
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          const errorData = await res.json();
+          throw new Error(errorData.msg || 'Something went wrong');
+        }
+      })
+      .then((data) => {
+        showToast(data.msg, 'success');
+        onNavigate('verify-otp', { from: 'forgot-password', contact });
+      })
+      .catch((err) => {
+        showToast(err.message, 'error');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -588,7 +588,7 @@ const ForgotPasswordPage = ({ onNavigate }) => {
 };
 
 // Reset Password Page
-const ResetPasswordPage = ({ onNavigate }) => {
+const ResetPasswordPage = ({ onNavigate, pageData }) => {
   const [formData, setFormData] = useState({
     password: '',
     confirmPassword: ''
@@ -615,11 +615,31 @@ const ResetPasswordPage = ({ onNavigate }) => {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      showToast('Password reset successful!', 'success');
-      setTimeout(() => onNavigate('signin'), 1000);
-    }, 1000);
+    fetch('http://localhost:4000/api/auth/reset-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: pageData.contact, newPassword: formData.password, otp: pageData.otp }), // Assuming OTP is passed via pageData
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          const errorData = await res.json();
+          throw new Error(errorData.msg || 'Something went wrong');
+        }
+      })
+      .then((data) => {
+        showToast(data.msg, 'success');
+        setTimeout(() => onNavigate('signin'), 1000);
+      })
+      .catch((err) => {
+        showToast(err.message, 'error');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -654,16 +674,10 @@ const ResetPasswordPage = ({ onNavigate }) => {
   );
 };
 
-// Main App Component
 const App = () => {
   const [currentPage, setCurrentPage] = useState('signin');
   const [pageData, setPageData] = useState(null);
-  const [toast, setToast] = useState(null);
-  const [userData, setUserData] = useState(null);
-
-  const showToast = (message, type) => {
-    setToast({ message, type });
-  };
+  const { showToast } = useAuth();
 
   const handleNavigate = (page, data = null) => {
     setCurrentPage(page);
@@ -688,41 +702,9 @@ const App = () => {
   };
 
   return (
-    <AuthContext.Provider value={{ showToast, userData, setUserData }}>
-      <div className="relative">
-        {renderPage()}
-        {toast && (
-          <Toast
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToast(null)}
-          />
-        )}
-      </div>
-      <style>{`
-        @keyframes slide-in {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        .animate-slide-in {
-          animation: slide-in 0.3s ease-out;
-        }
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        .animate-spin {
-          animation: spin 1s linear infinite;
-        }
-      `}</style>
-    </AuthContext.Provider>
+    <div className="relative">
+      {renderPage()}
+    </div>
   );
 };
 

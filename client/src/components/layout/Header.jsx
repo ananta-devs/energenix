@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink as RouterNavLink } from 'react-router-dom';
+import { Link, NavLink as RouterNavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart.js';
-import { Search, ShoppingCart, User, Menu, X, Sparkles } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { Search, ShoppingCart, User, Menu, X, Sparkles, ChevronDown, ChevronUp, Heart, Package, LogOut } from 'lucide-react';
 
 function NavLink({ children, to }) {
   return (
@@ -18,14 +19,25 @@ function NavLink({ children, to }) {
 
 export default function Header() {
   const { itemCount, setIsOpen } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleLogout = () => {
+    logout();
+    setDropdownOpen(false);
+    navigate('/login');
+  };
+
+  const firstName = user?.fullName ? user.fullName.split(' ')[0] : '';
 
   return (
     <header className={`sticky top-0 z-50 transition-all ${isScrolled ? 'bg-white shadow-md' : 'bg-white/95 backdrop-blur-sm'}`}>
@@ -67,14 +79,60 @@ export default function Header() {
               />
             </div>
 
-            {/* Icons */}
-            <Link to="/login" className="p-2 hover:bg-gray-100 rounded-full transition hidden md:block">
-              <p className=" text-gray-700"> Sign In</p>
-            </Link>
-            <Link to="/dashboard" className="flex items-center space-x-1">
-              <User className="w-5 h-5" />
-              <span>My Account</span>
-            </Link>
+            {/* User/Auth Icons */}
+            {!isAuthenticated ? (
+              <Link to="/login" className="p-2 hover:bg-gray-100 rounded-full transition hidden md:block">
+                <p className="text-gray-700">Sign In</p>
+              </Link>
+            ) : (
+              <div className="relative hidden md:block">
+                <button
+                  className="flex items-center space-x-1 p-2 hover:bg-gray-100 rounded-full transition"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  onMouseEnter={() => setDropdownOpen(true)}
+                  onMouseLeave={() => setDropdownOpen(false)}
+                >
+                  <User className="w-5 h-5" />
+                  <span>{firstName}</span>
+                  {dropdownOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {dropdownOpen && (
+                  <div
+                    className="absolute right-0 mt-2 w-30 bg-white rounded-md shadow-lg py-1 z-50"
+                    onMouseEnter={() => setDropdownOpen(true)}
+                    onMouseLeave={() => setDropdownOpen(false)}
+                  >
+                    <Link
+                      to="/dashboard"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <User className="w-4 h-4 mr-2" /> My Profile
+                    </Link>
+                    <Link
+                      to="/orders"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <Package className="w-4 h-4 mr-2" /> Orders
+                    </Link>
+                    <Link
+                      to="/wishlist"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <Heart className="w-4 h-4 mr-2" /> Wishlist
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
             
             <button onClick={() => setIsOpen(true)} className="relative p-2 hover:bg-gray-100 rounded-full transition">
               <ShoppingCart className="w-5 h-5 text-gray-700" />
@@ -100,6 +158,17 @@ export default function Header() {
               <Link to="/category/all" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 hover:text-purple-600">Shop</Link>
               <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 hover:text-purple-600">About</Link>
               <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 hover:text-purple-600">Contact</Link>
+              {!isAuthenticated && (
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 hover:text-purple-600">Sign In</Link>
+              )}
+              {isAuthenticated && (
+                <>
+                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 hover:text-purple-600">My Profile</Link>
+                  <Link to="/orders" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 hover:text-purple-600">Orders</Link>
+                  <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 hover:text-purple-600">Wishlist</Link>
+                  <button onClick={handleLogout} className="text-left py-2 hover:text-purple-600">Sign Out</button>
+                </>
+              )}
             </nav>
             {/* Mobile Search */}
             <div className="mt-4 flex items-center bg-gray-100 rounded-full px-4 py-2">

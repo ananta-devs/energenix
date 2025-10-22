@@ -7,4 +7,11 @@ export default defineConfig({
   plugins: [react(),
     tailwindcss()
   ],
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+      },
+    },
+  },
 })
