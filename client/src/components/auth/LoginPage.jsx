@@ -216,12 +216,31 @@ const SignUpPage = ({ onNavigate }) => {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setUserData(formData);
-      setLoading(false);
-      showToast('OTP sent successfully!', 'success');
-      onNavigate('verify-otp', { from: 'signup', contact: formData.email });
-    }, 1000);
+    fetch('http://localhost:4000/api/auth/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          const errorData = await res.json();
+          throw new Error(errorData.msg || 'Something went wrong');
+        }
+      })
+      .then((data) => {
+        showToast(data.msg, 'success');
+        onNavigate('verify-otp', { from: 'signup', contact: formData.email });
+      })
+      .catch((err) => {
+        showToast(err.message, 'error');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -312,16 +331,32 @@ const OtpVerificationPage = ({ onNavigate, pageData }) => {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      showToast('Verification successful!', 'success');
-      
-      if (pageData?.from === 'signup') {
+    fetch('http://localhost:4000/api/auth/verify-otp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: pageData.contact, otp }),
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          const errorData = await res.json();
+          throw new Error(errorData.msg || 'Something went wrong');
+        }
+      })
+      .then((data) => {
+        localStorage.setItem('token', data.token);
+        showToast('Verification successful!', 'success');
         setTimeout(() => onNavigate('signin'), 1000);
-      } else if (pageData?.from === 'forgot-password') {
-        onNavigate('reset-password', { contact: pageData.contact });
-      }
-    }, 1000);
+      })
+      .catch((err) => {
+        showToast(err.message, 'error');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const handleResend = () => {
@@ -400,10 +435,32 @@ const SignInPage = ({ onNavigate }) => {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      showToast('Login successful!', 'success');
-    }, 1000);
+    fetch('http://localhost:4000/api/auth/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: formData.identifier, password: formData.password }),
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          const errorData = await res.json();
+          throw new Error(errorData.msg || 'Something went wrong');
+        }
+      })
+      .then((data) => {
+        localStorage.setItem('token', data.token);
+        showToast('Login successful!', 'success');
+        // You can redirect to another page here, e.g., onNavigate('dashboard');
+      })
+      .catch((err) => {
+        showToast(err.message, 'error');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const handleKeyPress = (e) => {
