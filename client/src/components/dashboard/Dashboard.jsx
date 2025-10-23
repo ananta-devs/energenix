@@ -62,13 +62,13 @@ const Sidebar = ({ isOpen, toggleSidebar, currentPage, setCurrentPage }) => {
       
       {/* Sidebar */}
       <aside className={`
-        fixed lg:sticky top-0 left-0 h-screen w-64 bg-white shadow-lg z-50
+        fixed lg:sticky top-0 left-4 h-screen w-64 bg-white shadow-lg z-50
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         overflow-y-auto
       `}>
         {/* User Info */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="pt-6 border-b border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
@@ -86,7 +86,7 @@ const Sidebar = ({ isOpen, toggleSidebar, currentPage, setCurrentPage }) => {
         </div>
 
         {/* Menu Items */}
-        <nav className="py-4">
+        <nav className="py-0">
           {menuItems.map((section, idx) => (
             <div key={idx} className="mb-4">
               {section.single ? (
@@ -139,24 +139,6 @@ const Sidebar = ({ isOpen, toggleSidebar, currentPage, setCurrentPage }) => {
             <LogOut className="w-5 h-5 mr-3" />
             <span className="text-sm font-semibold">Logout</span>
           </button>
-          
-          <div className="px-6 py-4">
-            <h4 className="text-xs font-semibold text-gray-500 mb-3">Frequently Visited:</h4>
-            <button 
-              onClick={() => handleNavigation('track')}
-              className="flex items-center text-sm text-gray-700 hover:text-blue-600 mb-2"
-            >
-              <Package className="w-4 h-4 mr-2" />
-              Track Order
-            </button>
-            <button 
-              onClick={() => handleNavigation('help')}
-              className="flex items-center text-sm text-gray-700 hover:text-blue-600"
-            >
-              <HelpCircle className="w-4 h-4 mr-2" />
-              Help Center
-            </button>
-          </div>
         </div>
       </aside>
     </>

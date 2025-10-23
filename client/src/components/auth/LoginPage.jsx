@@ -91,7 +91,7 @@ const Button = ({ children, loading, onClick, ...props }) => {
   return (
     <button
       onClick={onClick}
-      className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
       disabled={loading}
       {...props}
     >
@@ -278,7 +278,7 @@ const SignUpPage = ({ onNavigate }) => {
           Already have an account?{' '}
           <button
             onClick={() => onNavigate('signin')}
-            className="text-blue-600 font-semibold hover:underline"
+            className="text-blue-600 font-semibold hover:underline cursor-pointer"
           >
             Sign In
           </button>
@@ -481,13 +481,13 @@ const SignInPage = ({ onNavigate }) => {
                 onChange={(e) => setFormData({ ...formData, rememberMe: e.target.checked })}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
               />
-              <span className="ml-2 text-sm text-gray-600">Remember me</span>
+              <span className="ml-2 text-sm text-gray-600 cursor-pointer">Remember me</span>
             </label>
             
             <button
               type="button"
               onClick={() => onNavigate('forgot-password')}
-              className="text-sm text-blue-600 font-semibold hover:underline"
+              className="text-sm text-blue-600 font-semibold hover:underline cursor-pointer"
             >
               Forgot Password?
             </button>
@@ -502,7 +502,7 @@ const SignInPage = ({ onNavigate }) => {
           Don't have an account?{' '}
           <button
             onClick={() => onNavigate('signup')}
-            className="text-blue-600 font-semibold hover:underline"
+            className="text-blue-600 font-semibold hover:underline cursor-pointer"
           >
             Sign Up
           </button>
@@ -556,7 +556,7 @@ const ForgotPasswordPage = ({ onNavigate }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Forgot Password?</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-2 cursor-pointer">Forgot Password?</h2>
         <p className="text-gray-600 mb-6">
           Enter your email or phone number and we'll send you an OTP to reset your password
         </p>
@@ -573,12 +573,13 @@ const ForgotPasswordPage = ({ onNavigate }) => {
           
           <Button loading={loading} onClick={handleSubmit}>
             Send OTP
+            
           </Button>
         </div>
         
         <button
           onClick={() => onNavigate('signin')}
-          className="w-full text-center mt-4 text-gray-600 hover:text-gray-800"
+          className="w-full text-center mt-4 text-gray-600 hover:text-gray-800 cursor-pointer"
         >
           ← Back to Sign In
         </button>
@@ -677,7 +678,7 @@ const ResetPasswordPage = ({ onNavigate, pageData }) => {
 const App = () => {
   const [currentPage, setCurrentPage] = useState('signin');
   const [pageData, setPageData] = useState(null);
-  const { showToast } = useAuth();
+  // const { showToast } = useAuth();
 
   const handleNavigate = (page, data = null) => {
     setCurrentPage(page);
