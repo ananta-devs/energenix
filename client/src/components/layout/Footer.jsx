@@ -34,29 +34,32 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="font-bold text-lg mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              <li><Link to="/" className="text-gray-400 hover:text-white transition">Home</Link></li>
-              <li><Link to="/category/all" className="text-gray-400 hover:text-white transition">Shop</Link></li>
-              <li><Link to="/about" className="text-gray-400 hover:text-white transition">About Us</Link></li>
-              <li><Link to="/contact" className="text-gray-400 hover:text-white transition">Contact</Link></li>
-            </ul>
+          {/* Quick Links and Customer Service in two columns on small screens */}
+          <div className="grid grid-cols-2 gap-8 md:col-span-1 lg:col-span-2">
+            {/* Quick Links */}
+            <div>
+              <h3 className="font-bold text-lg mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><Link to="/" className="text-gray-400 hover:text-white transition">Home</Link></li>
+                <li><Link to="/category/all" className="text-gray-400 hover:text-white transition">Shop</Link></li>
+                <li><Link to="/about" className="text-gray-400 hover:text-white transition">About Us</Link></li>
+                <li><Link to="/contact" className="text-gray-400 hover:text-white transition">Contact</Link></li>
+              </ul>
+            </div>
+
+            {/* Customer Service */}
+            <div>
+              <h3 className="font-bold text-lg mb-4">Customer Service</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white transition">Shipping Information</a></li>
+                <li><a href="#" className="hover:text-white transition">Returns & Exchanges</a></li>
+                <li><a href="#" className="hover:text-white transition">Certification</a></li>
+                <li><a href="#" className="hover:text-white transition">FAQ</a></li>
+              </ul>
+            </div>
           </div>
 
-          {/* Customer Service */}
-          <div>
-            <h3 className="font-bold text-lg mb-4">Customer Service</h3>
-            <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white transition">Shipping Information</a></li>
-              <li><a href="#" className="hover:text-white transition">Returns & Exchanges</a></li>
-              <li><a href="#" className="hover:text-white transition">Certification</a></li>
-              <li><a href="#" className="hover:text-white transition">FAQ</a></li>
-            </ul>
-          </div>
-
-          {/* Newsletter */}
+          {/* Newsletter - Fixed layout */}
           <div>
             <h3 className="font-bold text-lg mb-4">Newsletter</h3>
             <p className="text-gray-400 mb-4">Subscribe for exclusive offers and updates</p>
@@ -77,9 +80,9 @@ export default function Footer() {
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
           <p>&copy; 2025 LuxeGems. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-white transition">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition">Terms of Service</a>
-            <a href="#" className="hover:text-white transition">Cookie Policy</a>
+            <Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-white transition">Terms of Service</Link>
+            <Link to="/cookie" className="hover:text-white transition">Cookie Policy</Link>
           </div>
         </div>
       </div>

@@ -105,27 +105,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Newsletter */}
-      <section className="py-16 bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <Mail className="w-12 h-12 mx-auto mb-4" />
-            <h2 className="text-3xl font-bold mb-4">Join Our Newsletter</h2>
-            <p className="mb-8">Get exclusive access to new collections and special offers</p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-6 py-3 rounded-full text-gray-900 outline-none bg-white"
-              />
-              <button className="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition cursor-pointer">
-                Subscribe
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

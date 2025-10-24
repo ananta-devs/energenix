@@ -51,7 +51,7 @@ export default function ContactPage() {
                 </select>
                 <textarea
                   placeholder="Your Message"
-                  rows="6"
+                  rows="5"
                   className="w-full px-4 py-3 border rounded-lg outline-none focus:border-purple-600"
                 ></textarea>
                 <button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition">
@@ -85,24 +85,6 @@ export default function ContactPage() {
                 New York, NY 10001<br />
                 United States
               </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h3 className="font-bold mb-4">Follow Us</h3>
-              <div className="flex space-x-4">
-                <button className="p-3 bg-gray-100 rounded-full hover:bg-purple-100 transition">
-                  <Facebook className="w-5 h-5 text-gray-700" />
-                </button>
-                <button className="p-3 bg-gray-100 rounded-full hover:bg-purple-100 transition">
-                  <Instagram className="w-5 h-5 text-gray-700" />
-                </button>
-                <button className="p-3 bg-gray-100 rounded-full hover:bg-purple-100 transition">
-                  <Twitter className="w-5 h-5 text-gray-700" />
-                </button>
-                <button className="p-3 bg-gray-100 rounded-full hover:bg-purple-100 transition">
-                  <Youtube className="w-5 h-5 text-gray-700" />
-                </button>
-              </div>
             </div>
           </div>
         </div>

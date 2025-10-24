@@ -15,6 +15,9 @@ import DashboardPage from './components/dashboard/DashboardPage.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toast } from './components/ui/Toast.jsx';
 import { useAuth } from './context/AuthContext.jsx';
+import PrivacyPolicy from './components/common/Privacy.jsx';
+import TermsOfService from './components/common/Terms.jsx';
+import CookiePolicy from './components/common/Cookie.jsx';
 
 function App() {
   const { toast, closeToast } = useAuth();
@@ -38,6 +41,9 @@ function App() {
           } />
         </Route>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/cookie" element={<CookiePolicy />} />
       </Routes>
       {/* Global Toast Component */}
       {toast && (
