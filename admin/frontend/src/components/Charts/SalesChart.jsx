@@ -1,6 +1,7 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useStore } from '../../store/useStore';
+import ChartContainer from './ChartContainer';
 
 const SalesChart = () => {
   const { darkMode } = useStore();
@@ -21,35 +22,58 @@ const SalesChart = () => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
         Monthly Sales & Revenue
       </h3>
-      <div className="h-80">
+      <ChartContainer className="h-64 sm:h-72 lg:h-80 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#374151' : '#e5e7eb'} />
+          <LineChart 
+            data={data} 
+            margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            syncId="dashboard-charts"
+          >
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              stroke={darkMode ? '#374151' : '#e5e7eb'} 
+            />
             <XAxis 
               dataKey="month" 
               stroke={darkMode ? '#9ca3af' : '#6b7280'}
+              fontSize={12}
+              tickLine={false}
             />
             <YAxis 
               stroke={darkMode ? '#9ca3af' : '#6b7280'}
+              fontSize={12}
+              tickLine={false}
             />
             <Tooltip 
               contentStyle={{
                 backgroundColor: darkMode ? '#1f2937' : '#ffffff',
                 borderColor: darkMode ? '#374151' : '#e5e7eb',
                 color: darkMode ? '#ffffff' : '#000000',
+                borderRadius: '8px',
+                fontSize: '14px',
+              }}
+              itemStyle={{
+                color: darkMode ? '#ffffff' : '#000000',
               }}
             />
-            <Legend />
+            <Legend 
+              wrapperStyle={{
+                fontSize: '12px',
+                paddingTop: '10px',
+              }}
+            />
             <Line 
               type="monotone" 
               dataKey="sales" 
               stroke="#22c55e" 
               strokeWidth={2}
               name="Sales ($)"
+              dot={{ fill: '#22c55e', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#22c55e', strokeWidth: 2 }}
             />
             <Line 
               type="monotone" 
@@ -57,6 +81,8 @@ const SalesChart = () => {
               stroke="#3b82f6" 
               strokeWidth={2}
               name="Revenue ($)"
+              dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
             />
             <Line 
               type="monotone" 
@@ -64,10 +90,12 @@ const SalesChart = () => {
               stroke="#8b5cf6" 
               strokeWidth={2}
               name="Orders"
+              dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#8b5cf6', strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>
-      </div>
+      </ChartContainer>
     </div>
   );
 };

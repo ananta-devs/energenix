@@ -1,3 +1,4 @@
+// Sidebar.jsx
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -52,9 +53,9 @@ const Sidebar = () => {
           opacity: sidebarOpen ? 1 : 0
         }}
         className={`
-          fixed lg:static inset-y-0 left-0 z-50
+          fixed lg:relative inset-y-0 left-0 z-50
           bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700
-          overflow-hidden
+          overflow-hidden transition-all duration-300 ease-in-out
           ${sidebarOpen ? 'w-64' : 'w-0 lg:w-20'}
         `}
       >
@@ -79,7 +80,7 @@ const Sidebar = () => {
             
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
             >
               {sidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />}
             </button>
@@ -123,7 +124,7 @@ const Sidebar = () => {
 
           {/* Footer */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            <button className="w-full flex items-center space-x-3 p-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+            <button className="w-full flex items-center space-x-3 p-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200">
               <LogOut size={20} />
               <AnimatePresence>
                 {sidebarOpen && (

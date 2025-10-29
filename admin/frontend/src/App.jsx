@@ -21,19 +21,19 @@ function App() {
       case 'dashboard':
         return <Dashboard />;
       case 'products':
-        return <div className="p-6">Products Management - Coming Soon</div>;
+        return <div className="p-4 sm:p-6">Products Management - Coming Soon</div>;
       case 'orders':
-        return <div className="p-6">Orders Management - Coming Soon</div>;
+        return <div className="p-4 sm:p-6">Orders Management - Coming Soon</div>;
       case 'customers':
-        return <div className="p-6">Customers Management - Coming Soon</div>;
+        return <div className="p-4 sm:p-6">Customers Management - Coming Soon</div>;
       case 'inventory':
-        return <div className="p-6">Inventory Tracking - Coming Soon</div>;
+        return <div className="p-4 sm:p-6">Inventory Tracking - Coming Soon</div>;
       case 'reports':
-        return <div className="p-6">Reports & Analytics - Coming Soon</div>;
+        return <div className="p-4 sm:p-6">Reports & Analytics - Coming Soon</div>;
       case 'ads':
-        return <div className="p-6">Advertisements - Coming Soon</div>;
+        return <div className="p-4 sm:p-6">Advertisements - Coming Soon</div>;
       case 'settings':
-        return <div className="p-6">Settings - Coming Soon</div>;
+        return <div className="p-4 sm:p-6">Settings - Coming Soon</div>;
       default:
         return <Dashboard />;
     }
@@ -44,10 +44,10 @@ function App() {
       <Sidebar />
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0 w-0">
         <Navbar />
         
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto p-2 sm:p-4 lg:p-6 min-w-0">
           {renderPage()}
         </main>
       </div>
