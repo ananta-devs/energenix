@@ -35,51 +35,93 @@ const SalesChart = () => {
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
         Monthly Sales & Revenue
       </h3>
+      <ChartContainer className="h-[350px] min-h-[350px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={data}
+            margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            syncId="dashboard-charts"
+          >
+            {/* Gradient Definitions */}
+            <defs>
+              <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.9} />
+                <stop offset="95%" stopColor="#22c55e" stopOpacity={0.1} />
+              </linearGradient>
+              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.9} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
+              </linearGradient>
+              <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.9} />
+                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1} />
+              </linearGradient>
+            </defs>
 
-      <ChartContainer className="w-full">
-        <div className="w-full h-[350px] min-h-[300px]">
-          <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={250} aspect={2}>
-            <LineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-              {/* Gradients */}
-              <defs>
-                <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.9} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0.1} />
-                </linearGradient>
-                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.9} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
-                </linearGradient>
-                <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.9} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1} />
-                </linearGradient>
-              </defs>
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={darkMode ? '#374151' : '#e5e7eb'}
+            />
+            <XAxis
+              dataKey="month"
+              stroke={darkMode ? '#9ca3af' : '#6b7280'}
+              fontSize={12}
+              tickLine={false}
+            />
+            <YAxis
+              stroke={darkMode ? '#9ca3af' : '#6b7280'}
+              fontSize={12}
+              tickLine={false}
+              tickFormatter={(val) => `$${val}`}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: darkMode ? '#1f2937' : '#ffffff',
+                borderColor: darkMode ? '#374151' : '#e5e7eb',
+                color: darkMode ? '#ffffff' : '#000000',
+                borderRadius: '8px',
+                fontSize: '14px',
+              }}
+              itemStyle={{
+                color: darkMode ? '#ffffff' : '#000000',
+              }}
+            />
+            <Legend
+              wrapperStyle={{
+                fontSize: '12px',
+                paddingTop: '10px',
+              }}
+            />
 
-              <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#374151' : '#e5e7eb'} />
-              <XAxis dataKey="month" stroke={darkMode ? '#9ca3af' : '#6b7280'} fontSize={12} tickLine={false} />
-              <YAxis
-                stroke={darkMode ? '#9ca3af' : '#6b7280'}
-                fontSize={12}
-                tickLine={false}
-                tickFormatter={(val) => `$${val}`}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: darkMode ? '#1f2937' : '#ffffff',
-                  borderColor: darkMode ? '#374151' : '#e5e7eb',
-                  color: darkMode ? '#ffffff' : '#000000',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                }}
-              />
-              <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-              <Line type="monotone" dataKey="sales" stroke="url(#colorSales)" strokeWidth={2} name="Sales ($)" />
-              <Line type="monotone" dataKey="revenue" stroke="url(#colorRevenue)" strokeWidth={2} name="Revenue ($)" />
-              <Line type="monotone" dataKey="orders" stroke="url(#colorOrders)" strokeWidth={2} name="Orders" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+            <Line
+              type="monotone"
+              dataKey="sales"
+              stroke="url(#colorSales)"
+              strokeWidth={2}
+              name="Sales ($)"
+              dot={{ fill: '#22c55e', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#22c55e', strokeWidth: 2 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="revenue"
+              stroke="url(#colorRevenue)"
+              strokeWidth={2}
+              name="Revenue ($)"
+              dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="orders"
+              stroke="url(#colorOrders)"
+              strokeWidth={2}
+              name="Orders"
+              dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
+              activeDot={{ r: 6, stroke: '#8b5cf6', strokeWidth: 2 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </ChartContainer>
     </div>
   );
