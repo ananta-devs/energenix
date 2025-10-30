@@ -15,19 +15,17 @@ const GemstonePieChart = () => {
   ];
 
   const RADIAN = Math.PI / 180;
-  const renderCustomizedLabel = ({
-    cx, cy, midAngle, innerRadius, outerRadius, percent,
-  }) => {
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
         fontSize={12}
         fontWeight="bold"
@@ -42,7 +40,7 @@ const GemstonePieChart = () => {
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
         Revenue by Gemstone Type
       </h3>
-      <ChartContainer className="h-64 sm:h-72 lg:h-80 w-full">
+      <ChartContainer className="h-[350px] min-h-[350px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -51,21 +49,21 @@ const GemstonePieChart = () => {
               cy="50%"
               labelLine={false}
               label={renderCustomizedLabel}
-              outerRadius={80}
+              outerRadius={100}
               fill="#8884d8"
               dataKey="value"
               nameKey="name"
             >
               {data.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={entry.color} 
+                <Cell
+                  key={`cell-${index}`}
+                  fill={entry.color}
                   stroke={darkMode ? '#1f2937' : '#ffffff'}
                   strokeWidth={2}
                 />
               ))}
             </Pie>
-            <Tooltip 
+            <Tooltip
               contentStyle={{
                 backgroundColor: darkMode ? '#1f2937' : '#ffffff',
                 borderColor: darkMode ? '#374151' : '#e5e7eb',
@@ -73,9 +71,9 @@ const GemstonePieChart = () => {
                 borderRadius: '8px',
                 fontSize: '14px',
               }}
-              formatter={(value, name) => [`${value}%`, name]}
+              formatter={(value, name) => [`${value}`, `${name}`]}
             />
-            <Legend 
+            <Legend
               wrapperStyle={{
                 fontSize: '12px',
                 paddingTop: '10px',

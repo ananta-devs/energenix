@@ -33,21 +33,25 @@ const Dashboard = () => {
       {/* Stats Cards */}
       <StatsCards />
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 min-w-0">
-        <div className="min-w-0">
-          <SalesChart />
-        </div>
-        <div className="min-w-0">
-          <GemstonePieChart />
-        </div>
-      </div>
+      <section className="animate-fade-in">
 
-      {/* Bottom Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 min-w-0">
-        <TopSellingProducts />
-        <RecentActivity />
-      </div>
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 min-w-0">
+          <div className="min-w-0">
+            <SalesChart />
+          </div>
+          <div className="min-w-0">
+            <GemstonePieChart />
+          </div>
+        </div>
+
+        {/* Bottom Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 min-w-0">
+          <TopSellingProducts />
+          <RecentActivity />
+        </div>
+        
+      </section>
     </div>
   );
 };
