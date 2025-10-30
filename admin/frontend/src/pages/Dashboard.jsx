@@ -36,17 +36,13 @@ const Dashboard = () => {
       <section className="animate-fade-in">
 
         {/* Charts Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 min-w-0">
-          <div className="min-w-0">
-            <SalesChart />
-          </div>
-          <div className="min-w-0">
-            <GemstonePieChart />
-          </div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+          <SalesChart />
+          <GemstonePieChart />
         </div>
 
         {/* Bottom Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 min-w-0">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6">
           <TopSellingProducts />
           <RecentActivity />
         </div>

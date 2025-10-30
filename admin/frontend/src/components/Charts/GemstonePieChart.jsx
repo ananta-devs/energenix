@@ -1,7 +1,6 @@
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import { useStore } from '../../store/useStore';
-import ChartContainer from './ChartContainer';
 
 const GemstonePieChart = () => {
   const { darkMode } = useStore();
@@ -40,51 +39,49 @@ const GemstonePieChart = () => {
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
         Revenue by Gemstone Type
       </h3>
-      <ChartContainer className="h-[350px] min-h-[350px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={renderCustomizedLabel}
-              outerRadius={100}
-              fill="#8884d8"
-              dataKey="value"
-              nameKey="name"
-            >
-              {data.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={entry.color}
-                  stroke={darkMode ? '#1f2937' : '#ffffff'}
-                  strokeWidth={2}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                backgroundColor: darkMode ? '#1f2937' : '#ffffff',
-                borderColor: darkMode ? '#374151' : '#e5e7eb',
-                color: darkMode ? '#ffffff' : '#000000',
-                borderRadius: '8px',
-                fontSize: '14px',
-              }}
-              formatter={(value, name) => [`${value}`, `${name}`]}
-            />
-            <Legend
-              wrapperStyle={{
-                fontSize: '12px',
-                paddingTop: '10px',
-              }}
-              layout="horizontal"
-              verticalAlign="bottom"
-              align="center"
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </ChartContainer>
+      <div className="w-full">
+        <PieChart width={500} height={350}>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            label={renderCustomizedLabel}
+            outerRadius={100}
+            fill="#8884d8"
+            dataKey="value"
+            nameKey="name"
+          >
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={entry.color}
+                stroke={darkMode ? '#1f2937' : '#ffffff'}
+                strokeWidth={2}
+              />
+            ))}
+          </Pie>
+          <Tooltip
+            contentStyle={{
+              backgroundColor: darkMode ? '#1f2937' : '#ffffff',
+              borderColor: darkMode ? '#374151' : '#e5e7eb',
+              color: darkMode ? '#ffffff' : '#000000',
+              borderRadius: '8px',
+              fontSize: '14px',
+            }}
+            formatter={(value, name) => [`${value}`, `${name}`]}
+          />
+          <Legend
+            wrapperStyle={{
+              fontSize: '12px',
+              paddingTop: '10px',
+            }}
+            layout="horizontal"
+            verticalAlign="bottom"
+            align="center"
+          />
+        </PieChart>
+      </div>
     </div>
   );
 };
