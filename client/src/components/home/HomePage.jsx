@@ -1,40 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { PRODUCTS, CATEGORIES, TESTIMONIALS } from '../../data';
-import { Award, Mail, Star, ArrowRight, TrendingUp } from 'lucide-react';
+import { PRODUCTS, TESTIMONIALS } from '../../data';
+import { Star, TrendingUp } from 'lucide-react';
 import HeroSlider from './HeroSlider.jsx';
 import ProductCard from '../product/ProductCard.jsx';
 
 export default function HomePage() {
 
   const trendingProducts = PRODUCTS.filter(p => p.trending);
-  const bestsellerProducts = PRODUCTS.filter(p => p.bestseller);
 
   return (
     <div>
       <HeroSlider />
-
-      {/* Categories */}
-      <section className=" ">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Shop by Category</h2>
-            <p className="text-gray-600">Explore our curated collection of precious gemstones</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {CATEGORIES.filter(c => c.id !== 'all').map((cat) => (
-              <Link
-                key={cat.id}
-                to={`/category/${cat.id}`}
-                className="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition group"
-              >
-                <cat.icon className="w-12 h-12 mx-auto mb-3 text-purple-600 group-hover:scale-110 transition" />
-                <h3 className="font-semibold text-gray-900 group-hover:text-purple-600 transition">{cat.name}</h3>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Featured Products */}
       <section className="py-10">
@@ -51,29 +27,32 @@ export default function HomePage() {
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-          <div className="mt-4 flex justify-center items-center">
-            <Link
-              to="/category/all"
-              className="text-purple-600 font-semibold hover:underline flex items-center text-xl"
-            >
-              View All <ArrowRight className="w-4 h-4 ml-1" />
-            </Link>
-          </div>
         </div>
       </section>
 
-      {/* Bestsellers */}
-      <section className="mb-8">
+      {/* Story */}
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <Award className="w-12 h-12 mx-auto text-amber-500 mb-4" />
-            <h2 className="text-3xl font-bold mb-2">Bestsellers</h2>
-            <p className="text-gray-600">Customer favorites and top-rated gems</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {bestsellerProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold mb-6">Our Story</h2>
+              <p className="text-gray-700 mb-4">
+                We combine the natural energy of crystals with modern innovation to help you find balance, attract wealth, and live with positive energy. Every Energenix product is made to align your chakras, boost abundance and invite prosperity into your life.
+              </p>
+              <p className="text-gray-700 mb-4">
+                We believe that when your energy is balanced and your intentions are clear, success and happiness flow naturally from the universe.
+              </p>
+              <p className="text-gray-700">
+                Energenix - where ancient wisdom meets modern science. Energenix - where ancient wisdom meets modern science.   
+              </p>
+            </div>
+            <div>
+              <img
+                src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&auto=format&fit=crop"
+                alt="Gemstone collection"
+                className="rounded-xl shadow-xl"
+              />
+            </div>
           </div>
         </div>
       </section>

@@ -5,13 +5,6 @@ import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube } from 'luci
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
-          <p className="text-xl text-purple-200">We're here to help with any questions about our gemstones</p>
-        </div>
-      </div>
 
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

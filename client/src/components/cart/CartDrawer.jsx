@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart.js';
 import { ShoppingCart, X, Minus, Plus, Trash2 } from 'lucide-react';
 
 export default function CartDrawer() {
   const { items, removeItem, updateQuantity, total, isOpen, setIsOpen } = useCart();
+
+  // Lock body scroll when drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [isOpen]);
 
   const handleCheckout = () => {
     setIsOpen(false);
@@ -22,13 +34,13 @@ export default function CartDrawer() {
 
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ${
+        className={`fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-2xl z-60 transform transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
+          <div className="flex items-center justify-between p-5 border-b">
             <h2 className="text-xl font-bold">Shopping Cart</h2>
             <button
               onClick={() => setIsOpen(false)}
@@ -88,24 +100,29 @@ export default function CartDrawer() {
           {/* Footer */}
           {items.length > 0 && (
             <div className="border-t p-6 space-y-4">
-              <div className="flex justify-between text-lg font-bold">
-                <span>Total:</span>
-                <span className="text-purple-600">${total.toLocaleString()}</span>
-              </div>
-              <Link
-                to="/checkout"
-                onClick={handleCheckout}
-                className="w-full block text-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition"
-              >
-                Checkout
-              </Link>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="w-full border border-gray-300 py-3 rounded-lg font-semibold hover:bg-gray-50 transition"
-              >
-                Continue Shopping
-              </button>
-            </div>
+  <div className="flex justify-between text-lg font-bold">
+    <span>Total:</span>
+    <span className="text-purple-600">${total.toLocaleString()}</span>
+  </div>
+
+  <div className="flex gap-3">
+    <Link
+      to="/checkout"
+      onClick={handleCheckout}
+      className="flex-1 text-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition"
+    >
+      Checkout
+    </Link>
+
+    <button
+      onClick={() => setIsOpen(false)}
+      className="flex-1 border border-gray-300 py-3 rounded-lg font-semibold hover:bg-gray-50 transition"
+    >
+      Continue Shopping
+    </button>
+  </div>
+</div>
+
           )}
         </div>
       </div>

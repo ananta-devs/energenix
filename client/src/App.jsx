@@ -6,7 +6,6 @@ import CategoryPage from './components/product/CategoryPage.jsx';
 import ProductDetailPage from './components/product/ProductDetailPage.jsx';
 import CheckoutPage from './components/cart/CheckoutPage.jsx';
 import OrderConfirmationPage from './components/common/OrderConfirmationPage.jsx';
-import AboutPage from './components/common/AboutPage.jsx';
 import ContactPage from './components/common/ContactPage.jsx';
 import LoginPage from './components/auth/LoginPage.jsx';
 import CartDrawer from './components/cart/CartDrawer.jsx';
@@ -32,7 +31,6 @@ function App() {
           <Route path="/product/:productId" element={<ProductDetailPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
-          <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/dashboard" element={
             <ProtectedRoute>

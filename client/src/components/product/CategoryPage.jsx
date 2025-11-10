@@ -20,17 +20,9 @@ export default function CategoryPage() {
     return 0;
   });
 
-  const categoryName = CATEGORIES.find(c => c.id === categoryId)?.name || 'All Gems';
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white py-16">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-2">{categoryName}</h1>
-          <p className="text-purple-200">Discover our collection of {filteredProducts.length} premium gemstones</p>
-        </div>
-      </div>
+
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">

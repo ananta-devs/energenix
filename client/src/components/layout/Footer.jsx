@@ -1,34 +1,35 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Facebook, Instagram, Twitter, Youtube, ArrowRight } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube, ArrowRight } from 'lucide-react';
+import logo from '../../assets/logo.svg';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white pt-16 pb-8">
+    <footer className="bg-gray-900 text-white pt-10 pb-8">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-5">
           {/* Brand */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-white" />
+              <div className="w-10 h-10  rounded-lg flex items-center justify-center">
+                <img src={logo} alt="Energenix Logo" className="w-full h-full object-cover" />
               </div>
-              <span className="text-2xl font-bold">LuxeGems</span>
+              <span className="text-2xl font-bold">Energenix</span>
             </div>
             <p className="text-gray-400 mb-4">
-              Your trusted source for authentic, ethically-sourced precious gemstones.
+              Where ancient wisdom meets modern science.
             </p>
             <div className="flex space-x-3">
-              <button className="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition">
+              <button className="p-2 bg-gray-800 rounded-full hover:bg-blue-950 transition">
                 <Facebook className="w-5 h-5" />
               </button>
-              <button className="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition">
+              <button className="p-2 bg-gray-800 rounded-full hover:bg-blue-950 transition">
                 <Instagram className="w-5 h-5" />
               </button>
-              <button className="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition">
+              <button className="p-2 bg-gray-800 rounded-full hover:bg-blue-950 transition">
                 <Twitter className="w-5 h-5" />
               </button>
-              <button className="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition">
+              <button className="p-2 bg-gray-800 rounded-full hover:bg-blue-950 transition">
                 <Youtube className="w-5 h-5" />
               </button>
             </div>
@@ -42,7 +43,6 @@ export default function Footer() {
               <ul className="space-y-2">
                 <li><Link to="/" className="text-gray-400 hover:text-white transition">Home</Link></li>
                 <li><Link to="/category/all" className="text-gray-400 hover:text-white transition">Shop</Link></li>
-                <li><Link to="/about" className="text-gray-400 hover:text-white transition">About Us</Link></li>
                 <li><Link to="/contact" className="text-gray-400 hover:text-white transition">Contact</Link></li>
               </ul>
             </div>
@@ -54,7 +54,6 @@ export default function Footer() {
                 <li><a href="#" className="hover:text-white transition">Shipping Information</a></li>
                 <li><a href="#" className="hover:text-white transition">Returns & Exchanges</a></li>
                 <li><a href="#" className="hover:text-white transition">Certification</a></li>
-                <li><a href="#" className="hover:text-white transition">FAQ</a></li>
               </ul>
             </div>
           </div>
@@ -67,9 +66,9 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Your email"
-                className="flex-1 px-4 py-2 rounded-l-lg bg-gray-800 border border-gray-700 outline-none focus:border-purple-600"
+                className="flex-1 px-4 py-2 rounded-l-lg bg-gray-800 border border-gray-700 outline-none focus:border-blue-800"
               />
-              <button className="px-4 py-2 bg-purple-600 rounded-r-lg hover:bg-purple-700 transition cursor-pointer">
+              <button className="px-4 py-2 bg-gray-800 rounded-r-lg hover:bg-blue-950 transition cursor-pointer">
                 <ArrowRight className="w-5 h-5" />
               </button>
             </div>
@@ -78,7 +77,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
-          <p>&copy; 2025 LuxeGems. All rights reserved.</p>
+          <p>&copy; 2025 Energenix. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link to="/privacy" className="hover:text-white transition">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-white transition">Terms of Service</Link>
