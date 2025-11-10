@@ -1,54 +1,67 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, UserPlus, Package, AlertCircle } from 'lucide-react';
 
 const RecentActivity = () => {
-  const activities = [
-    {
-      id: 1,
-      type: 'order',
-      message: 'New order #1234 placed',
-      user: 'John Smith',
-      time: '2 min ago',
-      icon: ShoppingCart,
-      color: 'text-blue-500'
-    },
-    {
-      id: 2,
-      type: 'user',
-      message: 'New customer registered',
-      user: 'Sarah Johnson',
-      time: '5 min ago',
-      icon: UserPlus,
-      color: 'text-green-500'
-    },
-    {
-      id: 3,
-      type: 'inventory',
-      message: 'Low stock alert for Blue Sapphire',
-      user: 'System',
-      time: '10 min ago',
-      icon: AlertCircle,
-      color: 'text-red-500'
-    },
-    {
-      id: 4,
-      type: 'shipment',
-      message: 'Order #1232 shipped',
-      user: 'Shipping Dept',
-      time: '15 min ago',
-      icon: Package,
-      color: 'text-purple-500'
-    },
-    {
-      id: 5,
-      type: 'order',
-      message: 'Order #1235 completed',
-      user: 'System',
-      time: '1 hour ago',
-      icon: ShoppingCart,
-      color: 'text-blue-500'
-    },
-  ];
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchRecentActivity = async () => {
+      try {
+        const [ordersResponse, customersResponse] = await Promise.all([
+          fetch('http://localhost:3001/orders?_sort=orderDate&_order=desc&_limit=5'),
+          fetch('http://localhost:3001/customers?_sort=joinDate&_order=desc&_limit=5')
+        ]);
+
+        if (!ordersResponse.ok || !customersResponse.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const orders = await ordersResponse.json();
+        const customers = await customersResponse.json();
+
+        const combinedActivities = [
+          ...orders.map(order => ({
+            id: `order-${order.id}`,
+            type: 'order',
+            message: `New order #${order.orderNumber} for ${order.product}`,
+            user: order.customer,
+            time: new Date(order.orderDate).toLocaleDateString(),
+            icon: ShoppingCart,
+            color: 'text-blue-500'
+          })),
+          ...customers.map(customer => ({
+            id: `customer-${customer.id}`,
+            type: 'user',
+            message: 'New customer registered',
+            user: customer.name,
+            time: new Date(customer.joinDate).toLocaleDateString(),
+            icon: UserPlus,
+            color: 'text-green-500'
+          }))
+        ];
+
+        const sortedActivities = combinedActivities.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+        setActivities(sortedActivities.slice(0, 5));
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecentActivity();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200">

@@ -21,15 +21,15 @@ function App() {
       case 'dashboard':
         return <Dashboard />;
       case 'products':
-        return <div className="p-4 sm:p-6">Products Management - Coming Soon</div>;
+        return <Dashboard activeTab="products" />;
       case 'orders':
-        return <div className="p-4 sm:p-6">Orders Management - Coming Soon</div>;
+        return <Dashboard activeTab="orders" />;
       case 'customers':
-        return <div className="p-4 sm:p-6">Customers Management - Coming Soon</div>;
+        return <Dashboard activeTab="customers" />;
       case 'inventory':
-        return <div className="p-4 sm:p-6">Inventory Tracking - Coming Soon</div>;
+        return <Dashboard activeTab="inventory" />;
       case 'reports':
-        return <div className="p-4 sm:p-6">Reports & Analytics - Coming Soon</div>;
+        return <Dashboard activeTab="reports" />;
       case 'ads':
         return <div className="p-4 sm:p-6">Advertisements - Coming Soon</div>;
       case 'settings':

@@ -1,17 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import { useStore } from '../../store/useStore';
 
 const GemstonePieChart = () => {
   const { darkMode } = useStore();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const data = [
-    { name: 'Diamond', value: 35, color: '#b9f2ff' },
-    { name: 'Ruby', value: 25, color: '#e0115f' },
-    { name: 'Emerald', value: 20, color: '#50c878' },
-    { name: 'Sapphire', value: 15, color: '#0f52ba' },
-    { name: 'Amethyst', value: 5, color: '#9966cc' },
-  ];
+  useEffect(() => {
+    const fetchPieChartData = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/analytics');
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        const analyticsData = await response.json();
+        const formattedData = analyticsData.categoryRevenue.map(item => ({
+          name: item.category,
+          value: item.revenue,
+          color: item.color,
+        }));
+        setData(formattedData);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPieChartData();
+  }, []);
 
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
@@ -33,6 +52,14 @@ const GemstonePieChart = () => {
       </text>
     );
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200">

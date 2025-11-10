@@ -64,6 +64,71 @@
       "status": "out_of_stock",
       "image": "/api/placeholder/300/300",
       "description": "Zambian emerald in gold ring setting"
+    },
+    {
+      "id": 6,
+      "name": "Tanzanite Earrings",
+      "category": "Tanzanite",
+      "carat": 1.8,
+      "color": "Violet-Blue",
+      "clarity": "VVS1",
+      "price": 2200,
+      "stock": 12,
+      "status": "in_stock",
+      "image": "/api/placeholder/300/300",
+      "description": "Matched pair of Tanzanian tanzanite"
+    },
+    {
+      "id": 7,
+      "name": "Aquamarine Bracelet",
+      "category": "Aquamarine",
+      "carat": 4.2,
+      "color": "Sky Blue",
+      "clarity": "VS1",
+      "price": 950,
+      "stock": 7,
+      "status": "in_stock",
+      "image": "/api/placeholder/300/300",
+      "description": "Brazilian aquamarine tennis bracelet"
+    },
+    {
+      "id": 8,
+      "name": "Black Opal Pendant",
+      "category": "Opal",
+      "carat": 2.5,
+      "color": "Multi-color",
+      "clarity": "VVS2",
+      "price": 3800,
+      "stock": 4,
+      "status": "low_stock",
+      "image": "/api/placeholder/300/300",
+      "description": "Australian black opal with fire pattern"
+    },
+    {
+      "id": 9,
+      "name": "Pearl Necklace",
+      "category": "Pearl",
+      "carat": 18.0,
+      "color": "White",
+      "clarity": "AAA",
+      "price": 1200,
+      "stock": 18,
+      "status": "in_stock",
+      "image": "/api/placeholder/300/300",
+      "description": "Freshwater pearl 18-inch necklace"
+    },
+    {
+      "id": 10,
+      "name": "Citrine Cluster",
+      "category": "Citrine",
+      "carat": 5.0,
+      "color": "Golden Yellow",
+      "clarity": "VS2",
+      "price": 380,
+      "stock": 22,
+      "status": "in_stock",
+      "image": "/api/placeholder/300/300",
+      "description": "Natural citrine crystal cluster"
     }
   ],
   "orders": [
@@ -122,6 +187,62 @@
       "orderDate": "2024-01-21",
       "deliveryDate": null,
       "shippingAddress": "321 Elm St, Miami, FL"
+    },
+    {
+      "id": 5,
+      "orderNumber": "GS-005",
+      "customer": "Robert Davis",
+      "customerEmail": "robert@example.com",
+      "product": "Tanzanite Earrings",
+      "productId": 6,
+      "quantity": 1,
+      "amount": 2200,
+      "status": "delivered",
+      "orderDate": "2024-01-12",
+      "deliveryDate": "2024-01-17",
+      "shippingAddress": "555 Maple Dr, Seattle, WA"
+    },
+    {
+      "id": 6,
+      "orderNumber": "GS-006",
+      "customer": "Lisa Anderson",
+      "customerEmail": "lisa@example.com",
+      "product": "Aquamarine Bracelet",
+      "productId": 7,
+      "quantity": 1,
+      "amount": 950,
+      "status": "shipped",
+      "orderDate": "2024-01-19",
+      "deliveryDate": null,
+      "shippingAddress": "777 Cedar Ln, Boston, MA"
+    },
+    {
+      "id": 7,
+      "orderNumber": "GS-007",
+      "customer": "David Miller",
+      "customerEmail": "david@example.com",
+      "product": "Black Opal Pendant",
+      "productId": 8,
+      "quantity": 1,
+      "amount": 3800,
+      "status": "processing",
+      "orderDate": "2024-01-22",
+      "deliveryDate": null,
+      "shippingAddress": "888 Birch St, Denver, CO"
+    },
+    {
+      "id": 8,
+      "orderNumber": "GS-008",
+      "customer": "Jennifer Taylor",
+      "customerEmail": "jennifer@example.com",
+      "product": "Pearl Necklace",
+      "productId": 9,
+      "quantity": 2,
+      "amount": 2400,
+      "status": "pending",
+      "orderDate": "2024-01-23",
+      "deliveryDate": null,
+      "shippingAddress": "999 Spruce Ave, Phoenix, AZ"
     }
   ],
   "customers": [
@@ -172,6 +293,54 @@
       "loyaltyLevel": "New",
       "lastPurchase": "2024-01-21",
       "status": "active"
+    },
+    {
+      "id": 5,
+      "name": "Robert Davis",
+      "email": "robert@example.com",
+      "phone": "+1-555-0105",
+      "joinDate": "2023-09-14",
+      "totalOrders": 4,
+      "totalSpent": 7800,
+      "loyaltyLevel": "Silver",
+      "lastPurchase": "2024-01-12",
+      "status": "active"
+    },
+    {
+      "id": 6,
+      "name": "Lisa Anderson",
+      "email": "lisa@example.com",
+      "phone": "+1-555-0106",
+      "joinDate": "2023-12-03",
+      "totalOrders": 2,
+      "totalSpent": 1950,
+      "loyaltyLevel": "Bronze",
+      "lastPurchase": "2024-01-19",
+      "status": "active"
+    },
+    {
+      "id": 7,
+      "name": "David Miller",
+      "email": "david@example.com",
+      "phone": "+1-555-0107",
+      "joinDate": "2024-01-08",
+      "totalOrders": 1,
+      "totalSpent": 3800,
+      "loyaltyLevel": "New",
+      "lastPurchase": "2024-01-22",
+      "status": "active"
+    },
+    {
+      "id": 8,
+      "name": "Jennifer Taylor",
+      "email": "jennifer@example.com",
+      "phone": "+1-555-0108",
+      "joinDate": "2023-10-19",
+      "totalOrders": 3,
+      "totalSpent": 5200,
+      "loyaltyLevel": "Silver",
+      "lastPurchase": "2024-01-23",
+      "status": "active"
     }
   ],
   "inventory": [
@@ -204,6 +373,56 @@
       "reorderLevel": 3,
       "lastRestocked": "2023-11-20",
       "status": "out_of_stock"
+    },
+    {
+      "id": 4,
+      "productId": 6,
+      "productName": "Tanzanite Earrings",
+      "currentStock": 12,
+      "minimumStock": 8,
+      "reorderLevel": 4,
+      "lastRestocked": "2024-01-05",
+      "status": "adequate"
+    },
+    {
+      "id": 5,
+      "productId": 7,
+      "productName": "Aquamarine Bracelet",
+      "currentStock": 7,
+      "minimumStock": 10,
+      "reorderLevel": 5,
+      "lastRestocked": "2023-12-28",
+      "status": "low_stock"
+    },
+    {
+      "id": 6,
+      "productId": 8,
+      "productName": "Black Opal Pendant",
+      "currentStock": 4,
+      "minimumStock": 6,
+      "reorderLevel": 3,
+      "lastRestocked": "2024-01-02",
+      "status": "low_stock"
+    },
+    {
+      "id": 7,
+      "productId": 9,
+      "productName": "Pearl Necklace",
+      "currentStock": 18,
+      "minimumStock": 12,
+      "reorderLevel": 6,
+      "lastRestocked": "2024-01-15",
+      "status": "adequate"
+    },
+    {
+      "id": 8,
+      "productId": 10,
+      "productName": "Citrine Cluster",
+      "currentStock": 22,
+      "minimumStock": 15,
+      "reorderLevel": 8,
+      "lastRestocked": "2024-01-18",
+      "status": "adequate"
     }
   ],
   "analytics": {
@@ -213,7 +432,13 @@
       { "month": "Mar", "sales": 135670, "orders": 92, "customers": 51 },
       { "month": "Apr", "sales": 118900, "orders": 81, "customers": 42 },
       { "month": "May", "sales": 142300, "orders": 95, "customers": 48 },
-      { "month": "Jun", "sales": 156780, "orders": 104, "customers": 56 }
+      { "month": "Jun", "sales": 156780, "orders": 104, "customers": 56 },
+      { "month": "Jul", "sales": 168920, "orders": 112, "customers": 61 },
+      { "month": "Aug", "sales": 152340, "orders": 98, "customers": 53 },
+      { "month": "Sep", "sales": 145670, "orders": 94, "customers": 49 },
+      { "month": "Oct", "sales": 162890, "orders": 108, "customers": 58 },
+      { "month": "Nov", "sales": 178450, "orders": 118, "customers": 64 },
+      { "month": "Dec", "sales": 195230, "orders": 125, "customers": 72 }
     ],
     "categoryRevenue": [
       { "category": "Diamond", "revenue": 45, "color": "#b9f2ff" },
@@ -221,6 +446,43 @@
       { "category": "Emerald", "revenue": 15, "color": "#50c878" },
       { "category": "Ruby", "revenue": 10, "color": "#e0115f" },
       { "category": "Amethyst", "revenue": 5, "color": "#9966cc" }
-    ]
+    ],
+    "topProducts": [
+      { "product": "Blue Sapphire 2ct", "sales": 28, "revenue": 78400 },
+      { "product": "Emerald Cut Diamond", "sales": 19, "revenue": 98800 },
+      { "product": "Tanzanite Earrings", "sales": 15, "revenue": 33000 },
+      { "product": "Ruby Pendant", "sales": 12, "revenue": 21600 },
+      { "product": "Black Opal Pendant", "sales": 8, "revenue": 30400 }
+    ],
+    "customerMetrics": {
+      "totalCustomers": 892,
+      "newCustomersThisMonth": 45,
+      "returningCustomers": 68,
+      "averageOrderValue": 1850,
+      "customerRetentionRate": 78.5
+    }
+  },
+  "reports": {
+    "salesSummary": {
+      "totalRevenue": 124580,
+      "totalOrders": 89,
+      "averageOrderValue": 1399,
+      "conversionRate": 3.2,
+      "monthOverMonthGrowth": 12.5
+    },
+    "inventoryHealth": {
+      "totalProducts": 1248,
+      "lowStockItems": 12,
+      "outOfStockItems": 3,
+      "inventoryValue": 458900,
+      "stockTurnoverRate": 2.8
+    },
+    "customerInsights": {
+      "totalCustomers": 892,
+      "newCustomers": 45,
+      "repeatCustomers": 312,
+      "customerAcquisitionCost": 85,
+      "customerLifetimeValue": 2850
+    }
   }
 }

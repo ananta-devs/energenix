@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -12,21 +12,36 @@ import { useStore } from '../../store/useStore';
 
 const SalesChart = () => {
   const { darkMode } = useStore();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const data = [
-    { month: 'Jan', sales: 4000, revenue: 2400, orders: 24 },
-    { month: 'Feb', sales: 3000, revenue: 1398, orders: 18 },
-    { month: 'Mar', sales: 2000, revenue: 9800, orders: 32 },
-    { month: 'Apr', sales: 2780, revenue: 3908, orders: 28 },
-    { month: 'May', sales: 1890, revenue: 4800, orders: 45 },
-    { month: 'Jun', sales: 2390, revenue: 3800, orders: 38 },
-    { month: 'Jul', sales: 3490, revenue: 4300, orders: 52 },
-    { month: 'Aug', sales: 4200, revenue: 5200, orders: 61 },
-    { month: 'Sep', sales: 3800, revenue: 4900, orders: 55 },
-    { month: 'Oct', sales: 4500, revenue: 5800, orders: 68 },
-    { month: 'Nov', sales: 5200, revenue: 6200, orders: 72 },
-    { month: 'Dec', sales: 5800, revenue: 7100, orders: 85 },
-  ];
+  useEffect(() => {
+    const fetchSalesData = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/analytics');
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        const analyticsData = await response.json();
+        setData(analyticsData.monthlySales);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSalesData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200">
