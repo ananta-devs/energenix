@@ -27,7 +27,7 @@ export default function CartDrawer() {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40"
+          className="fixed inset-0 bg-black/50 z-60"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -46,7 +46,7 @@ export default function CartDrawer() {
               onClick={() => setIsOpen(false)}
               className="p-2 hover:bg-gray-100 rounded-full"
             >
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6 cursor-pointer" />
             </button>
           </div>
 
@@ -100,28 +100,28 @@ export default function CartDrawer() {
           {/* Footer */}
           {items.length > 0 && (
             <div className="border-t p-6 space-y-4">
-  <div className="flex justify-between text-lg font-bold">
-    <span>Total:</span>
-    <span className="text-purple-600">${total.toLocaleString()}</span>
-  </div>
+              <div className="flex justify-between text-lg font-bold">
+                <span>Total:</span>
+                <span className="text-purple-600">${total.toLocaleString()}</span>
+              </div>
 
-  <div className="flex gap-3">
-    <Link
-      to="/checkout"
-      onClick={handleCheckout}
-      className="flex-1 text-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition"
-    >
-      Checkout
-    </Link>
+              <div className="flex gap-3">
+                <Link
+                  to="/checkout"
+                  onClick={handleCheckout}
+                  className="flex-1 text-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition cursor-pointer"
+                >
+                  Checkout
+                </Link>
 
-    <button
-      onClick={() => setIsOpen(false)}
-      className="flex-1 border border-gray-300 py-3 rounded-lg font-semibold hover:bg-gray-50 transition"
-    >
-      Continue Shopping
-    </button>
-  </div>
-</div>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="flex-1 border border-gray-300 py-3 rounded-lg font-semibold hover:bg-gray-50 transition cursor-pointer"
+                >
+                  Continue Shopping
+                </button>
+              </div>
+            </div>
 
           )}
         </div>
