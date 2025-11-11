@@ -246,3 +246,85 @@ exports.updateMe = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+
+exports.sendUpdateEmailOtp = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Save OTP to database
+    const newOTP = new OTP({ email, otp });
+    await newOTP.save();
+
+    // Send OTP via email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'OTP for Email Update',
+      html: `<h1>Your OTP for email update is ${otp}</h1>`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      console.log('Message sent: %s', info.messageId);
+    });
+
+    res.status(200).json({ msg: 'OTP sent to your new email for verification' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+
+exports.checkEmail = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email, _id: { $ne: req.user.id } });
+    if (user) {
+      return res.status(400).json({ msg: 'Email already in use' });
+    }
+    res.status(200).json({ msg: 'Email is available' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.verifyUpdateEmailOtp = async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ email, _id: { $ne: req.user.id } });
+    if (existingUser) {
+      return res.status(400).json({ msg: 'Email already in use' });
+    }
+
+    const storedOTP = await OTP.findOne({ email, otp });
+
+    if (!storedOTP) {
+      return res.status(400).json({ msg: 'Invalid or expired OTP' });
+    }
+
+    let user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    user.email = email;
+    await user.save();
+
+    await OTP.deleteOne({ email, otp });
+
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
