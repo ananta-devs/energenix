@@ -1,4 +1,3 @@
-// src/components/dashboard/DashboardPage.jsx
 import React from 'react';
 import Dashboard from './Dashboard';
 

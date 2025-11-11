@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink as RouterNavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink as RouterNavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import logo from '../../assets/logo.svg';
@@ -22,6 +22,7 @@ export default function Header() {
   const { itemCount, setIsOpen } = useCart();
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation(); // Get current location
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -35,6 +36,15 @@ export default function Header() {
     logout();
     navigate('/login');
   };
+
+  const handleNavigation = () => {
+    navigate('dashboard');
+  };
+
+  // Hide header on dashboard page
+  if (location.pathname === '/dashboard') {
+    return null;
+  }
 
   return (
     <>
@@ -90,12 +100,12 @@ export default function Header() {
                   className="hidden md:flex items-center gap-2 p-2 rounded-full transition cursor-pointer group"
                 >
                   <p className="text-white group-hover:text-amber-300 transition">Sign In</p>
-                  <LogIn className="text-white group-hover:text-amber-300 transition" />
+                  <LogIn className=" w-5 h-5 text-white group-hover:text-amber-300 transition" />
                 </Link>
 
               ) : (
                 <div className="relative hidden md:block">
-                  <button className="flex items-center space-x-1 p-2 rounded-full transition">
+                  <button className="flex items-center space-x-1 p-2 rounded-full transition" onClick={() => handleNavigation()}>
                     <User className="w-5 h-5 text-white cursor-pointer" />
                   </button>
                 </div>
@@ -130,8 +140,6 @@ export default function Header() {
                 {isAuthenticated && (
                   <>
                     <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 text-white hover:text-amber-300 transition">My Profile</Link>
-                    <Link to="/orders" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 text-white hover:text-amber-300 transition">Orders</Link>
-                    <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="text-left py-2 text-white hover:text-amber-300 transition">Wishlist</Link>
                     <button onClick={handleLogout} className="text-left py-2 text-white hover:text-amber-300 transition">Sign Out</button>
                   </>
                 )}

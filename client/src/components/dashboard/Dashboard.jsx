@@ -1,48 +1,151 @@
-import React, { useState } from 'react';
-import { User, ChevronDown, Edit } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, ChevronDown, Edit, X, Info } from 'lucide-react';
+import logo from '../../assets/logo.svg';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext.jsx';
+import axios from 'axios';
 
 const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState('orders');
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const userEmail = 'suvadipdutta738@gmail.com';
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [showAddAddressModal, setShowAddAddressModal] = useState(false);
+  const [userData, setUserData] = useState(null);
+  
+  const { user, logout, showToast } = useAuth();
+  const navigate = useNavigate();
+  
+  // Profile edit state
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get('/api/auth/me', {
+          headers: {
+            'x-auth-token': token,
+          },
+        });
+        setUserData(res.data);
+        setFormData({
+          fullName: res.data.fullName,
+          email: res.data.email,
+          phone: res.data.phone,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (user) {
+      fetchUserData();
+    }
+  }, [user]);
+  
+  // Address form state
+  const [addressForm, setAddressForm] = useState({
+    isDefault: false,
+    country: 'India',
+    firstName: '',
+    lastName: '',
+    address: '',
+    apartment: '',
+    city: '',
+    state: 'Andaman and Nicoba...',
+    pinCode: '',
+    phone: ''
+  });
 
   const handleNavigation = (page) => {
+    setCurrentPage(page);
+    navigate(page);
+  };
+
+  const setPage = (page) => {    
     setCurrentPage(page);
     setDropdownOpen(false);
   };
 
   const handleSignOut = () => {
-    alert('Signing out...');
-    setDropdownOpen(false);
+    logout();
+    navigate('/login');
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.put('/api/auth/me', formData, {
+        headers: {
+          'x-auth-token': token,
+        },
+      });
+      setUserData(res.data);
+      setShowEditProfileModal(false);
+      showToast('Profile updated successfully!', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to update profile.', 'error');
+    }
+  };
+
+  const handleSaveAddress = () => {
+    // Save address logic here
+    setShowAddAddressModal(false);
+    // Reset form
+    setAddressForm({
+      isDefault: false,
+      country: 'India',
+      firstName: '',
+      lastName: '',
+      address: '',
+      apartment: '',
+      city: '',
+      state: 'Andaman and Nicoba...',
+      pinCode: '',
+      phone: ''
+    });
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="sticky top-0 left-0 right-0 bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">S</span>
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition overflow-hidden">
+                  <img 
+                    src={logo} 
+                    alt="Energenix Logo" 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <span className="text-sm font-semibold text-gray-800">SIGNIFICANT</span>
+                <span className="text-sm font-semibold text-gray-800">Energenix</span>
               </div>
             </div>
 
             {/* Navigation */}
             <nav className="flex items-center space-x-8">
               <button
-                onClick={() => handleNavigation('shop')}
-                className="text-gray-700 hover:text-gray-900 text-sm font-medium"
+                onClick={() => handleNavigation('/category/all')}
+                className="text-gray-700 hover:text-gray-900 text-sm font-medium cursor-pointer"
               >
                 Shop
               </button>
               <button
-                onClick={() => handleNavigation('orders')}
-                className="text-gray-700 hover:text-gray-900 text-sm font-medium"
+                onClick={() => setPage('orders')}
+                className="text-gray-700 hover:text-gray-900 text-sm font-medium cursor-pointer"
               >
                 Orders
               </button>
@@ -52,7 +155,7 @@ const Dashboard = () => {
             <div className="relative">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
+                className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 cursor-pointer"
               >
                 <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-gray-600" />
@@ -68,20 +171,14 @@ const Dashboard = () => {
                       <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
                         <User className="w-6 h-6 text-gray-600" />
                       </div>
-                      <span className="text-sm text-gray-700">{userEmail}</span>
+                      <span className="text-sm text-gray-700">{userData?.fullName}</span>
                     </div>
                   </div>
                   <button
-                    onClick={() => handleNavigation('profile')}
+                    onClick={() => setPage('profile')}
                     className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
                   >
                     Profile
-                  </button>
-                  <button
-                    onClick={() => handleNavigation('settings')}
-                    className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    Settings
                   </button>
                   <button
                     onClick={handleSignOut}
@@ -100,7 +197,7 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {currentPage === 'orders' && (
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Orders</h1>
+            <h1 className="text-3xl font-semi-bold text-gray-900 mb-6">Orders</h1>
             <div className="bg-white rounded-lg shadow-sm p-12 text-center">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">
                 No orders yet
@@ -112,67 +209,281 @@ const Dashboard = () => {
           </div>
         )}
 
-        {currentPage === 'profile' && (
+        {currentPage === 'profile' && userData && (
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Profile</h1>
+            <h1 className="text-3xl font-semibold text-gray-900 mb-6">Profile</h1>
             
             {/* Name and Email Section */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium text-gray-600">Name</label>
-                  <button className="text-gray-600 hover:text-gray-900">
+                  <div>
+                <label className="text-sm font-medium text-gray-600 block mb-2">Name</label>
+                <p className="text-gray-900">{userData.fullName}</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowEditProfileModal(true)}
+                    className="text-gray-600 hover:text-gray-900"
+                  >
                     <Edit className="w-4 h-4" />
                   </button>
                 </div>
               </div>
               
-              <div>
+              <div className="mb-6">
                 <label className="text-sm font-medium text-gray-600 block mb-2">Email</label>
-                <p className="text-gray-900">{userEmail}</p>
+                <p className="text-gray-900">{userData.email}</p>
               </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-600 block mb-2">Contact No</label>
+                <p className="text-gray-900">{userData.phone}</p>
+              </div>
+
             </div>
 
             {/* Addresses Section */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">Addresses</h2>
-                <button className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                <button 
+                  onClick={() => setShowAddAddressModal(true)}
+                  className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                >
                   + Add
                 </button>
               </div>
               
               <div className="bg-gray-50 rounded-lg p-4 flex items-start space-x-2">
-                <div className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center mt-0.5">
-                  <div className="w-2 h-2 text-gray-400">ⓘ</div>
-                </div>
+                <Info className="w-5 h-5 text-gray-400"/>
                 <p className="text-sm text-gray-600">No addresses added</p>
               </div>
             </div>
           </div>
         )}
 
-        {currentPage === 'shop' && (
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Shop</h1>
-            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-              <p className="text-gray-600">Shop page content goes here</p>
-            </div>
-          </div>
-        )}
-
-        {currentPage === 'settings' && (
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">Settings</h1>
-            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-              <p className="text-gray-600">Settings page content goes here</p>
-            </div>
-          </div>
-        )}
       </main>
 
+      {/* Edit Profile Modal */}
+      {showEditProfileModal && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Edit profile</h2>
+              <button
+                onClick={() => setShowEditProfileModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-950"
+                    placeholder="Full name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Contact No</label>
+                  <input
+                      type="text"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-950"
+                      placeholder="Contact number"
+                    />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    disabled
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-950 bg-gray-100"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">This email is used for sign-in and order updates.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowEditProfileModal(false)}
+                className="px-6 py-2 text-gray-700 bg-red-500 rounded-md hover:text-gray-900 font-medium cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveProfile}
+                className="px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 font-medium cursor-pointer"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Address Modal */}
+      {showAddAddressModal && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Add address</h2>
+              <button
+                onClick={() => setShowAddAddressModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="defaultAddress"
+                  checked={addressForm.isDefault}
+                  onChange={(e) => setAddressForm({...addressForm, isDefault: e.target.checked})}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="defaultAddress" className="ml-2 text-sm text-gray-900">
+                  This is my default address
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Country/region</label>
+                <select
+                  value={addressForm.country}
+                  onChange={(e) => setAddressForm({...addressForm, country: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option>India</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <input
+                    type="text"
+                    value={addressForm.firstName}
+                    onChange={(e) => setAddressForm({...addressForm, firstName: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="First name"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    value={addressForm.lastName}
+                    onChange={(e) => setAddressForm({...addressForm, lastName: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Last name"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  value={addressForm.address}
+                  onChange={(e) => setAddressForm({...addressForm, address: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Address"
+                />
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  value={addressForm.apartment}
+                  onChange={(e) => setAddressForm({...addressForm, apartment: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Apartment, suite, etc (optional)"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <input
+                    type="text"
+                    value={addressForm.city}
+                    onChange={(e) => setAddressForm({...addressForm, city: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="City"
+                  />
+                </div>
+                <div>
+                  <select
+                    value={addressForm.state}
+                    onChange={(e) => setAddressForm({...addressForm, state: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  >
+                    <option>Andaman and Nicoba...</option>
+                  </select>
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    value={addressForm.pinCode}
+                    onChange={(e) => setAddressForm({...addressForm, pinCode: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="PIN code"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Phone</label>
+                <div className="flex">
+                  <div className="flex items-center px-3 py-2 border border-r-0 border-gray-300 rounded-l-md bg-gray-50">
+                    <span className="text-2xl mr-1">🇮🇳</span>
+                  </div>
+                  <input
+                    type="tel"
+                    value={addressForm.phone}
+                    onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="+91"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowAddAddressModal(false)}
+                className="px-6 py-2 text-gray-700 hover:text-gray-900 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveAddress}
+                className="px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 font-medium"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto">
+      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-wrap gap-6 text-sm">
             <a href="#" className="text-gray-600 hover:text-gray-900 underline">

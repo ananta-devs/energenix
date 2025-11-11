@@ -1,9 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Facebook, Instagram, Twitter, Youtube, ArrowRight } from 'lucide-react';
 import logo from '../../assets/logo.svg';
 
 export default function Footer() {
+  
+  const location = useLocation(); // Get current location
+
+    // Hide header on dashboard page
+  if (location.pathname === '/dashboard') {
+    return null;
+  }
+
   return (
     <footer className="bg-gray-900 text-white pt-10 pb-8">
       <div className="container mx-auto px-4">

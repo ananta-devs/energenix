@@ -7,6 +7,7 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
@@ -16,7 +17,7 @@ export const AuthProvider = ({ children }) => {
         const decoded = jwtDecode(token);
         // Check for token expiry
         if (decoded.exp * 1000 > Date.now()) {
-          setUser({ fullName: decoded.user.fullName, email: decoded.user.email }); // Assuming fullName and email are in the token
+          setUser({ fullName: decoded.user.fullName, email: decoded.user.email, phone: decoded.user.phone }); // Assuming fullName, email and phone are in the token
           setIsAuthenticated(true);
         } else {
           localStorage.removeItem('token');
@@ -26,6 +27,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
       }
     }
+    setLoading(false);
   }, []);
 
   const login = (token, userData) => {
@@ -49,7 +51,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, showToast, toast, closeToast }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, logout, showToast, toast, closeToast }}>
       {children}
     </AuthContext.Provider>
   );

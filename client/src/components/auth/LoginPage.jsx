@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, Mail, Phone, Lock, User, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, Phone, Lock, User, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -431,7 +431,7 @@ const SignInPage = ({ onNavigate }) => {
       })
       .then((data) => {
         const decoded = jwtDecode(data.token);
-        login(data.token, { fullName: decoded.user.fullName, email: decoded.user.email });
+        login(data.token, { fullName: decoded.user.fullName, email: decoded.user.email, phone: decoded.user.phone });
         showToast('Login successful!', 'success');
         navigate('/');
       })

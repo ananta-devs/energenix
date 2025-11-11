@@ -79,6 +79,9 @@ exports.verifyOtp = async (req, res) => {
     const payload = {
       user: {
         id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
       },
     };
 
@@ -118,6 +121,9 @@ exports.signin = async (req, res) => {
     const payload = {
       user: {
         id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
       },
     };
 
@@ -206,5 +212,37 @@ exports.resetPassword = async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
+  }
+};
+
+exports.getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.updateMe = async (req, res) => {
+  const { fullName, phone } = req.body;
+
+  try {
+    let user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    user.fullName = fullName || user.fullName;
+    user.phone = phone || user.phone;
+
+    await user.save();
+
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
   }
 };
