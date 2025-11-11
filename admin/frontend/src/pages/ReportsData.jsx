@@ -1,8 +1,8 @@
 // components/DataDisplay/ReportsData.jsx
 import React, { useState, useEffect } from 'react';
 import { BarChart3, Download, TrendingUp, Users, Package, DollarSign, PieChart } from 'lucide-react';
-import { dataService } from '../../utils/dataService';
-import { exportToCSV, exportToPDF } from '../../utils/exportUtils';
+import { dataService } from '../utils/dataService';
+import { exportToCSV, exportToPDF } from '../utils/exportUtils';
 
 const ReportsData = () => {
   const [reports, setReports] = useState({});

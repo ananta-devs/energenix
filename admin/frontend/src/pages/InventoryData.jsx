@@ -1,7 +1,7 @@
 // components/DataDisplay/InventoryData.jsx
 import React, { useState, useEffect } from 'react';
 import { Package, AlertCircle, CheckCircle, XCircle, Search, TrendingDown, TrendingUp } from 'lucide-react';
-import { dataService } from '../../utils/dataService';
+import { dataService } from '../utils/dataService';
 
 const InventoryData = () => {
   const [inventory, setInventory] = useState([]);

@@ -1,6 +1,7 @@
 // Sidebar.jsx
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Gem, 
@@ -8,27 +9,42 @@ import {
   Users, 
   Package, 
   BarChart3, 
-  Megaphone, 
+  Mail, 
   Settings, 
   LogOut,
   ChevronLeft,
   Menu
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
+import logo from '../../assets/logo.svg';
 
 const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'products', label: 'Products', icon: Gem },
-  { id: 'orders', label: 'Orders', icon: ShoppingCart },
-  { id: 'customers', label: 'Customers', icon: Users },
-  { id: 'inventory', label: 'Inventory', icon: Package },
-  { id: 'reports', label: 'Reports', icon: BarChart3 },
-  { id: 'ads', label: 'Advertisements', icon: Megaphone },
-  { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
+  { id: 'products', label: 'Products', icon: Gem, path: '/products' },
+  { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/orders' },
+  { id: 'customers', label: 'Customers', icon: Users, path: '/customers' },
+  { id: 'inventory', label: 'Inventory', icon: Package, path: '/inventory' },
+  { id: 'reports', label: 'Reports', icon: BarChart3, path: '/reports' },
+  { id: 'messages', label: 'Messages', icon: Mail, path: '/messages' },
+  { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
 ];
 
 const Sidebar = () => {
-  const { sidebarOpen, setSidebarOpen, currentPage, setCurrentPage, darkMode } = useStore();
+  const { sidebarOpen, setSidebarOpen } = useStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    // Close sidebar on mobile after navigation
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  };
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   return (
     <>
@@ -39,7 +55,7 @@ const Sidebar = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/20 backdrop-blur-md z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -70,9 +86,15 @@ const Sidebar = () => {
                   exit={{ opacity: 0 }}
                   className="flex items-center space-x-2"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-lg" />
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition overflow-hidden">
+                    <img 
+                      src={logo} 
+                      alt="Energenix Logo" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <span className="text-xl font-bold text-gray-900 dark:text-white">
-                    GemStore
+                    Energenix
                   </span>
                 </motion.div>
               )}
@@ -90,15 +112,15 @@ const Sidebar = () => {
           <nav className="flex-1 p-4 space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const isActive = currentPage === item.id;
+              const active = isActive(item.path);
               
               return (
                 <button
                   key={item.id}
-                  onClick={() => setCurrentPage(item.id)}
+                  onClick={() => handleNavigation(item.path)}
                   className={`
                     w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200
-                    ${isActive 
+                    ${active 
                       ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 border-r-2 border-primary-500' 
                       : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                     }

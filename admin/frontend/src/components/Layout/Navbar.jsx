@@ -60,7 +60,7 @@ const Navbar = () => {
               onClick={() => setProfileOpen(!profileOpen)}
               className="flex items-center space-x-2 sm:space-x-3 p-1 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
             >
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-primary-500 to-blue-500 rounded-full flex items-center justify-center">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-linear-to-r from-primary-500 to-blue-500 rounded-full flex items-center justify-center">
                 <User size={14} className="text-white" />
               </div>
               <div className="text-left hidden sm:block">

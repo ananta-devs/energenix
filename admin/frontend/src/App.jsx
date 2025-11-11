@@ -1,12 +1,20 @@
 import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Sidebar from './components/Layout/Sidebar';
 import Navbar from './components/Layout/Navbar';
 import Dashboard from './pages/Dashboard';
+import ProductsData from './components/DataDisplay/ProductsData';
+import OrdersData from './components/DataDisplay/OrdersData';
+import CustomersData from './components/DataDisplay/CustomersData';
+import InventoryData from './components/DataDisplay/InventoryData';
+import ReportsData from './components/DataDisplay/ReportsData';
+import Settings from './pages/Settings';
+import Messages from './pages/Messages';
 import { useStore } from './store/useStore';
 
 function App() {
-  const { darkMode, currentPage } = useStore();
+  const { darkMode } = useStore();
 
   useEffect(() => {
     if (darkMode) {
@@ -16,60 +24,48 @@ function App() {
     }
   }, [darkMode]);
 
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'products':
-        return <Dashboard activeTab="products" />;
-      case 'orders':
-        return <Dashboard activeTab="orders" />;
-      case 'customers':
-        return <Dashboard activeTab="customers" />;
-      case 'inventory':
-        return <Dashboard activeTab="inventory" />;
-      case 'reports':
-        return <Dashboard activeTab="reports" />;
-      case 'ads':
-        return <div className="p-4 sm:p-6">Advertisements - Coming Soon</div>;
-      case 'settings':
-        return <div className="p-4 sm:p-6">Settings - Coming Soon</div>;
-      default:
-        return <Dashboard />;
-    }
-  };
-
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      <Sidebar />
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0 w-0">
-        <Navbar />
+    <Router>
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+        <Sidebar />
         
-        <main className="flex-1 overflow-auto p-2 sm:p-4 lg:p-6 min-w-0">
-          {renderPage()}
-        </main>
-      </div>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0 w-0">
+          <Navbar />
+          
+          <main className="flex-1 overflow-auto p-2 sm:p-4 lg:p-6 min-w-0">
+            <Routes>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/products" element={<ProductsData />} />
+              <Route path="/orders" element={<OrdersData />} />
+              <Route path="/customers" element={<CustomersData />} />
+              <Route path="/inventory" element={<InventoryData />} />
+              <Route path="/reports" element={<ReportsData />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/settings" element={<Settings />} />
+            </Routes>
+          </main>
+        </div>
 
-      {/* Toast Notifications */}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: darkMode ? '#374151' : '#ffffff',
-            color: darkMode ? '#ffffff' : '#000000',
-          },
-          success: {
-            iconTheme: {
-              primary: '#10b981',
-              secondary: '#ffffff',
+        {/* Toast Notifications */}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: darkMode ? '#374151' : '#ffffff',
+              color: darkMode ? '#ffffff' : '#000000',
             },
-          },
-        }}
-      />
-    </div>
+            success: {
+              iconTheme: {
+                primary: '#10b981',
+                secondary: '#ffffff',
+              },
+            },
+          }}
+        />
+      </div>
+    </Router>
   );
 }
 

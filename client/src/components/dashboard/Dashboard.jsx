@@ -192,7 +192,7 @@ const Dashboard = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => handleNavigation('/')}>
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition overflow-hidden">
                   <img 
                     src={logo} 
@@ -292,7 +292,7 @@ const Dashboard = () => {
                   </div>
                   <button 
                     onClick={() => setShowEditProfileModal(true)}
-                    className="text-gray-600 hover:text-gray-900"
+                    className="text-gray-600 hover:text-gray-900 cursor-pointer"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
@@ -317,7 +317,7 @@ const Dashboard = () => {
                 <h2 className="text-lg font-semibold text-gray-900">Addresses</h2>
                 <button 
                   onClick={() => setShowAddAddressModal(true)}
-                  className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                  className="text-sm font-medium text-gray-700 hover:text-gray-900 cursor-pointer"
                 >
                   + Add
                 </button>
@@ -373,7 +373,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-2 gap-4"> */}
                 <div>
                   <label className="block text-sm text-gray-600 mb-1">Email</label>
                   <input
@@ -385,7 +385,7 @@ const Dashboard = () => {
                   />
                   <p className="text-xs text-gray-500 mt-1">This email is used for sign-in and order updates.</p>
                 </div>
-              </div>
+              {/* </div> */}
             </div>
 
             <div className="flex justify-end space-x-3">

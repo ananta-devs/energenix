@@ -1,7 +1,7 @@
 // components/DataDisplay/CustomersData.jsx
 import React, { useState, useEffect } from 'react';
 import { Users, Search, Crown, Award, Star, UserCheck } from 'lucide-react';
-import { dataService } from '../../utils/dataService';
+import { dataService } from '..//utils/dataService';
 
 const CustomersData = () => {
   const [customers, setCustomers] = useState([]);
@@ -60,7 +60,18 @@ const CustomersData = () => {
   };
 
   if (loading) {
-    return <div className="animate-pulse">Loading customers...</div>;
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="animate-pulse">
+          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
