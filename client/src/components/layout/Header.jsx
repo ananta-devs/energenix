@@ -55,23 +55,23 @@ export default function Header() {
 
       {/* Main Header - Fixed on scroll */}
       <header className={`sticky top-0 left-0 right-0 z-50 transition-all ${isScrolled ? 'bg-blue-950 shadow-md' : 'bg-blue-950 backdrop-blur-sm'}`}>
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-2">
           <div className="flex items-center justify-between py-4">
             {/* Logo - Updated with tagline below */}
             <Link to="/" className="flex flex-col group">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition overflow-hidden">
+                <div className="w-15 h-15 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition overflow-hidden">
                   <img 
                     src={logo} 
                     alt="Energenix Logo" 
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="text-2xl font-bold bg-amber-300 bg-clip-text text-transparent">
+                <span className="text-2xl -mt-3 font-bold bg-amber-300 bg-clip-text text-transparent">
                   Energenix
                 </span>
               </div>
-              <span className="hidden md:block text-gray-300 ml-13 -mb-3 font-thin italic">where ancient wisdom meets modern science</span>
+              <span className="text-gray-300 ml-17 -mt-6 font-thin italic text-xs sm:text-sm md:text-base pb-2 sm:pb-0 -mb-3">where ancient wisdom meets modern science</span>
             </Link>
 
             {/* Desktop Navigation */}
