@@ -77,15 +77,6 @@ const ReportsData = () => {
       color: 'bg-green-500'
     },
     {
-      id: 'inventory',
-      title: 'Inventory Health',
-      value: reports.inventoryHealth?.totalProducts?.toLocaleString() || '0',
-      change: -((reports.inventoryHealth?.lowStockItems || 0) / (reports.inventoryHealth?.totalProducts || 1)) * 100,
-      description: 'Stock levels and turnover',
-      icon: Package,
-      color: 'bg-blue-500'
-    },
-    {
       id: 'customers',
       title: 'Customer Insights',
       value: reports.customerInsights?.totalCustomers?.toLocaleString() || '0',

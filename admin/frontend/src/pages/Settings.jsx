@@ -46,8 +46,6 @@ const Settings = () => {
   };
 
   const tabs = [
-    { id: 'general', label: 'General', icon: Globe },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'admin', label: 'Admin Management', icon: UserPlus },
     { id: 'data', label: 'Data & Backup', icon: Database },
@@ -119,89 +117,6 @@ const Settings = () => {
       {/* Content */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="p-4 sm:p-6">
-          {activeTab === 'general' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">General Settings</h2>
-              
-              <SettingRow label="Application Name" description="The name displayed across the platform">
-                <input
-                  type="text"
-                  value={settings.appName}
-                  onChange={(e) => handleChange('appName', e.target.value)}
-                  className="w-full sm:w-64 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
-                />
-              </SettingRow>
-
-              <SettingRow label="Language" description="Choose your preferred language">
-                <select
-                  value={settings.language}
-                  onChange={(e) => handleChange('language', e.target.value)}
-                  className="w-full sm:w-64 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="en">English</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
-                  <option value="de">German</option>
-                  <option value="ja">Japanese</option>
-                </select>
-              </SettingRow>
-
-              <SettingRow label="Timezone" description="Set your local timezone">
-                <select
-                  value={settings.timezone}
-                  onChange={(e) => handleChange('timezone', e.target.value)}
-                  className="w-full sm:w-64 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="UTC">UTC</option>
-                  <option value="America/New_York">Eastern Time</option>
-                  <option value="America/Chicago">Central Time</option>
-                  <option value="America/Los_Angeles">Pacific Time</option>
-                  <option value="Europe/London">London</option>
-                  <option value="Asia/Tokyo">Tokyo</option>
-                </select>
-              </SettingRow>
-            </div>
-          )}
-
-          {activeTab === 'notifications' && (
-            <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Notification Preferences</h2>
-              
-              <SettingRow label="Email Notifications" description="Receive updates via email">
-                <Toggle
-                  checked={settings.emailNotifications}
-                  onChange={(val) => handleChange('emailNotifications', val)}
-                />
-              </SettingRow>
-
-              <SettingRow label="Push Notifications" description="Get real-time browser notifications">
-                <Toggle
-                  checked={settings.pushNotifications}
-                  onChange={(val) => handleChange('pushNotifications', val)}
-                />
-              </SettingRow>
-
-              <SettingRow label="Weekly Reports" description="Receive weekly summary reports">
-                <Toggle
-                  checked={settings.weeklyReports}
-                  onChange={(val) => handleChange('weeklyReports', val)}
-                />
-              </SettingRow>
-
-              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div className="flex items-start">
-                  <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-3 shrink-0" />
-                  <div>
-                    <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Notification Tips</h4>
-                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                      You can customize which events trigger notifications in the advanced settings section.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeTab === 'security' && (
             <div className="space-y-6">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Security Settings</h2>

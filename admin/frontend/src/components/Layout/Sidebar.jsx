@@ -52,6 +52,11 @@ const Sidebar = () => {
     if (!isLargeScreen) setSidebarOpen(false); // close sidebar on mobile after navigation
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -149,7 +154,10 @@ const Sidebar = () => {
 
           {/* Footer */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            <button className="w-full flex items-center space-x-3 p-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center space-x-3 p-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
+            >
               <LogOut size={20} />
               {(sidebarOpen || isLargeScreen) && (
                 <span className="font-medium">Logout</span>

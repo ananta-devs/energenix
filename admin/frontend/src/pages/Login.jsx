@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { Lock, Mail, Eye, EyeOff, Shield } from 'lucide-react';
 
 export default function AdminSignIn() {
@@ -7,15 +9,22 @@ export default function AdminSignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsLoading(true);
-    
-    // Simulate login
-    setTimeout(() => {
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/admins/login`, {
+        adm_email: email,
+        password,
+      });
+      localStorage.setItem('token', response.data.token);
+      navigate('/dashboard');
+    } catch (error) {
+      alert('Invalid credentials');
+    } finally {
       setIsLoading(false);
-      alert('Login functionality would be implemented here');
-    }, 1500);
+    }
   };
 
   return (

@@ -13,6 +13,7 @@ import Settings from './pages/Settings';
 import Messages from './pages/Messages';
 import { useStore } from './store/useStore';
 import AdminSignIn from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const AppContent = () => {
   const { darkMode } = useStore();
@@ -37,16 +38,18 @@ const AppContent = () => {
         
         <main className={location.pathname === '/login' ? "flex-1 overflow-auto min-w-0" : "flex-1 overflow-auto p-2 sm:p-4 lg:p-6 min-w-0"}>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/products" element={<ProductsData />} />
-            <Route path="/orders" element={<OrdersData />} />
-            <Route path="/customers" element={<CustomersData />} />
-            <Route path="/inventory" element={<InventoryData />} />
-            <Route path="/reports" element={<ReportsData />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/settings" element={<Settings />} />
             <Route path="/login" element={<AdminSignIn/>} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/products" element={<ProductsData />} />
+              <Route path="/orders" element={<OrdersData />} />
+              <Route path="/customers" element={<CustomersData />} />
+              <Route path="/inventory" element={<InventoryData />} />
+              <Route path="/reports" element={<ReportsData />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
           </Routes>
         </main>
       </div>
