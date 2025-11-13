@@ -60,16 +60,20 @@ export default function Header() {
             {/* Logo - Updated with tagline below */}
             <Link to="/" className="flex flex-col group">
               <div className="flex items-center space-x-3">
-                <div className="w-15 h-15 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition overflow-hidden">
+                <div className="w-15 h-15 rounded-lg flex items-center justify-center overflow-hidden">
                   <img 
                     src={logo} 
                     alt="Energenix Logo" 
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="text-2xl -mt-3 font-bold bg-amber-300 bg-clip-text text-transparent">
-                  Energenix
+                <span
+                  className="text-2xl -mt-3 font-bold bg-clip-text text-transparent"
+                  style={{ backgroundImage: 'linear-gradient(to right, #F4D48D, #D4AF37)' }}
+                >
+                  EnergeniX
                 </span>
+
               </div>
               <span className="text-gray-300 ml-17 -mt-6 font-thin italic text-xs sm:text-sm md:text-base pb-2 sm:pb-0 -mb-3">where ancient wisdom meets modern science</span>
             </Link>

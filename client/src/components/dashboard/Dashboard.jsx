@@ -200,7 +200,7 @@ const Dashboard = () => {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="text-sm font-semibold text-gray-800">Energenix</span>
+                <span className="text-sm font-semibold text-gray-800">EnergeniX</span>
               </div>
             </div>
 

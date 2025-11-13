@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Shield, User, Globe, Mail, Key, Database, Palette, Clock, Save } from 'lucide-react';
+import { Bell, Shield, User, Globe, Mail, Key, Database, Palette, Clock, Save, UserPlus, Phone } from 'lucide-react';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('general');
@@ -17,6 +17,13 @@ const Settings = () => {
     backupFrequency: 'daily',
   });
 
+  const [newAdmin, setNewAdmin] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    password: '',
+  });
+
   const handleChange = (key, value) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
@@ -25,10 +32,24 @@ const Settings = () => {
     alert('Settings saved successfully!');
   };
 
+  const handleAdminSubmit = () => {
+    if (!newAdmin.name || !newAdmin.phone || !newAdmin.email || !newAdmin.password) {
+      alert('Please fill in all fields');
+      return;
+    }
+    alert(`Admin ${newAdmin.name} added successfully!`);
+    setNewAdmin({ name: '', phone: '', email: '', password: '' });
+  };
+
+  const handleAdminChange = (key, value) => {
+    setNewAdmin(prev => ({ ...prev, [key]: value }));
+  };
+
   const tabs = [
     { id: 'general', label: 'General', icon: Globe },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Shield },
+    { id: 'admin', label: 'Admin Management', icon: UserPlus },
     { id: 'data', label: 'Data & Backup', icon: Database },
   ];
 
@@ -215,6 +236,102 @@ const Settings = () => {
                   <Shield className="w-4 h-4" />
                   View Login History
                 </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'admin' && (
+            <div className="space-y-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Admin Management</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Add new administrators to your platform</p>
+              
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                    Admin Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={newAdmin.name}
+                      onChange={(e) => handleAdminChange('name', e.target.value)}
+                      placeholder="Enter admin name"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                    Admin Phone
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="tel"
+                      value={newAdmin.phone}
+                      onChange={(e) => handleAdminChange('phone', e.target.value)}
+                      placeholder="Enter phone number"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                    Admin Email
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="email"
+                      value={newAdmin.email}
+                      onChange={(e) => handleAdminChange('email', e.target.value)}
+                      placeholder="Enter email address"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                    Admin Password
+                  </label>
+                  <div className="relative">
+                    <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="password"
+                      value={newAdmin.password}
+                      onChange={(e) => handleAdminChange('password', e.target.value)}
+                      placeholder="Enter password"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Password must be at least 8 characters long
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleAdminSubmit}
+                  className="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-2"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Add Admin
+                </button>
+              </div>
+
+              <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div className="flex items-start">
+                  <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 mr-3 shrink-0" />
+                  <div>
+                    <h4 className="text-sm font-medium text-purple-900 dark:text-purple-100">Admin Permissions</h4>
+                    <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">
+                      New admins will have full access to all platform features. You can modify permissions later.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
