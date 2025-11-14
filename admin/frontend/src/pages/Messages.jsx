@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Mail, Trash2, Search, Reply } from 'lucide-react';
+import { Mail, Trash2, Search, Reply, X, Send } from 'lucide-react';
 
 const Messages = () => {
   const [messages, setMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showReplyModal, setShowReplyModal] = useState(false);
+  const [replyContent, setReplyContent] = useState('');
+  const [messageToDelete, setMessageToDelete] = useState(null);
 
   useEffect(() => {
     loadMessages();
@@ -24,16 +28,59 @@ const Messages = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteClick = (id) => {
+    setMessageToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!messageToDelete) return;
+    
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/contacts/${id}`);
-      const updatedMessages = messages.filter((message) => message._id !== id);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/contacts/${messageToDelete}`);
+      const updatedMessages = messages.filter((message) => message._id !== messageToDelete);
       setMessages(updatedMessages);
-      if (selectedMessage && selectedMessage._id === id) {
+      if (selectedMessage && selectedMessage._id === messageToDelete) {
         setSelectedMessage(updatedMessages[0] || null);
       }
+      setShowDeleteModal(false);
+      setMessageToDelete(null);
     } catch (error) {
       console.error('Error deleting message:', error);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setMessageToDelete(null);
+  };
+
+  const handleReplyClick = () => {
+    setReplyContent('');
+    setShowReplyModal(true);
+  };
+
+  const sendReply = async () => {
+    if (!selectedMessage || !replyContent.trim()) return;
+
+    try {
+      // Here you would typically send the reply via your API
+      console.log('Sending reply to:', selectedMessage.email);
+      console.log('Reply content:', replyContent);
+      
+      // Simulate API call
+      // await axios.post(`${import.meta.env.VITE_API_URL}/messages/reply`, {
+      //   to: selectedMessage.email,
+      //   subject: `Re: Message from ${selectedMessage.fullName}`,
+      //   content: replyContent
+      // });
+
+      alert('Reply sent successfully!');
+      setShowReplyModal(false);
+      setReplyContent('');
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      alert('Error sending reply. Please try again.');
     }
   };
 
@@ -130,10 +177,16 @@ const Messages = () => {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={() => handleDelete(selectedMessage._id)}>
+                  <button 
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
+                    onClick={() => handleDeleteClick(selectedMessage._id)}
+                  >
                     <Trash2 size={18} />
                   </button>
-                  <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                  <button 
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                    onClick={handleReplyClick}
+                  >
                     <Reply size={18} />
                   </button>
                 </div>
@@ -152,6 +205,115 @@ const Messages = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Confirm Deletion
+              </h3>
+              <button
+                onClick={cancelDelete}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              Are you sure you want to delete this message? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={cancelDelete}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reply Modal */}
+      {showReplyModal && selectedMessage && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-2xl w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Reply to {selectedMessage.fullName}
+              </h3>
+              <button
+                onClick={() => setShowReplyModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  To:
+                </label>
+                <input
+                  type="text"
+                  value={`${selectedMessage.fullName} <${selectedMessage.email}>`}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Subject:
+                </label>
+                <input
+                  type="text"
+                  value={`Re: Message from ${selectedMessage.fullName}`}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Your Reply:
+                </label>
+                <textarea
+                  value={replyContent}
+                  onChange={(e) => setReplyContent(e.target.value)}
+                  rows={8}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                  placeholder="Type your reply here..."
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowReplyModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendReply}
+                disabled={!replyContent.trim()}
+                className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 cursor-pointer"
+              >
+                <Send size={16} />
+                Send Reply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

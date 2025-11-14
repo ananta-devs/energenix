@@ -1,34 +1,56 @@
 // utils/dataService.js
-const API_BASE = 'http://localhost:3001';
+import axios from 'axios';
+
+const API_BASE = 'http://localhost:5000';
 
 export const dataService = {
   async getProducts() {
-    const response = await fetch(`${API_BASE}/products`);
-    return await response.json();
+    const response = await axios.get(`${API_BASE}/api/products`);
+    return response.data;
   },
 
   async getOrders() {
-    const response = await fetch(`${API_BASE}/orders`);
-    return await response.json();
+    const response = await axios.get(`${API_BASE}/api/orders`);
+    return response.data;
   },
 
   async getCustomers() {
-    const response = await fetch(`${API_BASE}/customers`);
-    return await response.json();
+    const response = await axios.get(`${API_BASE}/api/customers`);
+    return response.data;
   },
 
   async getInventory() {
-    const response = await fetch(`${API_BASE}/inventory`);
-    return await response.json();
+    const response = await axios.get(`${API_BASE}/api/inventory`);
+    return response.data;
   },
 
   async getAnalytics() {
-    const response = await fetch(`${API_BASE}/analytics`);
-    return await response.json();
+    const response = await axios.get(`${API_BASE}/api/analytics`);
+    return response.data;
   },
 
   async getReports() {
-    const response = await fetch(`${API_BASE}/reports`);
-    return await response.json();
-  }
+    const response = await axios.get(`${API_BASE}/api/reports`);
+    return response.data;
+  },
+
+  async createProduct(productData) {
+    const response = await axios.post(`${API_BASE}/api/products`, productData);
+    return response.data;
+  },
+
+  async updateProduct(id, productData) {
+    const response = await axios.put(`${API_BASE}/api/products/${id}`, productData);
+    return response.data;
+  },
+
+  async deleteProduct(id) {
+    const response = await axios.delete(`${API_BASE}/api/products/${id}`);
+    return response.data;
+  },
+
+  async updateInventory(id, inventoryData) {
+    const response = await axios.put(`${API_BASE}/api/inventory/${id}`, inventoryData);
+    return response.data;
+  },
 };

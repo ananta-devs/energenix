@@ -11,7 +11,7 @@ import {
   Mail,
   Settings,
   LogOut,
-  ChevronLeft,
+  X,
   Menu
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
@@ -111,7 +111,7 @@ const Sidebar = () => {
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
               >
-                {sidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />}
+                {sidebarOpen ? <X size={20} className="text-gray-700 dark:text-gray-300"/> : <Menu size={20}/>}
               </button>
             )}
           </div>
