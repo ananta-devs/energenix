@@ -1,24 +1,33 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { PRODUCTS, CATEGORIES } from '../../data';
 import { Filter, Grid, List } from 'lucide-react';
 import ProductCard from './ProductCard.jsx';
+import { useProducts } from '../../context/ProductContext.jsx';
 
 export default function CategoryPage() {
   const { categoryId } = useParams();
-  const [viewMode, setViewMode] = useState('grid');
+  const { products, loading, error } = useProducts();
   const [sortBy, setSortBy] = useState('featured');
-  // const [priceRange, setPriceRange] = useState([0, 10000]);
-  // const [selectedColors, setSelectedColors] = useState([]);
 
-  const filteredProducts = PRODUCTS.filter(p => 
-    categoryId === 'all' || p.category === categoryId
+  const categories = [...new Set(products.map(p => p.p_category))];
+
+  const filteredProducts = products.filter(p => 
+    categoryId === 'all' || p.p_category === categoryId
   ).sort((a, b) => {
-    if (sortBy === 'price-low') return a.price - b.price;
-    if (sortBy === 'price-high') return b.price - a.price;
-    if (sortBy === 'rating') return b.rating - a.rating;
+    if (sortBy === 'price-low') return a.p_price - b.p_price;
+    if (sortBy === 'price-high') return b.p_price - a.p_price;
+    // Assuming 'rating' might be a future field, for now, it won't sort
+    // if (sortBy === 'rating') return b.rating - a.rating; 
     return 0;
   });
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading products...</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">Error: {error.message}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -38,10 +47,10 @@ export default function CategoryPage() {
               <div className="mb-6">
                 <h4 className="font-semibold mb-3">Category</h4>
                 <div className="space-y-2">
-                  {CATEGORIES.map(cat => (
-                    <label key={cat.id} className="flex items-center cursor-pointer">
+                  {categories.map(cat => (
+                    <label key={cat} className="flex items-center cursor-pointer">
                       <input type="radio" name="category" className="mr-2" />
-                      <span className="text-sm">{cat.name}</span>
+                      <span className="text-sm">{cat}</span>
                     </label>
                   ))}
                 </div>
@@ -69,19 +78,6 @@ export default function CategoryPage() {
                   </label>
                 </div>
               </div>
-
-              {/* Clarity */}
-              <div className="mb-6">
-                <h4 className="font-semibold mb-3">Clarity</h4>
-                <div className="space-y-2">
-                  {['IF', 'VVS1', 'VVS2', 'VS1', 'VS2'].map(clarity => (
-                    <label key={clarity} className="flex items-center cursor-pointer">
-                      <input type="checkbox" className="mr-2" />
-                      <span className="text-sm">{clarity}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
             </div>
           </aside>
 
@@ -103,32 +99,13 @@ export default function CategoryPage() {
                   <option value="price-high">Price: High to Low</option>
                   <option value="rating">Highest Rated</option>
                 </select>
-
-                {/* View Mode */}
-                <div className="flex border rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 ${viewMode === 'grid' ? 'bg-purple-600 text-white' : 'bg-white text-gray-600'}`}
-                  >
-                    <Grid className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 ${viewMode === 'list' ? 'bg-purple-600 text-white' : 'bg-white text-gray-600'}`}
-                  >
-                    <List className="w-5 h-5" />
-                  </button>
-                </div>
               </div>
             </div>
 
             {/* Product Grid */}
-            <div className={viewMode === 'grid' 
-              ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6' 
-              : 'space-y-6'
-            }>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredProducts.map(product => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product._id} product={product} />
               ))}
             </div>
           </div>

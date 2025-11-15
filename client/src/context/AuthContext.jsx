@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { API_BASE_URL } from '../utils/api';
 
 const AuthContext = createContext(null);
 
@@ -30,10 +31,29 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = (token, userData) => {
-    localStorage.setItem('token', token);
-    setUser(userData);
-    setIsAuthenticated(true);
+  const login = async (identifier, password) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/signin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ identifier, password }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        const decoded = jwtDecode(data.token);
+        setUser({ fullName: decoded.user.fullName, email: decoded.user.email, phone: decoded.user.phone });
+        setIsAuthenticated(true);
+        showToast('Login successful!', 'success');
+      } else {
+        showToast(data.message || 'Login failed', 'error');
+      }
+    } catch (error) {
+      console.error("Login API error:", error);
+      showToast('An error occurred during login', 'error');
+    }
   };
 
   const logout = () => {

@@ -9,12 +9,13 @@ import {
     Edit,
     X,
     Image as ImageIcon,
-    IndianRupee,
+    CheckCircle,
+    XCircle,
 } from "lucide-react";
 import { dataService } from "../utils/dataService";
 import axios from "axios";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL; // Use environment variable for API_BASE
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 const ProductsData = () => {
     const [products, setProducts] = useState([]);
@@ -37,6 +38,22 @@ const ProductsData = () => {
         p_price: "",
         discount_price: "",
         description: "",
+        trending: false,
+        bestseller: false,
+    });
+
+    // Message states for each modal
+    const [addModalMessage, setAddModalMessage] = useState({
+        type: "",
+        text: "",
+    });
+    const [viewModalMessage, setViewModalMessage] = useState({
+        type: "",
+        text: "",
+    });
+    const [deleteModalMessage, setDeleteModalMessage] = useState({
+        type: "",
+        text: "",
     });
 
     useEffect(() => {
@@ -62,7 +79,7 @@ const ProductsData = () => {
             setProducts(data);
             setFilteredProducts(data);
         } catch (error) {
-            console.error("Error loading products:", error);
+            // Error handled silently in the background
         } finally {
             setLoading(false);
         }
@@ -70,22 +87,18 @@ const ProductsData = () => {
 
     const handleAddProduct = async () => {
         try {
-            // 1. Create product without Cloudinary image URLs initially
+            setAddModalMessage({ type: "", text: "" });
 
             const productToCreate = {
                 p_name: formData.p_name,
-
                 p_subtitle: formData.p_subtitle,
-
                 p_category: formData.p_category,
-
                 p_price: parseFloat(formData.p_price),
-
                 discount_price: parseFloat(formData.discount_price),
-
                 description: formData.description,
-
-                image_urls: [], // Start with empty image_urls
+                image_urls: [],
+                trending: formData.trending,
+                bestseller: formData.bestseller,
             };
 
             const createdProduct = await dataService.createProduct(
@@ -98,15 +111,12 @@ const ProductsData = () => {
                 (img) => img.type === "new"
             );
 
-            // 2. If new local images exist, upload them to Cloudinary
-
             if (newImagesToUpload.length > 0) {
                 const uploadFormData = new FormData();
-
-                uploadFormData.append("p_id", createdProduct._id); // Use the new product's _id
+                uploadFormData.append("p_id", createdProduct._id);
 
                 newImagesToUpload.forEach((image, index) => {
-                    uploadFormData.append(`image`, image.file); // 'image' is the field name expected by backend
+                    uploadFormData.append(`image`, image.file);
                 });
 
                 const uploadResponse = await axios.post(
@@ -122,13 +132,10 @@ const ProductsData = () => {
                 uploadedCloudinaryUrls = uploadResponse.data.imageUrls;
             }
 
-            // 3. Update the newly created product with the Cloudinary URLs
-
             const finalImageUrls = [
                 ...formData.image_urls
                     .filter((img) => img.type === "existing")
                     .map((img) => img.url),
-
                 ...uploadedCloudinaryUrls,
             ];
 
@@ -140,16 +147,20 @@ const ProductsData = () => {
             );
 
             setProducts((prev) => [updatedProductWithImages, ...prev]);
+            setAddModalMessage({
+                type: "success",
+                text: "Product added successfully!",
+            });
 
-            setShowAddModal(false);
-
-            resetForm();
-
-            alert("Product added successfully!");
+            setTimeout(() => {
+                setShowAddModal(false);
+                resetForm();
+            }, 1500);
         } catch (error) {
-            console.error("Error adding product:", error);
-
-            alert("Error adding product. Please try again.");
+            setAddModalMessage({
+                type: "error",
+                text: "Error adding product. Please try again.",
+            });
         }
     };
 
@@ -157,17 +168,26 @@ const ProductsData = () => {
         if (!selectedProduct) return;
 
         try {
+            setDeleteModalMessage({ type: "", text: "" });
             await dataService.deleteProduct(selectedProduct._id);
 
             setProducts((prev) =>
                 prev.filter((p) => p._id !== selectedProduct._id)
             );
-            setShowDeleteModal(false);
-            setSelectedProduct(null);
-            alert("Product deleted successfully!");
+            setDeleteModalMessage({
+                type: "success",
+                text: "Product deleted successfully!",
+            });
+
+            setTimeout(() => {
+                setShowDeleteModal(false);
+                setSelectedProduct(null);
+            }, 1500);
         } catch (error) {
-            console.error("Error deleting product:", error);
-            alert("Error deleting product. Please try again.");
+            setDeleteModalMessage({
+                type: "error",
+                text: "Error deleting product. Please try again.",
+            });
         }
     };
 
@@ -175,15 +195,16 @@ const ProductsData = () => {
         if (!editingProduct) return;
 
         try {
+            setViewModalMessage({ type: "", text: "" });
+
             let uploadedCloudinaryUrls = [];
             const newImagesToUpload = formData.image_urls.filter(
                 (img) => img.type === "new"
             );
 
-            // 1. Upload new local images to Cloudinary
             if (newImagesToUpload.length > 0) {
                 const uploadFormData = new FormData();
-                uploadFormData.append("p_id", editingProduct._id); // Use the existing product's _id
+                uploadFormData.append("p_id", editingProduct._id);
 
                 newImagesToUpload.forEach((image, index) => {
                     uploadFormData.append(`image`, image.file);
@@ -201,7 +222,6 @@ const ProductsData = () => {
                 uploadedCloudinaryUrls = uploadResponse.data.imageUrls;
             }
 
-            // 2. Construct the final image_urls array
             const finalImageUrls = [
                 ...formData.image_urls
                     .filter((img) => img.type === "existing")
@@ -209,7 +229,6 @@ const ProductsData = () => {
                 ...uploadedCloudinaryUrls,
             ];
 
-            // 3. Prepare product data for update
             const productToUpdate = {
                 p_name: formData.p_name,
                 p_subtitle: formData.p_subtitle,
@@ -218,9 +237,10 @@ const ProductsData = () => {
                 discount_price: parseFloat(formData.discount_price),
                 description: formData.description,
                 image_urls: finalImageUrls,
+                trending: formData.trending,
+                bestseller: formData.bestseller,
             };
 
-            // 4. Update the product in the backend
             const updatedProduct = await dataService.updateProduct(
                 editingProduct._id,
                 productToUpdate
@@ -231,13 +251,21 @@ const ProductsData = () => {
                     p._id === updatedProduct._id ? updatedProduct : p
                 )
             );
-            setShowViewModal(false);
-            setEditingProduct(null);
-            resetForm();
-            alert("Product updated successfully!");
+            setViewModalMessage({
+                type: "success",
+                text: "Product updated successfully!",
+            });
+
+            setTimeout(() => {
+                setShowViewModal(false);
+                setEditingProduct(null);
+                resetForm();
+            }, 1500);
         } catch (error) {
-            console.error("Error updating product:", error);
-            alert("Error updating product. Please try again.");
+            setViewModalMessage({
+                type: "error",
+                text: "Error updating product. Please try again.",
+            });
         }
     };
 
@@ -270,20 +298,15 @@ const ProductsData = () => {
         const imageToRemove = formData.image_urls[indexToRemove];
 
         if (imageToRemove.type === "new") {
-            URL.revokeObjectURL(imageToRemove.preview); // Clean up local object URL
+            URL.revokeObjectURL(imageToRemove.preview);
         } else if (imageToRemove.type === "existing") {
             try {
-                // Call backend to delete from Cloudinary
                 await axios.delete(`${API_BASE}/api/upload`, {
                     data: { public_id: imageToRemove.public_id },
                 });
-                alert("Image deleted from Cloudinary successfully!");
+                // Success handled silently
             } catch (error) {
-                console.error("Error deleting image from Cloudinary:", error);
-                alert(
-                    "Error deleting image from Cloudinary. Please try again."
-                );
-                return; // Prevent removal from state if backend deletion fails
+                // Error handled silently - image removal from state continues
             }
         }
 
@@ -293,18 +316,14 @@ const ProductsData = () => {
         }));
     };
 
-    // Helper to extract Cloudinary public_id from URL
     const extractPublicId = (url) => {
         const parts = url.split("/");
-        const filename = parts[parts.length - 1];
-        const publicId = filename.split(".")[0];
-        // Cloudinary public IDs often include folder paths, e.g., 'products/product_id/image_name'
-        // We need to reconstruct the full public ID including the folder.
         const folderPathIndex = parts.indexOf("products");
         if (folderPathIndex !== -1) {
             return parts.slice(folderPathIndex).join("/").split(".")[0];
         }
-        return publicId;
+        const filename = parts[parts.length - 1];
+        return filename.split(".")[0];
     };
 
     const openViewModal = (product) => {
@@ -323,17 +342,22 @@ const ProductsData = () => {
             p_price: product.p_price.toString(),
             discount_price: product.discount_price?.toString() || "",
             description: product.description || "",
+            trending: product.trending || false,
+            bestseller: product.bestseller || false,
         });
+        setViewModalMessage({ type: "", text: "" });
         setShowViewModal(true);
     };
 
     const openDeleteModal = (product) => {
         setSelectedProduct(product);
+        setDeleteModalMessage({ type: "", text: "" });
         setShowDeleteModal(true);
     };
 
     const startEditing = () => {
         setEditingProduct(selectedProduct);
+        setViewModalMessage({ type: "", text: "" });
     };
 
     const cancelEditing = () => {
@@ -354,8 +378,67 @@ const ProductsData = () => {
                 discount_price:
                     selectedProduct.discount_price?.toString() || "",
                 description: selectedProduct.description || "",
+                trending: selectedProduct.trending || false,
+                bestseller: selectedProduct.bestseller || false,
             });
         }
+        setViewModalMessage({ type: "", text: "" });
+    };
+
+    const closeAddModal = () => {
+        setShowAddModal(false);
+        setAddModalMessage({ type: "", text: "" });
+        resetForm();
+    };
+
+    const closeViewModal = () => {
+        setShowViewModal(false);
+        setEditingProduct(null);
+        setViewModalMessage({ type: "", text: "" });
+    };
+
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setSelectedProduct(null);
+        setDeleteModalMessage({ type: "", text: "" });
+    };
+
+    // Message display component
+    const MessageDisplay = ({ message }) => {
+        if (!message.text) return null;
+
+        return (
+            <div
+                className={`rounded-lg p-3 ${
+                    message.type === "success"
+                        ? "bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-800"
+                        : "bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800"
+                }`}
+            >
+                <div className="flex items-center gap-2">
+                    {message.type === "success" ? (
+                        <CheckCircle
+                            size={16}
+                            className="text-green-600 dark:text-green-400"
+                        />
+                    ) : (
+                        <XCircle
+                            size={16}
+                            className="text-red-600 dark:text-red-400"
+                        />
+                    )}
+                    <p
+                        className={`text-sm ${
+                            message.type === "success"
+                                ? "text-green-800 dark:text-green-300"
+                                : "text-red-800 dark:text-red-300"
+                        }`}
+                    >
+                        {message.text}
+                    </p>
+                </div>
+            </div>
+        );
     };
 
     if (loading) {
@@ -530,13 +613,15 @@ const ProductsData = () => {
                                 Add New Product
                             </h3>
                             <button
-                                onClick={() => setShowAddModal(false)}
+                                onClick={closeAddModal}
                                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                             >
                                 <X size={24} />
                             </button>
                         </div>
                         <div className="p-6 space-y-4">
+                            <MessageDisplay message={addModalMessage} />
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -545,12 +630,16 @@ const ProductsData = () => {
                                     <input
                                         type="text"
                                         value={formData.p_name}
-                                        onChange={(e) =>
+                                        onChange={(e) => {
                                             setFormData((prev) => ({
                                                 ...prev,
                                                 p_name: e.target.value,
-                                            }))
-                                        }
+                                            }));
+                                            setAddModalMessage({
+                                                type: "",
+                                                text: "",
+                                            });
+                                        }}
                                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         placeholder="Enter product name"
                                     />
@@ -562,12 +651,16 @@ const ProductsData = () => {
                                     <input
                                         type="text"
                                         value={formData.p_subtitle}
-                                        onChange={(e) =>
+                                        onChange={(e) => {
                                             setFormData((prev) => ({
                                                 ...prev,
                                                 p_subtitle: e.target.value,
-                                            }))
-                                        }
+                                            }));
+                                            setAddModalMessage({
+                                                type: "",
+                                                text: "",
+                                            });
+                                        }}
                                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         placeholder="Enter product subtitle"
                                     />
@@ -579,12 +672,16 @@ const ProductsData = () => {
                                     <input
                                         type="text"
                                         value={formData.p_category}
-                                        onChange={(e) =>
+                                        onChange={(e) => {
                                             setFormData((prev) => ({
                                                 ...prev,
                                                 p_category: e.target.value,
-                                            }))
-                                        }
+                                            }));
+                                            setAddModalMessage({
+                                                type: "",
+                                                text: "",
+                                            });
+                                        }}
                                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         placeholder="Enter category"
                                     />
@@ -597,12 +694,16 @@ const ProductsData = () => {
                                         type="number"
                                         step="0.01"
                                         value={formData.p_price}
-                                        onChange={(e) =>
+                                        onChange={(e) => {
                                             setFormData((prev) => ({
                                                 ...prev,
                                                 p_price: e.target.value,
-                                            }))
-                                        }
+                                            }));
+                                            setAddModalMessage({
+                                                type: "",
+                                                text: "",
+                                            });
+                                        }}
                                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         placeholder="Enter price"
                                     />
@@ -615,15 +716,54 @@ const ProductsData = () => {
                                         type="number"
                                         step="0.01"
                                         value={formData.discount_price}
-                                        onChange={(e) =>
+                                        onChange={(e) => {
                                             setFormData((prev) => ({
                                                 ...prev,
                                                 discount_price: e.target.value,
-                                            }))
-                                        }
+                                            }));
+                                            setAddModalMessage({
+                                                type: "",
+                                                text: "",
+                                            });
+                                        }}
                                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         placeholder="Enter discounted price"
                                     />
+                                </div>
+                                {/* Radio buttons */}
+                                <div className="flex items-center gap-3 mt-6">
+                                    <label className="flex items-center gap-1 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.trending}
+                                            onChange={(e) =>
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    trending: e.target.checked,
+                                                }))
+                                            }
+                                        />
+                                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                                            Trending
+                                        </span>
+                                    </label>
+
+                                    <label className="flex items-center gap-1 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.bestseller}
+                                            onChange={(e) =>
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    bestseller:
+                                                        e.target.checked,
+                                                }))
+                                            }
+                                        />
+                                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                                            Bestseller
+                                        </span>
+                                    </label>
                                 </div>
                             </div>
 
@@ -695,12 +835,16 @@ const ProductsData = () => {
                                 </label>
                                 <textarea
                                     value={formData.description}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
                                         setFormData((prev) => ({
                                             ...prev,
                                             description: e.target.value,
-                                        }))
-                                    }
+                                        }));
+                                        setAddModalMessage({
+                                            type: "",
+                                            text: "",
+                                        });
+                                    }}
                                     rows={4}
                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                                     placeholder="Enter product description"
@@ -709,7 +853,7 @@ const ProductsData = () => {
                         </div>
                         <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
                             <button
-                                onClick={() => setShowAddModal(false)}
+                                onClick={closeAddModal}
                                 className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                             >
                                 Cancel
@@ -719,11 +863,14 @@ const ProductsData = () => {
                                 disabled={
                                     !formData.p_name ||
                                     !formData.p_category ||
-                                    !formData.p_price
+                                    !formData.p_price ||
+                                    addModalMessage.type === "success"
                                 }
                                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                Add Product
+                                {addModalMessage.type === "success"
+                                    ? "Success!"
+                                    : "Add Product"}
                             </button>
                         </div>
                     </div>
@@ -741,16 +888,15 @@ const ProductsData = () => {
                                     : "Product Details"}
                             </h3>
                             <button
-                                onClick={() => {
-                                    setShowViewModal(false);
-                                    setEditingProduct(null);
-                                }}
+                                onClick={closeViewModal}
                                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                             >
                                 <X size={24} />
                             </button>
                         </div>
                         <div className="p-6">
+                            <MessageDisplay message={viewModalMessage} />
+
                             {!editingProduct ? (
                                 <div className="space-y-6">
                                     <div className="flex items-start space-x-6">
@@ -813,6 +959,22 @@ const ProductsData = () => {
                                                         </span>
                                                     </div>
                                                 )}
+                                                <div className="flex items-center space-x-4">
+                                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        Trending:
+                                                    </span>
+                                                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                        {selectedProduct.trending ? "Yes" : "No"}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center space-x-4">
+                                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        Bestseller:
+                                                    </span>
+                                                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                        {selectedProduct.bestseller ? "Yes" : "No"}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -867,12 +1029,16 @@ const ProductsData = () => {
                                             <input
                                                 type="text"
                                                 value={formData.p_name}
-                                                onChange={(e) =>
+                                                onChange={(e) => {
                                                     setFormData((prev) => ({
                                                         ...prev,
                                                         p_name: e.target.value,
-                                                    }))
-                                                }
+                                                    }));
+                                                    setViewModalMessage({
+                                                        type: "",
+                                                        text: "",
+                                                    });
+                                                }}
                                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         </div>
@@ -883,13 +1049,17 @@ const ProductsData = () => {
                                             <input
                                                 type="text"
                                                 value={formData.p_subtitle}
-                                                onChange={(e) =>
+                                                onChange={(e) => {
                                                     setFormData((prev) => ({
                                                         ...prev,
                                                         p_subtitle:
                                                             e.target.value,
-                                                    }))
-                                                }
+                                                    }));
+                                                    setViewModalMessage({
+                                                        type: "",
+                                                        text: "",
+                                                    });
+                                                }}
                                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         </div>
@@ -899,13 +1069,17 @@ const ProductsData = () => {
                                             </label>
                                             <input
                                                 value={formData.p_category}
-                                                onChange={(e) =>
+                                                onChange={(e) => {
                                                     setFormData((prev) => ({
                                                         ...prev,
                                                         p_category:
                                                             e.target.value,
-                                                    }))
-                                                }
+                                                    }));
+                                                    setViewModalMessage({
+                                                        type: "",
+                                                        text: "",
+                                                    });
+                                                }}
                                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         </div>
@@ -917,12 +1091,16 @@ const ProductsData = () => {
                                                 type="number"
                                                 step="0.01"
                                                 value={formData.p_price}
-                                                onChange={(e) =>
+                                                onChange={(e) => {
                                                     setFormData((prev) => ({
                                                         ...prev,
                                                         p_price: e.target.value,
-                                                    }))
-                                                }
+                                                    }));
+                                                    setViewModalMessage({
+                                                        type: "",
+                                                        text: "",
+                                                    });
+                                                }}
                                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         </div>
@@ -934,16 +1112,51 @@ const ProductsData = () => {
                                                 type="number"
                                                 step="0.01"
                                                 value={formData.discount_price}
-                                                onChange={(e) =>
+                                                onChange={(e) => {
                                                     setFormData((prev) => ({
                                                         ...prev,
                                                         discount_price:
                                                             e.target.value,
-                                                    }))
-                                                }
+                                                    }));
+                                                    setViewModalMessage({
+                                                        type: "",
+                                                        text: "",
+                                                    });
+                                                }}
                                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
                                         </div>
+                                    </div>
+                                    {/* Checkboxes */}
+                                    <div className="flex items-center gap-4 mt-4">
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.trending}
+                                                onChange={(e) => {
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        trending: e.target.checked,
+                                                    }));
+                                                    setViewModalMessage({ type: "", text: "" });
+                                                }}
+                                            />
+                                            <span className="text-sm text-gray-700 dark:text-gray-300">Trending</span>
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.bestseller}
+                                                onChange={(e) => {
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        bestseller: e.target.checked,
+                                                    }));
+                                                    setViewModalMessage({ type: "", text: "" });
+                                                }}
+                                            />
+                                            <span className="text-sm text-gray-700 dark:text-gray-300">Bestseller</span>
+                                        </label>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -951,12 +1164,16 @@ const ProductsData = () => {
                                         </label>
                                         <textarea
                                             value={formData.description}
-                                            onChange={(e) =>
+                                            onChange={(e) => {
                                                 setFormData((prev) => ({
                                                     ...prev,
                                                     description: e.target.value,
-                                                }))
-                                            }
+                                                }));
+                                                setViewModalMessage({
+                                                    type: "",
+                                                    text: "",
+                                                });
+                                            }}
                                             rows={4}
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                                         />
@@ -972,7 +1189,7 @@ const ProductsData = () => {
                                                 accept="image/*"
                                                 onChange={handleImageUpload}
                                                 className="hidden"
-                                                id="image-upload-edit" // Unique ID for edit modal
+                                                id="image-upload-edit"
                                             />
                                             <label
                                                 htmlFor="image-upload-edit"
@@ -1038,11 +1255,15 @@ const ProductsData = () => {
                                             disabled={
                                                 !formData.p_name ||
                                                 !formData.p_category ||
-                                                !formData.p_price
+                                                !formData.p_price ||
+                                                viewModalMessage.type ===
+                                                    "success"
                                             }
                                             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                         >
-                                            Update Product
+                                            {viewModalMessage.type === "success"
+                                                ? "Success!"
+                                                : "Update Product"}
                                         </button>
                                     </div>
                                 </div>
@@ -1061,29 +1282,33 @@ const ProductsData = () => {
                                 Confirm Deletion
                             </h3>
                             <button
-                                onClick={() => setShowDeleteModal(false)}
+                                onClick={closeDeleteModal}
                                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                             >
                                 <X size={20} />
                             </button>
                         </div>
+                        <MessageDisplay message={deleteModalMessage} />
                         <p className="text-gray-600 dark:text-gray-300 mb-6">
                             Are you sure you want to delete{" "}
-                            <strong>"{selectedProduct.name}"</strong>? This
+                            <strong>"{selectedProduct.p_name}"</strong>? This
                             action cannot be undone.
                         </p>
                         <div className="flex justify-end gap-3">
                             <button
-                                onClick={() => setShowDeleteModal(false)}
+                                onClick={closeDeleteModal}
                                 className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleDeleteProduct}
-                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+                                disabled={deleteModalMessage.type === "success"}
+                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                Delete
+                                {deleteModalMessage.type === "success"
+                                    ? "Deleted!"
+                                    : "Delete"}
                             </button>
                         </div>
                     </div>

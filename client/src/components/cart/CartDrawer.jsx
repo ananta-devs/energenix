@@ -60,31 +60,31 @@ export default function CartDrawer() {
             ) : (
               <div className="space-y-4">
                 {items.map(item => (
-                  <div key={item.id} className="flex gap-4 pb-4 border-b">
+                  <div key={item._id} className="flex gap-4 pb-4 border-b">
                     <img
-                      src={item.images[0]}
-                      alt={item.title}
+                      src={item.image_urls && item.image_urls.length > 0 ? item.image_urls[0] : ''}
+                      alt={item.p_name}
                       className="w-20 h-20 object-cover rounded-lg"
                     />
                     <div className="flex-1">
-                      <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
-                      <p className="text-purple-600 font-bold">${item.price.toLocaleString()}</p>
+                      <h3 className="font-semibold text-sm mb-1">{item.p_name}</h3>
+                      <p className="text-blue-950 font-semibold">₨. {item.discount_price.toLocaleString()}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item._id, item.quantity - 1)}
                           className="p-1 hover:bg-gray-100 rounded"
                         >
                           <Minus className="w-4 h-4" />
                         </button>
                         <span className="text-sm font-semibold px-2">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item._id, item.quantity + 1)}
                           className="p-1 hover:bg-gray-100 rounded"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item._id)}
                           className="ml-auto p-1 hover:bg-red-50 rounded text-red-500"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -102,14 +102,14 @@ export default function CartDrawer() {
             <div className="border-t p-6 space-y-4">
               <div className="flex justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span className="text-purple-600">${total.toLocaleString()}</span>
+                <span className="font-medium">₨. {total.toLocaleString()}</span>
               </div>
 
               <div className="flex gap-3">
                 <Link
                   to="/checkout"
                   onClick={handleCheckout}
-                  className="flex-1 text-center bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition cursor-pointer"
+                  className="flex-1 text-center bg-blue-950 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition cursor-pointer"
                 >
                   Checkout
                 </Link>

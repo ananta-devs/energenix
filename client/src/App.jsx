@@ -1,6 +1,5 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { CartProvider } from './context/CartContext.jsx';
 import HomePage from './components/home/HomePage.jsx';
 import CategoryPage from './components/product/CategoryPage.jsx';
 import ProductDetailPage from './components/product/ProductDetailPage.jsx';
@@ -22,8 +21,9 @@ function App() {
   const { toast, closeToast } = useAuth();
 
   return (
-    <CartProvider>
+    <>
       <CartDrawer />
+
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
@@ -32,18 +32,22 @@ function App() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          } />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
+
         <Route path="/login" element={<LoginPage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/cookie" element={<CookiePolicy />} />
       </Routes>
-      {/* Global Toast Component */}
+
       {toast && (
         <Toast
           message={toast.message}
@@ -51,7 +55,7 @@ function App() {
           onClose={closeToast}
         />
       )}
-    </CartProvider>
+    </>
   );
 }
 

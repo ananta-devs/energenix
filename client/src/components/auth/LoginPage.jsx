@@ -3,6 +3,7 @@ import { Eye, EyeOff, Mail, Phone, Lock, User, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../utils/api';
 
 // Custom Hook for OTP Timer
 const useOtpTimer = (initialTime = 30) => {
@@ -190,7 +191,7 @@ const SignUpPage = ({ onNavigate }) => {
     }
 
     setLoading(true);
-    fetch('http://localhost:4000/api/auth/signup', {
+    fetch(`${API_BASE_URL}/auth/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -306,7 +307,7 @@ const OtpVerificationPage = ({ onNavigate, pageData }) => {
     }
 
     setLoading(true);
-    fetch('http://localhost:4000/api/auth/verify-otp', {
+    fetch(`${API_BASE_URL}/auth/verify-otp`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -398,7 +399,7 @@ const SignInPage = ({ onNavigate }) => {
   const [loading, setLoading] = useState(false);
   const { showToast, login } = useAuth();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newErrors = {};
     
     if (!formData.identifier.trim()) {
@@ -414,33 +415,9 @@ const SignInPage = ({ onNavigate }) => {
     }
 
     setLoading(true);
-    fetch('http://localhost:4000/api/auth/signin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email: formData.identifier, password: formData.password }),
-    })
-      .then(async (res) => {
-        if (res.ok) {
-          return res.json();
-        } else {
-          const errorData = await res.json();
-          throw new Error(errorData.msg || 'Something went wrong');
-        }
-      })
-      .then((data) => {
-        const decoded = jwtDecode(data.token);
-        login(data.token, { fullName: decoded.user.fullName, email: decoded.user.email, phone: decoded.user.phone });
-        showToast('Login successful!', 'success');
-        navigate('/');
-      })
-      .catch((err) => {
-        showToast(err.message, 'error');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    await login(formData.identifier, formData.password);
+    setLoading(false);
+    navigate('/');
   };
 
   const handleKeyPress = (e) => {
@@ -526,7 +503,7 @@ const ForgotPasswordPage = ({ onNavigate }) => {
     }
 
     setLoading(true);
-    fetch('http://localhost:4000/api/auth/forgot-password', {
+    fetch(`${API_BASE_URL}/auth/forgot-password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -616,7 +593,7 @@ const ResetPasswordPage = ({ onNavigate, pageData }) => {
     }
 
     setLoading(true);
-    fetch('http://localhost:4000/api/auth/reset-password', {
+    fetch(`${API_BASE_URL}/auth/reset-password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -1,18 +1,33 @@
 import React from 'react';
-import { PRODUCTS, TESTIMONIALS } from '../../data';
+import { TESTIMONIALS } from '../../data';
 import { Star, TrendingUp } from 'lucide-react';
 import HeroSlider from './HeroSlider.jsx';
 import ProductCard from '../product/ProductCard.jsx';
+import { useProducts } from '../../context/ProductContext.jsx';
 
 export default function HomePage() {
+  const { products, loading, error } = useProducts();
 
-  const trendingProducts = PRODUCTS.filter(p => p.trending);
+  const trendingProducts = products.filter(p => p.trending);
+
+  // Shuffle and select 3 random trending products
+  const randomTrendingProducts = trendingProducts
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 3);
+
+  if (loading) {
+    return <div className="py-20 text-center">Loading trending products...</div>;
+  }
+
+  if (error) {
+    return <div className="py-20 text-center">Error: {error.message}</div>;
+  }
 
   return (
     <div>
       <HeroSlider />
 
-      {/* Featured Products */}
+      {/* Trending Products */}
       <section className="py-10">
         <div className="container mx-auto px-4">
           <div className="items-center justify-between mb-8">
@@ -23,8 +38,8 @@ export default function HomePage() {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {trendingProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
+            {randomTrendingProducts.map(product => (
+              <ProductCard key={product._id} product={product} />
             ))}
           </div>
         </div>

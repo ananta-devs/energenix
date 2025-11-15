@@ -29,7 +29,7 @@ const getProductById = asyncHandler(async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = asyncHandler(async (req, res) => {
-  const { p_name, p_subtitle, p_category, p_price, discount_price, description, image_urls } = req.body;
+  const { p_name, p_subtitle, p_category, p_price, discount_price, description, image_urls, trending, bestseller } = req.body;
 
   // Generate a unique p_id (e.g., using a timestamp)
   const p_id = `prod_${Date.now()}`; // Simple unique ID generation
@@ -43,6 +43,8 @@ const createProduct = asyncHandler(async (req, res) => {
     discount_price,
     description,
     image_urls,
+    trending,
+    bestseller,
   });
 
   const createdProduct = await product.save();
@@ -65,21 +67,22 @@ const createProduct = asyncHandler(async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = asyncHandler(async (req, res) => {
-  const { p_name, p_subtitle, p_category, p_price, discount_price, description, image_urls } = req.body;
+  const { p_name, p_subtitle, p_category, p_price, discount_price, description, image_urls, trending, bestseller } = req.body;
 
-  const product = await Product.findById(req.params.id);
+  const updateData = {};
+  if (p_name !== undefined) updateData.p_name = p_name;
+  if (p_subtitle !== undefined) updateData.p_subtitle = p_subtitle;
+  if (p_category !== undefined) updateData.p_category = p_category;
+  if (p_price !== undefined) updateData.p_price = p_price;
+  if (discount_price !== undefined) updateData.discount_price = discount_price;
+  if (description !== undefined) updateData.description = description;
+  if (image_urls !== undefined) updateData.image_urls = image_urls;
+  if (trending !== undefined) updateData.trending = trending;
+  if (bestseller !== undefined) updateData.bestseller = bestseller;
 
-  if (product) {
-    product.p_name = p_name || product.p_name;
-    product.p_subtitle = p_subtitle || product.p_subtitle;
-    product.p_category = p_category || product.p_category;
-    product.p_price = p_price || product.p_price;
-    product.discount_price = discount_price || product.discount_price;
-    product.description = description || product.description;
-    product.image_urls = image_urls || product.image_urls;
+  const updatedProduct = await Product.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true, runValidators: true });
 
-    const updatedProduct = await product.save();
-
+  if (updatedProduct) {
     // Update product name in corresponding inventory entry
     await Inventory.findOneAndUpdate(
       { product_id: updatedProduct._id },
