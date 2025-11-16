@@ -29,7 +29,14 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/category/:categoryId" element={<CategoryPage />} />
           <Route path="/product/:productId" element={<ProductDetailPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route

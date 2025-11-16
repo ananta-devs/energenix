@@ -1,25 +1,27 @@
-
 const express = require('express');
 const connectDB = require('./config/db');
+const cors = require('cors');
+require('dotenv').config();
+
 const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contactRoutes');
 const productRoutes = require('./routes/productRoutes');
-const cors = require('cors');
-require('dotenv').config();
+const pincodeRoutes = require('./routes/pincode'); // ← ADD THIS
 
 const app = express();
 
 // Connect Database
 connectDB();
 
-// Init Middleware
+// Middleware
 app.use(cors());
-app.use(express.json({ extended: false }));
+app.use(express.json());
 
-// Define Routes
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api', contactRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/pincode', pincodeRoutes);  // ← IMPORTANT
 
 const PORT = process.env.PORT || 4000;
 

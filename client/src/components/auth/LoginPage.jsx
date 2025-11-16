@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Phone, Lock, User, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { jwtDecode } from 'jwt-decode';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { API_BASE_URL } from '../../utils/api';
 
 // Custom Hook for OTP Timer
@@ -398,6 +398,8 @@ const SignInPage = ({ onNavigate }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { showToast, login } = useAuth();
+  const location = useLocation(); // Import useLocation
+  const from = location.state?.from || '/'; // Get the 'from' path from location state
 
   const handleSubmit = async () => {
     const newErrors = {};
@@ -417,7 +419,7 @@ const SignInPage = ({ onNavigate }) => {
     setLoading(true);
     await login(formData.identifier, formData.password);
     setLoading(false);
-    navigate('/');
+    navigate(from); // Redirect to the 'from' path or home page
   };
 
   const handleKeyPress = (e) => {

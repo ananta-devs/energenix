@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, ChevronDown, Edit, X, Info } from 'lucide-react';
 import logo from '../../assets/logo.svg';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +17,11 @@ const Dashboard = () => {
   const { user, logout, showToast } = useAuth();
   const navigate = useNavigate();
   
+  // Refs for auto-focus
+  const pinRef = useRef(null);
+  const cityRef = useRef(null);
+  const stateRef = useRef(null);
+
   // Profile edit state
   const [formData, setFormData] = useState({
     fullName: '',
@@ -56,16 +61,44 @@ const Dashboard = () => {
   // Address form state
   const [addressForm, setAddressForm] = useState({
     isDefault: false,
-    country: 'India',
-    firstName: '',
-    lastName: '',
-    address: '',
-    apartment: '',
-    city: '',
-    state: 'Andaman and Nicoba...',
-    pinCode: '',
-    phone: ''
+    fullName: "",
+    phone: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    pinCode: "",
   });
+
+  // PIN debounce handler
+  let pinTimeout;
+
+  const handlePinChange = (pin) => {
+    setAddressForm(prev => ({ ...prev, pinCode: pin }));
+
+    if (pinTimeout) clearTimeout(pinTimeout);
+
+    if (pin.length !== 6) {
+      setAddressForm(prev => ({ ...prev, city: "", state: "" }));
+      return;
+    }
+
+    pinTimeout = setTimeout(async () => {
+      const { city, state } = await fetchCityState(pin);
+
+      if (!city) {
+        // invalid pincode message
+        showToast("Invalid pincode", "error");
+        cityRef.current?.focus();
+        return;
+      }
+
+      setAddressForm(prev => ({ ...prev, city, state }));
+
+      // autofocus next field
+      cityRef.current?.focus();
+    }, 500);
+  };
 
   const handleNavigation = (page) => {
     setCurrentPage(page);
@@ -183,6 +216,21 @@ const Dashboard = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  // Fetch city/state from backend
+  const fetchCityState = async (pin) => {
+    try {
+      const res = await axios.get(`/api/pincode/${pin}`);
+      return {
+        city: res.data.city || "",
+        state: res.data.state || ""
+      };
+    } catch (err) {
+      console.error("Invalid PIN:", err);
+      return { city: "", state: "" };
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -461,150 +509,128 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Add Address Modal */}
-      {showAddAddressModal && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Add address</h2>
-              <button
-                onClick={() => setShowAddAddressModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+  {/* Add Address Modal */}
+  {showAddAddressModal && (
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
 
-            <div className="space-y-4 mb-6">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="defaultAddress"
-                  checked={addressForm.isDefault}
-                  onChange={(e) => setAddressForm({...addressForm, isDefault: e.target.checked})}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="defaultAddress" className="ml-2 text-sm text-gray-900">
-                  This is my default address
-                </label>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Add Address</h2>
+          <button
+            onClick={() => setShowAddAddressModal(false)}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4 mb-6">
+          
+          {/* Default */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              checked={addressForm.isDefault}
+              onChange={(e) => setAddressForm({...addressForm, isDefault: e.target.checked})}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+            />
+            <label className="ml-2 text-sm">Set as default address</label>
+          </div>
+
+          {/* Full Name */}
+          <input
+            type="text"
+            value={addressForm.fullName}
+            onChange={(e) => setAddressForm({...addressForm, fullName: e.target.value})}
+            placeholder="Full name"
+            className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+          />
+
+          {/* Phone */}
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Phone</label>
+            <div className="flex">
+              <div className="flex items-center px-3 py-2 border border-r-0 bg-gray-50 rounded-l-md">
+                🇮🇳
               </div>
-
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Country/region</label>
-                <select
-                  value={addressForm.country}
-                  onChange={(e) => setAddressForm({...addressForm, country: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option>India</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <input
-                    type="text"
-                    value={addressForm.firstName}
-                    onChange={(e) => setAddressForm({...addressForm, firstName: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="First name"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="text"
-                    value={addressForm.lastName}
-                    onChange={(e) => setAddressForm({...addressForm, lastName: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Last name"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <input
-                  type="text"
-                  value={addressForm.address}
-                  onChange={(e) => setAddressForm({...addressForm, address: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Address"
-                />
-              </div>
-
-              <div>
-                <input
-                  type="text"
-                  value={addressForm.apartment}
-                  onChange={(e) => setAddressForm({...addressForm, apartment: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Apartment, suite, etc (optional)"
-                />
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <input
-                    type="text"
-                    value={addressForm.city}
-                    onChange={(e) => setAddressForm({...addressForm, city: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="City"
-                  />
-                </div>
-                <div>
-                  <select
-                    value={addressForm.state}
-                    onChange={(e) => setAddressForm({...addressForm, state: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  >
-                    <option>Andaman and Nicoba...</option>
-                  </select>
-                </div>
-                <div>
-                  <input
-                    type="text"
-                    value={addressForm.pinCode}
-                    onChange={(e) => setAddressForm({...addressForm, pinCode: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="PIN code"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Phone</label>
-                <div className="flex">
-                  <div className="flex items-center px-3 py-2 border border-r-0 border-gray-300 rounded-l-md bg-gray-50">
-                    <span className="text-2xl mr-1">🇮🇳</span>
-                  </div>
-                  <input
-                    type="tel"
-                    value={addressForm.phone}
-                    onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="+91"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowAddAddressModal(false)}
-                className="px-6 py-2 text-gray-700 hover:text-gray-900 font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveAddress}
-                className="px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 font-medium"
-              >
-                Save
-              </button>
+              <input
+                type="tel"
+                value={addressForm.phone}
+                onChange={(e) => setAddressForm({...addressForm, phone: e.target.value})}
+                placeholder="+91"
+                className="flex-1 px-3 py-2 border rounded-r-md focus:ring-2 focus:ring-blue-500"
+              />
             </div>
           </div>
+
+          {/* Address Line 1 */}
+          <input
+            type="text"
+            value={addressForm.addressLine1}
+            onChange={(e) => setAddressForm({...addressForm, addressLine1: e.target.value})}
+            placeholder="Address line 1"
+            className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+          />
+
+          {/* Address Line 2 */}
+          <input
+            type="text"
+            value={addressForm.addressLine2}
+            onChange={(e) => setAddressForm({...addressForm, addressLine2: e.target.value})}
+            placeholder="Apartment, suite, etc (optional)"
+            className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+          />
+
+          {/* City / State / Pincode */}
+          <div className="grid grid-cols-3 gap-4">
+
+            <input
+              type="text"
+              value={addressForm.city}
+              readOnly
+              ref={cityRef}
+              className="px-3 py-2 border rounded-md bg-gray-100 cursor-not-allowed"
+            />
+
+            <input
+              type="text"
+              value={addressForm.state}
+              disabled
+              ref={stateRef}
+              className="px-3 py-2 border rounded-md bg-gray-100 cursor-not-allowed"
+            />
+
+            <input
+              type="text"
+              value={addressForm.pinCode}
+              onChange={(e) => handlePinChange(e.target.value)}
+              placeholder="PIN code"
+              className="px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+              ref={pinRef}
+            />
+          </div>
         </div>
-      )}
+
+        {/* Buttons */}
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={() => setShowAddAddressModal(false)}
+            className="px-6 py-2 text-gray-700 hover:text-gray-900"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSaveAddress}
+            className="px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+
+
 
       {/* Footer */}
       <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 mt-auto">
