@@ -6,7 +6,8 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contactRoutes');
 const productRoutes = require('./routes/productRoutes');
-const pincodeRoutes = require('./routes/pincode'); // ← ADD THIS
+const pincodeRoutes = require('./routes/pincode');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
 
@@ -21,7 +22,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api', contactRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/pincode', pincodeRoutes);  // ← IMPORTANT
+app.use('/api/pincode', pincodeRoutes);
+app.use('/api/payment', paymentRoutes);
 
 const PORT = process.env.PORT || 4000;
 

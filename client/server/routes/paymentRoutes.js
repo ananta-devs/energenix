@@ -1,6 +1,6 @@
-import express from "express";
-import razorpay from "../config/razorpayConfig.js";
-import crypto from "crypto";
+const express = require("express");
+const razorpay = require("../config/razorpayConfig");
+const crypto = require("crypto");
 
 const router = express.Router();
 
@@ -16,7 +16,7 @@ router.post("/create-order", async (req, res) => {
     };
 
     const order = await razorpay.orders.create(options);
-    res.json({ orderId: order.id, key: process.env.RAZORPAY_KEY_ID });
+    res.json({ orderId: order.id, key: process.env.RAZORPAY_API_KEY });
   } catch (error) {
     res.status(500).json({ message: "Order creation failed", error });
   }
@@ -41,4 +41,4 @@ router.post("/verify", (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;
