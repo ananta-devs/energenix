@@ -13,6 +13,7 @@ import {
     Tag,
 } from "lucide-react";
 import axios from "axios";
+import ap from "../../assets/testlogo.png";
 
 export default function CheckoutFlow() {
     const { items, total, clearCart } = useCart();
@@ -117,7 +118,8 @@ export default function CheckoutFlow() {
                 key,
                 amount: finalTotal * 100,
                 currency: "INR",
-                name: "EnergeniX",
+                name: "AfterPan",
+                image: ap,
                 description: "Test Transaction",
                 order_id: orderId,
                 handler: async function (response) {
@@ -153,7 +155,7 @@ export default function CheckoutFlow() {
                     address: addressForm.addressLine1,
                 },
                 theme: {
-                    color: "#6B21A8",
+                    color: "#162556",
                 },
             };
             const rzp = new window.Razorpay(options);

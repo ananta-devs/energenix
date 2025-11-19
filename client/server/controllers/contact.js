@@ -4,35 +4,33 @@ exports.submitContactForm = async (req, res) => {
   try {
     const { firstName, lastName, email, phone, message } = req.body;
 
-    let fullName;
-    if (firstName && lastName) {
-      fullName = `${firstName} ${lastName}`;
-    } else if (firstName) {
-      fullName = firstName;
-    }
+    let contactData;
 
     if (req.user) {
-      const { fullName: userName, email: userEmail, phone: userPhone } = req.user;
-      const newContact = new Contact({
-        fullName: userName,
-        email: userEmail,
-        phone: userPhone,
+      // User is logged in, use their data
+      contactData = {
+        fullName: req.user.fullName,
+        email: req.user.email,
+        phone: req.user.phone,
         message,
-      });
-      await newContact.save();
+      };
     } else {
-      const newContact = new Contact({
+      // User is not logged in, use form data
+      const fullName = `${firstName || ''} ${lastName || ''}`.trim();
+      contactData = {
         fullName,
         email,
         phone,
         message,
-      });
-      await newContact.save();
+      };
     }
+
+    const newContact = new Contact(contactData);
+    await newContact.save();
 
     res.status(201).json({ message: "Contact form submitted successfully" });
   } catch (error) {
-    console.error(error);
+    console.error("Error submitting contact form:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

@@ -102,17 +102,15 @@ exports.verifyOtp = async (req, res) => {
 
 exports.signin = async (req, res) => {
   const { identifier, password } = req.body;
-  console.log('Signin attempt with identifier:', identifier);
+  // console.log('Signin attempt with identifier:', identifier);
 
   try {
     let user;
     // Check if the identifier is an email or a phone number
     if (identifier.includes('@')) {
       user = await User.findOne({ email: identifier });
-      console.log('User lookup by email:', user);
     } else {
       user = await User.findOne({ phone: identifier });
-      console.log('User lookup by phone:', user);
     }
 
     if (!user) {
