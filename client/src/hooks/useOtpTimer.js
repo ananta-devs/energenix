@@ -1,7 +1,6 @@
-// hooks/useOtpTimer.js
 import { useState, useEffect } from 'react';
 
-export const useOtpTimer = (initialTime = 30) => {
+const useOtpTimer = (initialTime = 30) => {
   const [timeLeft, setTimeLeft] = useState(initialTime);
   const [isActive, setIsActive] = useState(false);
 
@@ -22,10 +21,7 @@ export const useOtpTimer = (initialTime = 30) => {
     setIsActive(true);
   };
 
-  const resetTimer = () => {
-    setTimeLeft(initialTime);
-    setIsActive(false);
-  };
-
-  return { timeLeft, isActive, startTimer, resetTimer };
+  return { timeLeft, isActive, startTimer };
 };
+
+export default useOtpTimer;

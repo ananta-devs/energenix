@@ -14,8 +14,8 @@ export default function CategoryPage() {
   const filteredProducts = products.filter(p => 
     categoryId === 'all' || p.p_category === categoryId
   ).sort((a, b) => {
-    if (sortBy === 'price-low') return a.p_price - b.p_price;
-    if (sortBy === 'price-high') return b.p_price - a.p_price;
+    if (sortBy === 'price-low') return a.discount_price - b.discount_price;
+    if (sortBy === 'price-high') return b.discount_price - a.discount_price;
     // Assuming 'rating' might be a future field, for now, it won't sort
     // if (sortBy === 'rating') return b.rating - a.rating; 
     return 0;
@@ -94,7 +94,6 @@ export default function CategoryPage() {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 border rounded-lg outline-none focus:border-purple-600"
                 >
-                  <option value="featured">Featured</option>
                   <option value="price-low">Price: Low to High</option>
                   <option value="price-high">Price: High to Low</option>
                   <option value="rating">Highest Rated</option>

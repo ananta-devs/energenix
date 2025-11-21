@@ -1,12 +1,13 @@
 
 const express = require('express');
 const router = express.Router();
-const { signup, signin, verifyOtp, forgotPassword, resetPassword, getMe, updateMe, sendUpdateEmailOtp, verifyUpdateEmailOtp, checkEmail } = require('../controllers/auth');
+const { signup, signin, verifyOtp, verifySigninOtp, forgotPassword, resetPassword, getMe, updateMe, sendUpdateEmailOtp, verifyUpdateEmailOtp, checkEmail } = require('../controllers/auth');
 const { auth } = require('../middleware/auth');
 
 router.post('/signup', signup);
 router.post('/signin', signin);
 router.post('/verify-otp', verifyOtp);
+router.post('/verify-signin-otp', verifySigninOtp);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.get('/me', auth, getMe);

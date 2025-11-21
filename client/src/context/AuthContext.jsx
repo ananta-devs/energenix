@@ -1,7 +1,6 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import { API_BASE_URL } from '../utils/api';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { API_BASE_URL } from "../utils/api";
+import { decodeToken, saveToken, getToken, clearToken } from "./authService";
 
 const AuthContext = createContext(null);
 
@@ -12,71 +11,81 @@ export const AuthProvider = ({ children }) => {
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        // Check for token expiry
-        if (decoded.exp * 1000 > Date.now()) {
-          setUser({ fullName: decoded.user.fullName, email: decoded.user.email, phone: decoded.user.phone }); // Assuming fullName, email and phone are in the token
-          setIsAuthenticated(true);
-        } else {
-          localStorage.removeItem('token');
-        }
-      } catch (error) {
-        console.error("Failed to decode token:", error);
-        localStorage.removeItem('token');
+      const decoded = decodeToken(token);
+
+      if (decoded && decoded.exp * 1000 > Date.now()) {
+        setUser(decoded.user);
+        setIsAuthenticated(true);
+      } else {
+        clearToken();
       }
     }
+
     setLoading(false);
   }, []);
 
-  const login = async (identifier, password) => {
+  const login = async (email) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/signin`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ identifier, password }),
+      const res = await fetch(`${API_BASE_URL}/auth/signin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        const decoded = jwtDecode(data.token);
-        setUser({ fullName: decoded.user.fullName, email: decoded.user.email, phone: decoded.user.phone });
-        setIsAuthenticated(true);
-        showToast('Login successful!', 'success');
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showToast("OTP sent to your email!", "success");
+        return true;
       } else {
-        showToast(data.message || 'Login failed', 'error');
+        showToast(data.message || "Failed to send OTP", "error");
+        return false;
       }
-    } catch (error) {
-      console.error("Login API error:", error);
-      showToast('An error occurred during login', 'error');
+    } catch (err) {
+      console.error("Login error:", err);
+      showToast("Something went wrong", "error");
+      return false;
     }
   };
 
+  const setAuthToken = (token) => {
+    saveToken(token);
+    const decoded = decodeToken(token);
+    setUser(decoded.user);
+    setIsAuthenticated(true);
+  };
+
   const logout = () => {
-    localStorage.removeItem('token');
+    clearToken();
     setUser(null);
     setIsAuthenticated(false);
   };
 
-  const showToast = (message, type = 'info') => {
+  const showToast = (message, type = "info") => {
     setToast({ message, type });
   };
 
-  const closeToast = () => {
-    setToast(null);
-  };
+  const closeToast = () => setToast(null);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, logout, showToast, toast, closeToast }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        loading,
+        login,
+        logout,
+        showToast,
+        toast,
+        closeToast,
+        setAuthToken,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);

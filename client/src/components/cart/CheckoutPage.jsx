@@ -13,7 +13,7 @@ import {
     Tag,
 } from "lucide-react";
 import axios from "axios";
-import ap from "../../assets/testlogo.png";
+import ap from "../../assets/logo.svg";
 
 export default function CheckoutFlow() {
     const { items, total, clearCart } = useCart();

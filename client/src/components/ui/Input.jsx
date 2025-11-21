@@ -1,19 +1,11 @@
 import React from 'react';
 
-export const Input = ({ 
-  label, 
-  icon: Icon, 
-  error, 
-  className = '',
-  ...props 
-}) => {
+const InputField = ({ label, icon: Icon, error, ...props }) => {
   return (
     <div className="mb-4">
-      {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          {label}
-        </label>
-      )}
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label}
+      </label>
       <div className="relative">
         {Icon && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -23,7 +15,7 @@ export const Input = ({
         <input
           className={`w-full ${Icon ? 'pl-11' : 'pl-4'} pr-4 py-3 border ${
             error ? 'border-red-500' : 'border-gray-300'
-          } rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${className}`}
+          } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
           {...props}
         />
       </div>
@@ -31,3 +23,5 @@ export const Input = ({
     </div>
   );
 };
+
+export default InputField;

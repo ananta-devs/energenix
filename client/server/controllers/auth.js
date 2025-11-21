@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const transporter = require('../config/nodemailer');
 
 exports.signup = async (req, res) => {
-  const { fullName, email, phone, password } = req.body;
+  const { fullName, email, phone } = req.body;
 
   try {
     let user = await User.findOne({ email });
@@ -18,11 +18,7 @@ exports.signup = async (req, res) => {
       fullName,
       email,
       phone,
-      password,
     });
-
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
 
     await user.save();
 
@@ -100,32 +96,21 @@ exports.verifyOtp = async (req, res) => {
   }
 };
 
-exports.signin = async (req, res) => {
-  const { identifier, password } = req.body;
-  // console.log('Signin attempt with identifier:', identifier);
+exports.verifySigninOtp = async (req, res) => {
+  const { email, otp } = req.body;
 
   try {
-    let user;
-    // Check if the identifier is an email or a phone number
-    if (identifier.includes('@')) {
-      user = await User.findOne({ email: identifier });
-    } else {
-      user = await User.findOne({ phone: identifier });
+    const storedOTP = await OTP.findOne({ email, otp });
+
+    if (!storedOTP) {
+      return res.status(400).json({ msg: 'Invalid or expired OTP' });
     }
 
-    if (!user) {
-      console.log('User not found for identifier:', identifier);
-      return res.status(400).json({ msg: 'Invalid credentials' });
-    }
+    // OTP is valid, find user
+    let user = await User.findOne({ email });
 
-    if (!user.isVerified) {
-      return res.status(400).json({ msg: 'Please verify your email with OTP first' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
-    }
+    // Delete the OTP after successful verification
+    await OTP.deleteOne({ email, otp });
 
     const payload = {
       user: {
@@ -145,6 +130,49 @@ exports.signin = async (req, res) => {
         res.json({ token });
       }
     );
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+exports.signin = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ msg: 'User with this email does not exist' });
+    }
+
+    if (!user.isVerified) {
+      return res.status(400).json({ msg: 'Please verify your email with OTP first' });
+    }
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Save OTP to database
+    const newOTP = new OTP({ email, otp });
+    await newOTP.save();
+
+    // Send OTP via email
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'OTP for Sign In',
+      html: `<h1>Your OTP for sign in is ${otp}</h1>`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      console.log('Message sent: %s', info.messageId);
+    });
+
+    res.status(200).json({ msg: 'OTP sent to your email for sign in' });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

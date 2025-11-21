@@ -7,6 +7,8 @@ import CheckoutPage from './components/cart/CheckoutPage.jsx';
 import OrderConfirmationPage from './components/common/OrderConfirmationPage.jsx';
 import ContactPage from './components/common/ContactPage.jsx';
 import LoginPage from './components/auth/LoginPage.jsx';
+import SignUpPage from './components/auth/SignUpPage.jsx';
+import OtpVerificationPage from './components/auth/OtpVerificationPage.jsx';
 import CartDrawer from './components/cart/CartDrawer.jsx';
 import MainLayout from './components/layout/MainLayout.jsx';
 import DashboardPage from './components/dashboard/DashboardPage.jsx';
@@ -50,6 +52,8 @@ function App() {
         </Route>
 
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/verify-otp" element={<OtpVerificationPage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/cookie" element={<CookiePolicy />} />
