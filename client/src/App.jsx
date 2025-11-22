@@ -11,7 +11,7 @@ import SignUpPage from './components/auth/SignUpPage.jsx';
 import OtpVerificationPage from './components/auth/OtpVerificationPage.jsx';
 import CartDrawer from './components/cart/CartDrawer.jsx';
 import MainLayout from './components/layout/MainLayout.jsx';
-import DashboardPage from './components/dashboard/DashboardPage.jsx';
+import Dashboard from './pages/dashboard/Dashboard.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toast } from './components/ui/Toast.jsx';
 import { useAuth } from './context/AuthContext.jsx';
@@ -45,7 +45,7 @@ function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <DashboardPage />
+                <Dashboard />
               </ProtectedRoute>
             }
           />
