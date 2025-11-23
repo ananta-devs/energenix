@@ -11,6 +11,7 @@ import {
     Image as ImageIcon,
     CheckCircle,
     XCircle,
+    Upload,
 } from "lucide-react";
 import { dataService } from "../utils/dataService";
 import axios from "axios";
@@ -27,10 +28,11 @@ const ProductsData = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [editingProduct, setEditingProduct] = useState(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [formErrors, setFormErrors] = useState({});
 
     // Form state
     const [formData, setFormData] = useState({
-        p_id: "",
         p_name: "",
         p_subtitle: "",
         image_urls: [],
@@ -55,10 +57,21 @@ const ProductsData = () => {
         type: "",
         text: "",
     });
+    const [collections, setCollections] = useState([]);
 
     useEffect(() => {
         loadProducts();
+        loadCollections();
     }, []);
+
+    const loadCollections = async () => {
+        try {
+            const data = await dataService.getCollections();
+            setCollections(data);
+        } catch (error) {
+            console.error("Error loading collections:", error);
+        }
+    };
 
     useEffect(() => {
         const filtered = products.filter(
@@ -66,7 +79,7 @@ const ProductsData = () => {
                 (product.p_name || "")
                     .toLowerCase()
                     .includes(searchTerm.toLowerCase()) ||
-                (product.p_category || "")
+                (product.p_category?.c_name || "")
                     .toLowerCase()
                     .includes(searchTerm.toLowerCase())
         );
@@ -79,31 +92,78 @@ const ProductsData = () => {
             setProducts(data);
             setFilteredProducts(data);
         } catch (error) {
-            // Error handled silently in the background
+            console.error("Error loading products:", error);
         } finally {
             setLoading(false);
         }
     };
 
+    // Validation functions
+    const validateForm = () => {
+        const errors = {};
+        
+        if (!formData.p_name?.trim()) {
+            errors.p_name = "Product name is required";
+        }
+        
+        if (!formData.p_category) {
+            errors.p_category = "Category is required";
+        }
+        
+        if (!formData.p_price || parseFloat(formData.p_price) <= 0) {
+            errors.p_price = "Valid price is required";
+        }
+        
+        if (formData.discount_price && parseFloat(formData.discount_price) >= parseFloat(formData.p_price)) {
+            errors.discount_price = "Discount price must be less than regular price";
+        }
+
+        if (formData.image_urls.length === 0) {
+            errors.image_urls = "At least one image is required";
+        }
+        
+        return errors;
+    };
+
+    const formatPrice = (price) => {
+        if (!price && price !== 0) return "N/A";
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(price);
+    };
+
     const handleAddProduct = async () => {
+        const errors = validateForm();
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            setAddModalMessage({
+                type: "error",
+                text: "Please fix the form errors before submitting.",
+            });
+            return;
+        }
+
+        setFormErrors({});
+        
         try {
             setAddModalMessage({ type: "", text: "" });
+            setUploadProgress(0);
 
             const productToCreate = {
-                p_name: formData.p_name,
-                p_subtitle: formData.p_subtitle,
+                p_name: formData.p_name.trim(),
+                p_subtitle: formData.p_subtitle.trim(),
                 p_category: formData.p_category,
                 p_price: parseFloat(formData.p_price),
-                discount_price: parseFloat(formData.discount_price),
-                description: formData.description,
+                discount_price: formData.discount_price ? parseFloat(formData.discount_price) : null,
+                description: formData.description.trim(),
                 image_urls: [],
                 trending: formData.trending,
                 bestseller: formData.bestseller,
             };
 
-            const createdProduct = await dataService.createProduct(
-                productToCreate
-            );
+            const createdProduct = await dataService.createProduct(productToCreate);
+            setUploadProgress(30);
 
             let uploadedCloudinaryUrls = [];
 
@@ -126,6 +186,12 @@ const ProductsData = () => {
                         headers: {
                             "Content-Type": "multipart/form-data",
                         },
+                        onUploadProgress: (progressEvent) => {
+                            const progress = Math.round(
+                                (progressEvent.loaded * 70) / progressEvent.total
+                            );
+                            setUploadProgress(30 + progress);
+                        },
                     }
                 );
 
@@ -146,6 +212,7 @@ const ProductsData = () => {
                 }
             );
 
+            setUploadProgress(100);
             setProducts((prev) => [updatedProductWithImages, ...prev]);
             setAddModalMessage({
                 type: "success",
@@ -155,12 +222,15 @@ const ProductsData = () => {
             setTimeout(() => {
                 setShowAddModal(false);
                 resetForm();
+                setUploadProgress(0);
             }, 1500);
         } catch (error) {
+            console.error("Error adding product:", error);
             setAddModalMessage({
                 type: "error",
                 text: "Error adding product. Please try again.",
             });
+            setUploadProgress(0);
         }
     };
 
@@ -184,6 +254,7 @@ const ProductsData = () => {
                 setSelectedProduct(null);
             }, 1500);
         } catch (error) {
+            console.error("Error deleting product:", error);
             setDeleteModalMessage({
                 type: "error",
                 text: "Error deleting product. Please try again.",
@@ -194,8 +265,21 @@ const ProductsData = () => {
     const handleUpdateProduct = async () => {
         if (!editingProduct) return;
 
+        const errors = validateForm();
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            setViewModalMessage({
+                type: "error",
+                text: "Please fix the form errors before submitting.",
+            });
+            return;
+        }
+
+        setFormErrors({});
+
         try {
             setViewModalMessage({ type: "", text: "" });
+            setUploadProgress(0);
 
             let uploadedCloudinaryUrls = [];
             const newImagesToUpload = formData.image_urls.filter(
@@ -217,6 +301,12 @@ const ProductsData = () => {
                         headers: {
                             "Content-Type": "multipart/form-data",
                         },
+                        onUploadProgress: (progressEvent) => {
+                            const progress = Math.round(
+                                (progressEvent.loaded * 70) / progressEvent.total
+                            );
+                            setUploadProgress(30 + progress);
+                        },
                     }
                 );
                 uploadedCloudinaryUrls = uploadResponse.data.imageUrls;
@@ -230,12 +320,12 @@ const ProductsData = () => {
             ];
 
             const productToUpdate = {
-                p_name: formData.p_name,
-                p_subtitle: formData.p_subtitle,
+                p_name: formData.p_name.trim(),
+                p_subtitle: formData.p_subtitle.trim(),
                 p_category: formData.p_category,
                 p_price: parseFloat(formData.p_price),
-                discount_price: parseFloat(formData.discount_price),
-                description: formData.description,
+                discount_price: formData.discount_price ? parseFloat(formData.discount_price) : null,
+                description: formData.description.trim(),
                 image_urls: finalImageUrls,
                 trending: formData.trending,
                 bestseller: formData.bestseller,
@@ -246,6 +336,7 @@ const ProductsData = () => {
                 productToUpdate
             );
 
+            setUploadProgress(100);
             setProducts((prev) =>
                 prev.map((p) =>
                     p._id === updatedProduct._id ? updatedProduct : p
@@ -260,12 +351,15 @@ const ProductsData = () => {
                 setShowViewModal(false);
                 setEditingProduct(null);
                 resetForm();
+                setUploadProgress(0);
             }, 1500);
         } catch (error) {
+            console.error("Error updating product:", error);
             setViewModalMessage({
                 type: "error",
                 text: "Error updating product. Please try again.",
             });
+            setUploadProgress(0);
         }
     };
 
@@ -278,20 +372,39 @@ const ProductsData = () => {
             p_price: "",
             discount_price: "",
             description: "",
+            trending: false,
+            bestseller: false,
         });
+        setFormErrors({});
     };
 
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
-        const newImages = files.map((file) => ({
+        
+        // Validate file types and sizes
+        const validFiles = files.filter(file => {
+            if (!file.type.startsWith('image/')) {
+                alert(`${file.name} is not an image file`);
+                return false;
+            }
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                alert(`${file.name} is too large (max 5MB)`);
+                return false;
+            }
+            return true;
+        });
+
+        const newImages = validFiles.map((file) => ({
             type: "new",
             file: file,
             preview: URL.createObjectURL(file),
         }));
+        
         setFormData((prev) => ({
             ...prev,
             image_urls: [...prev.image_urls, ...newImages],
         }));
+        setFormErrors(prev => ({ ...prev, image_urls: "" }));
     };
 
     const removeImage = async (indexToRemove) => {
@@ -304,9 +417,8 @@ const ProductsData = () => {
                 await axios.delete(`${API_BASE}/api/upload`, {
                     data: { public_id: imageToRemove.public_id },
                 });
-                // Success handled silently
             } catch (error) {
-                // Error handled silently - image removal from state continues
+                console.error("Error deleting image from Cloudinary:", error);
             }
         }
 
@@ -338,7 +450,7 @@ const ProductsData = () => {
                       public_id: extractPublicId(url),
                   }))
                 : [],
-            p_category: product.p_category,
+            p_category: product.p_category ? product.p_category._id : "",
             p_price: product.p_price.toString(),
             discount_price: product.discount_price?.toString() || "",
             description: product.description || "",
@@ -346,6 +458,7 @@ const ProductsData = () => {
             bestseller: product.bestseller || false,
         });
         setViewModalMessage({ type: "", text: "" });
+        setFormErrors({});
         setShowViewModal(true);
     };
 
@@ -358,6 +471,7 @@ const ProductsData = () => {
     const startEditing = () => {
         setEditingProduct(selectedProduct);
         setViewModalMessage({ type: "", text: "" });
+        setFormErrors({});
     };
 
     const cancelEditing = () => {
@@ -373,28 +487,30 @@ const ProductsData = () => {
                           public_id: extractPublicId(url),
                       }))
                     : [],
-                p_category: selectedProduct.p_category,
+                p_category: selectedProduct.p_category ? selectedProduct.p_category._id : "",
                 p_price: selectedProduct.p_price.toString(),
-                discount_price:
-                    selectedProduct.discount_price?.toString() || "",
+                discount_price: selectedProduct.discount_price?.toString() || "",
                 description: selectedProduct.description || "",
                 trending: selectedProduct.trending || false,
                 bestseller: selectedProduct.bestseller || false,
             });
         }
         setViewModalMessage({ type: "", text: "" });
+        setFormErrors({});
     };
 
     const closeAddModal = () => {
         setShowAddModal(false);
         setAddModalMessage({ type: "", text: "" });
         resetForm();
+        setUploadProgress(0);
     };
 
     const closeViewModal = () => {
         setShowViewModal(false);
         setEditingProduct(null);
         setViewModalMessage({ type: "", text: "" });
+        setUploadProgress(0);
     };
 
     const closeDeleteModal = () => {
@@ -437,6 +553,20 @@ const ProductsData = () => {
                         {message.text}
                     </p>
                 </div>
+            </div>
+        );
+    };
+
+    // Progress bar component
+    const ProgressBar = ({ progress }) => {
+        if (progress === 0) return null;
+        
+        return (
+            <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                ></div>
             </div>
         );
     };
@@ -539,49 +669,36 @@ const ProductsData = () => {
                                             </p>
                                             <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
                                                 {product.description
-                                                    ? product.description.split(
-                                                          " "
-                                                      ).length > 4
-                                                        ? product.description
-                                                              .split(" ")
-                                                              .slice(0, 4)
-                                                              .join(" ") + "..."
+                                                    ? product.description.split(" ").length > 4
+                                                        ? product.description.split(" ").slice(0, 4).join(" ") + "..."
                                                         : product.description
                                                     : "No description"}
-                                            </p>{" "}
+                                            </p>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="py-3 px-4">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                                        {product.p_category}
+                                        {product.p_category ? product.p_category.product_category : 'Uncategorized'}
                                     </span>
                                 </td>
                                 <td className="py-3 px-4 text-sm font-semibold text-gray-900 dark:text-white">
-                                    {product.p_price
-                                        ? `$${product.p_price.toLocaleString()}`
-                                        : "N/A"}
+                                    {formatPrice(product.p_price)}
                                 </td>
                                 <td className="py-3 px-4 text-sm font-semibold text-gray-900 dark:text-white">
-                                    {product.discount_price
-                                        ? `$${product.discount_price.toLocaleString()}`
-                                        : "N/A"}
+                                    {formatPrice(product.discount_price)}
                                 </td>
                                 <td className="py-3 px-4">
                                     <div className="flex items-center space-x-2">
                                         <button
-                                            onClick={() =>
-                                                openViewModal(product)
-                                            }
+                                            onClick={() => openViewModal(product)}
                                             className="p-1.5 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 rounded transition-colors"
                                             title="View Details"
                                         >
                                             <Eye size={16} />
                                         </button>
                                         <button
-                                            onClick={() =>
-                                                openDeleteModal(product)
-                                            }
+                                            onClick={() => openDeleteModal(product)}
                                             className="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-red-900 rounded transition-colors"
                                             title="Delete Product"
                                         >
@@ -621,6 +738,7 @@ const ProductsData = () => {
                         </div>
                         <div className="p-6 space-y-4">
                             <MessageDisplay message={addModalMessage} />
+                            <ProgressBar progress={uploadProgress} />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
@@ -635,14 +753,21 @@ const ProductsData = () => {
                                                 ...prev,
                                                 p_name: e.target.value,
                                             }));
-                                            setAddModalMessage({
-                                                type: "",
-                                                text: "",
-                                            });
+                                            setAddModalMessage({ type: "", text: "" });
+                                            setFormErrors(prev => ({ ...prev, p_name: "" }));
                                         }}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                            formErrors.p_name 
+                                                ? "border-red-300 dark:border-red-600" 
+                                                : "border-gray-300 dark:border-gray-600"
+                                        }`}
                                         placeholder="Enter product name"
                                     />
+                                    {formErrors.p_name && (
+                                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                            {formErrors.p_name}
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -656,10 +781,7 @@ const ProductsData = () => {
                                                 ...prev,
                                                 p_subtitle: e.target.value,
                                             }));
-                                            setAddModalMessage({
-                                                type: "",
-                                                text: "",
-                                            });
+                                            setAddModalMessage({ type: "", text: "" });
                                         }}
                                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         placeholder="Enter product subtitle"
@@ -669,22 +791,34 @@ const ProductsData = () => {
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Category *
                                     </label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={formData.p_category}
                                         onChange={(e) => {
                                             setFormData((prev) => ({
                                                 ...prev,
                                                 p_category: e.target.value,
                                             }));
-                                            setAddModalMessage({
-                                                type: "",
-                                                text: "",
-                                            });
+                                            setAddModalMessage({ type: "", text: "" });
+                                            setFormErrors(prev => ({ ...prev, p_category: "" }));
                                         }}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="Enter category"
-                                    />
+                                        className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                            formErrors.p_category 
+                                                ? "border-red-300 dark:border-red-600" 
+                                                : "border-gray-300 dark:border-gray-600"
+                                        }`}
+                                    >
+                                        <option value="">Select Category</option>
+                                        {collections.map((collection) => (
+                                            <option key={collection._id} value={collection._id}>
+                                                {collection.product_category}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {formErrors.p_category && (
+                                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                            {formErrors.p_category}
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -693,20 +827,28 @@ const ProductsData = () => {
                                     <input
                                         type="number"
                                         step="0.01"
+                                        min="0"
                                         value={formData.p_price}
                                         onChange={(e) => {
                                             setFormData((prev) => ({
                                                 ...prev,
                                                 p_price: e.target.value,
                                             }));
-                                            setAddModalMessage({
-                                                type: "",
-                                                text: "",
-                                            });
+                                            setAddModalMessage({ type: "", text: "" });
+                                            setFormErrors(prev => ({ ...prev, p_price: "" }));
                                         }}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                            formErrors.p_price 
+                                                ? "border-red-300 dark:border-red-600" 
+                                                : "border-gray-300 dark:border-gray-600"
+                                        }`}
                                         placeholder="Enter price"
                                     />
+                                    {formErrors.p_price && (
+                                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                            {formErrors.p_price}
+                                        </p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -715,24 +857,32 @@ const ProductsData = () => {
                                     <input
                                         type="number"
                                         step="0.01"
+                                        min="0"
                                         value={formData.discount_price}
                                         onChange={(e) => {
                                             setFormData((prev) => ({
                                                 ...prev,
                                                 discount_price: e.target.value,
                                             }));
-                                            setAddModalMessage({
-                                                type: "",
-                                                text: "",
-                                            });
+                                            setAddModalMessage({ type: "", text: "" });
+                                            setFormErrors(prev => ({ ...prev, discount_price: "" }));
                                         }}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                            formErrors.discount_price 
+                                                ? "border-red-300 dark:border-red-600" 
+                                                : "border-gray-300 dark:border-gray-600"
+                                        }`}
                                         placeholder="Enter discounted price"
                                     />
+                                    {formErrors.discount_price && (
+                                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                            {formErrors.discount_price}
+                                        </p>
+                                    )}
                                 </div>
-                                {/* Radio buttons */}
+                                {/* Checkboxes */}
                                 <div className="flex items-center gap-3 mt-6">
-                                    <label className="flex items-center gap-1 cursor-pointer">
+                                    <label className="flex items-center gap-2 cursor-pointer">
                                         <input
                                             type="checkbox"
                                             checked={formData.trending}
@@ -742,23 +892,24 @@ const ProductsData = () => {
                                                     trending: e.target.checked,
                                                 }))
                                             }
+                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                         />
                                         <span className="text-sm text-gray-700 dark:text-gray-300">
                                             Trending
                                         </span>
                                     </label>
 
-                                    <label className="flex items-center gap-1 cursor-pointer">
+                                    <label className="flex items-center gap-2 cursor-pointer">
                                         <input
                                             type="checkbox"
                                             checked={formData.bestseller}
                                             onChange={(e) =>
                                                 setFormData((prev) => ({
                                                     ...prev,
-                                                    bestseller:
-                                                        e.target.checked,
+                                                    bestseller: e.target.checked,
                                                 }))
                                             }
+                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                         />
                                         <span className="text-sm text-gray-700 dark:text-gray-300">
                                             Bestseller
@@ -769,9 +920,13 @@ const ProductsData = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Product Images
+                                    Product Images *
                                 </label>
-                                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
+                                <div className={`border-2 border-dashed rounded-lg p-4 ${
+                                    formErrors.image_urls 
+                                        ? "border-red-300 dark:border-red-600" 
+                                        : "border-gray-300 dark:border-gray-600"
+                                }`}>
                                     <input
                                         type="file"
                                         multiple
@@ -784,13 +939,15 @@ const ProductsData = () => {
                                         htmlFor="image-upload"
                                         className="cursor-pointer flex flex-col items-center justify-center p-4"
                                     >
-                                        <ImageIcon
+                                        <Upload
                                             size={32}
                                             className="text-gray-400 mb-2"
                                         />
                                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                                            Click to upload images or drag and
-                                            drop
+                                            Click to upload images or drag and drop
+                                        </p>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                            Maximum 5MB per image
                                         </p>
                                     </label>
                                     {formData.image_urls.length > 0 && (
@@ -803,8 +960,7 @@ const ProductsData = () => {
                                                     >
                                                         <img
                                                             src={
-                                                                image.type ===
-                                                                "new"
+                                                                image.type === "new"
                                                                     ? image.preview
                                                                     : image.url
                                                             }
@@ -812,12 +968,8 @@ const ProductsData = () => {
                                                             className="w-20 h-20 object-cover rounded"
                                                         />
                                                         <button
-                                                            onClick={() =>
-                                                                removeImage(
-                                                                    index
-                                                                )
-                                                            }
-                                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                                                            onClick={() => removeImage(index)}
+                                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                                                         >
                                                             <X size={12} />
                                                         </button>
@@ -827,6 +979,11 @@ const ProductsData = () => {
                                         </div>
                                     )}
                                 </div>
+                                {formErrors.image_urls && (
+                                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                        {formErrors.image_urls}
+                                    </p>
+                                )}
                             </div>
 
                             <div>
@@ -840,10 +997,7 @@ const ProductsData = () => {
                                             ...prev,
                                             description: e.target.value,
                                         }));
-                                        setAddModalMessage({
-                                            type: "",
-                                            text: "",
-                                        });
+                                        setAddModalMessage({ type: "", text: "" });
                                     }}
                                     rows={4}
                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
@@ -864,13 +1018,14 @@ const ProductsData = () => {
                                     !formData.p_name ||
                                     !formData.p_category ||
                                     !formData.p_price ||
-                                    addModalMessage.type === "success"
+                                    formData.image_urls.length === 0 ||
+                                    addModalMessage.type === "success" ||
+                                    uploadProgress > 0
                                 }
                                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                {addModalMessage.type === "success"
-                                    ? "Success!"
-                                    : "Add Product"}
+                                {uploadProgress > 0 ? `Uploading... ${uploadProgress}%` : 
+                                 addModalMessage.type === "success" ? "Success!" : "Add Product"}
                             </button>
                         </div>
                     </div>
@@ -883,9 +1038,7 @@ const ProductsData = () => {
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                {editingProduct
-                                    ? "Edit Product"
-                                    : "Product Details"}
+                                {editingProduct ? "Edit Product" : "Product Details"}
                             </h3>
                             <button
                                 onClick={closeViewModal}
@@ -896,19 +1049,16 @@ const ProductsData = () => {
                         </div>
                         <div className="p-6">
                             <MessageDisplay message={viewModalMessage} />
+                            <ProgressBar progress={uploadProgress} />
 
                             {!editingProduct ? (
                                 <div className="space-y-6">
                                     <div className="flex items-start space-x-6">
                                         {selectedProduct.image_urls &&
-                                        selectedProduct.image_urls.length >
-                                            0 ? (
+                                        selectedProduct.image_urls.length > 0 ? (
                                             <div className="w-48 h-48 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
                                                 <img
-                                                    src={
-                                                        selectedProduct
-                                                            .image_urls[0]
-                                                    }
+                                                    src={selectedProduct.image_urls[0]}
                                                     alt={selectedProduct.p_name}
                                                     className="w-full h-full object-cover"
                                                 />
@@ -934,9 +1084,7 @@ const ProductsData = () => {
                                                         Category:
                                                     </span>
                                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                                                        {
-                                                            selectedProduct.p_category
-                                                        }
+                                                        {selectedProduct.p_category ? selectedProduct.p_category.product_category : 'Uncategorized'}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center space-x-4">
@@ -944,8 +1092,7 @@ const ProductsData = () => {
                                                         Price:
                                                     </span>
                                                     <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                        $
-                                                        {selectedProduct.p_price.toLocaleString()}
+                                                        {formatPrice(selectedProduct.p_price)}
                                                     </span>
                                                 </div>
                                                 {selectedProduct.discount_price && (
@@ -954,8 +1101,7 @@ const ProductsData = () => {
                                                             Discounted Price:
                                                         </span>
                                                         <span className="text-sm font-semibold text-green-600 dark:text-green-400">
-                                                            $
-                                                            {selectedProduct.discount_price.toLocaleString()}
+                                                            {formatPrice(selectedProduct.discount_price)}
                                                         </span>
                                                     </div>
                                                 )}
@@ -989,8 +1135,7 @@ const ProductsData = () => {
                                         </div>
                                     )}
                                     {selectedProduct.image_urls &&
-                                        selectedProduct.image_urls.length >
-                                            0 && (
+                                        selectedProduct.image_urls.length > 0 && (
                                             <div>
                                                 <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                     Images
@@ -1034,13 +1179,20 @@ const ProductsData = () => {
                                                         ...prev,
                                                         p_name: e.target.value,
                                                     }));
-                                                    setViewModalMessage({
-                                                        type: "",
-                                                        text: "",
-                                                    });
+                                                    setViewModalMessage({ type: "", text: "" });
+                                                    setFormErrors(prev => ({ ...prev, p_name: "" }));
                                                 }}
-                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                                    formErrors.p_name 
+                                                        ? "border-red-300 dark:border-red-600" 
+                                                        : "border-gray-300 dark:border-gray-600"
+                                                }`}
                                             />
+                                            {formErrors.p_name && (
+                                                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                                    {formErrors.p_name}
+                                                </p>
+                                            )}
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1052,13 +1204,9 @@ const ProductsData = () => {
                                                 onChange={(e) => {
                                                     setFormData((prev) => ({
                                                         ...prev,
-                                                        p_subtitle:
-                                                            e.target.value,
+                                                        p_subtitle: e.target.value,
                                                     }));
-                                                    setViewModalMessage({
-                                                        type: "",
-                                                        text: "",
-                                                    });
+                                                    setViewModalMessage({ type: "", text: "" });
                                                 }}
                                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             />
@@ -1067,21 +1215,34 @@ const ProductsData = () => {
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                 Category *
                                             </label>
-                                            <input
+                                            <select
                                                 value={formData.p_category}
                                                 onChange={(e) => {
                                                     setFormData((prev) => ({
                                                         ...prev,
-                                                        p_category:
-                                                            e.target.value,
+                                                        p_category: e.target.value,
                                                     }));
-                                                    setViewModalMessage({
-                                                        type: "",
-                                                        text: "",
-                                                    });
+                                                    setViewModalMessage({ type: "", text: "" });
+                                                    setFormErrors(prev => ({ ...prev, p_category: "" }));
                                                 }}
-                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
+                                                className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                                    formErrors.p_category 
+                                                        ? "border-red-300 dark:border-red-600" 
+                                                        : "border-gray-300 dark:border-gray-600"
+                                                }`}
+                                            >
+                                                <option value="">Select Category</option>
+                                                {collections.map((collection) => (
+                                                    <option key={collection._id} value={collection._id}>
+                                                        {collection.product_category}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {formErrors.p_category && (
+                                                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                                    {formErrors.p_category}
+                                                </p>
+                                            )}
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1090,19 +1251,27 @@ const ProductsData = () => {
                                             <input
                                                 type="number"
                                                 step="0.01"
+                                                min="0"
                                                 value={formData.p_price}
                                                 onChange={(e) => {
                                                     setFormData((prev) => ({
                                                         ...prev,
                                                         p_price: e.target.value,
                                                     }));
-                                                    setViewModalMessage({
-                                                        type: "",
-                                                        text: "",
-                                                    });
+                                                    setViewModalMessage({ type: "", text: "" });
+                                                    setFormErrors(prev => ({ ...prev, p_price: "" }));
                                                 }}
-                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                                    formErrors.p_price 
+                                                        ? "border-red-300 dark:border-red-600" 
+                                                        : "border-gray-300 dark:border-gray-600"
+                                                }`}
                                             />
+                                            {formErrors.p_price && (
+                                                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                                    {formErrors.p_price}
+                                                </p>
+                                            )}
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1111,20 +1280,27 @@ const ProductsData = () => {
                                             <input
                                                 type="number"
                                                 step="0.01"
+                                                min="0"
                                                 value={formData.discount_price}
                                                 onChange={(e) => {
                                                     setFormData((prev) => ({
                                                         ...prev,
-                                                        discount_price:
-                                                            e.target.value,
+                                                        discount_price: e.target.value,
                                                     }));
-                                                    setViewModalMessage({
-                                                        type: "",
-                                                        text: "",
-                                                    });
+                                                    setViewModalMessage({ type: "", text: "" });
+                                                    setFormErrors(prev => ({ ...prev, discount_price: "" }));
                                                 }}
-                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                                    formErrors.discount_price 
+                                                        ? "border-red-300 dark:border-red-600" 
+                                                        : "border-gray-300 dark:border-gray-600"
+                                                }`}
                                             />
+                                            {formErrors.discount_price && (
+                                                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                                    {formErrors.discount_price}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                     {/* Checkboxes */}
@@ -1140,6 +1316,7 @@ const ProductsData = () => {
                                                     }));
                                                     setViewModalMessage({ type: "", text: "" });
                                                 }}
+                                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                             />
                                             <span className="text-sm text-gray-700 dark:text-gray-300">Trending</span>
                                         </label>
@@ -1154,6 +1331,7 @@ const ProductsData = () => {
                                                     }));
                                                     setViewModalMessage({ type: "", text: "" });
                                                 }}
+                                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                             />
                                             <span className="text-sm text-gray-700 dark:text-gray-300">Bestseller</span>
                                         </label>
@@ -1169,10 +1347,7 @@ const ProductsData = () => {
                                                     ...prev,
                                                     description: e.target.value,
                                                 }));
-                                                setViewModalMessage({
-                                                    type: "",
-                                                    text: "",
-                                                });
+                                                setViewModalMessage({ type: "", text: "" });
                                             }}
                                             rows={4}
                                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
@@ -1180,9 +1355,13 @@ const ProductsData = () => {
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                            Product Images
+                                            Product Images *
                                         </label>
-                                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
+                                        <div className={`border-2 border-dashed rounded-lg p-4 ${
+                                            formErrors.image_urls 
+                                                ? "border-red-300 dark:border-red-600" 
+                                                : "border-gray-300 dark:border-gray-600"
+                                        }`}>
                                             <input
                                                 type="file"
                                                 multiple
@@ -1195,13 +1374,15 @@ const ProductsData = () => {
                                                 htmlFor="image-upload-edit"
                                                 className="cursor-pointer flex flex-col items-center justify-center p-4"
                                             >
-                                                <ImageIcon
+                                                <Upload
                                                     size={32}
                                                     className="text-gray-400 mb-2"
                                                 />
                                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                    Click to upload images or
-                                                    drag and drop
+                                                    Click to upload images or drag and drop
+                                                </p>
+                                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                                    Maximum 5MB per image
                                                 </p>
                                             </label>
                                             {formData.image_urls.length > 0 && (
@@ -1214,8 +1395,7 @@ const ProductsData = () => {
                                                             >
                                                                 <img
                                                                     src={
-                                                                        image.type ===
-                                                                        "new"
+                                                                        image.type === "new"
                                                                             ? image.preview
                                                                             : image.url
                                                                     }
@@ -1223,18 +1403,10 @@ const ProductsData = () => {
                                                                     className="w-20 h-20 object-cover rounded"
                                                                 />
                                                                 <button
-                                                                    onClick={() =>
-                                                                        removeImage(
-                                                                            index
-                                                                        )
-                                                                    }
-                                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                                                                    onClick={() => removeImage(index)}
+                                                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                                                                 >
-                                                                    <X
-                                                                        size={
-                                                                            12
-                                                                        }
-                                                                    />
+                                                                    <X size={12} />
                                                                 </button>
                                                             </div>
                                                         )
@@ -1242,6 +1414,11 @@ const ProductsData = () => {
                                                 </div>
                                             )}
                                         </div>
+                                        {formErrors.image_urls && (
+                                            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                                {formErrors.image_urls}
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="flex justify-end gap-3">
                                         <button
@@ -1256,14 +1433,14 @@ const ProductsData = () => {
                                                 !formData.p_name ||
                                                 !formData.p_category ||
                                                 !formData.p_price ||
-                                                viewModalMessage.type ===
-                                                    "success"
+                                                formData.image_urls.length === 0 ||
+                                                viewModalMessage.type === "success" ||
+                                                uploadProgress > 0
                                             }
                                             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                         >
-                                            {viewModalMessage.type === "success"
-                                                ? "Success!"
-                                                : "Update Product"}
+                                            {uploadProgress > 0 ? `Uploading... ${uploadProgress}%` : 
+                                             viewModalMessage.type === "success" ? "Success!" : "Update Product"}
                                         </button>
                                     </div>
                                 </div>

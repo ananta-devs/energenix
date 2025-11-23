@@ -9,6 +9,11 @@ export const dataService = {
     return response.data;
   },
 
+  async getCollections() {
+    const response = await axios.get(`${API_BASE}/api/collections`);
+    return response.data;
+  },
+
   async getOrders() {
     const response = await axios.get(`${API_BASE}/api/orders`);
     return response.data;
@@ -31,6 +36,21 @@ export const dataService = {
 
   async getReports() {
     const response = await axios.get(`${API_BASE}/api/reports`);
+    return response.data;
+  },
+
+  async createCollection(collectionData) {
+    const response = await axios.post(`${API_BASE}/api/collections`, collectionData);
+    return response.data;
+  },
+
+  async updateCollection(id, collectionData) {
+    const response = await axios.put(`${API_BSE}/api/collections/${id}`, collectionData);
+    return response.data;
+  },
+
+  async deleteCollection(id) {
+    const response = await axios.delete(`${API_BASE}/api/collections/${id}`);
     return response.data;
   },
 

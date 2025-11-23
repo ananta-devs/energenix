@@ -2,11 +2,6 @@ const mongoose = require('mongoose');
 
 const ProductSchema = mongoose.Schema(
   {
-    p_id: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     p_name: {
       type: String,
       required: true,
@@ -15,7 +10,8 @@ const ProductSchema = mongoose.Schema(
       type: String,
     },
     p_category: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Collection',
       required: true,
     },
     p_price: {

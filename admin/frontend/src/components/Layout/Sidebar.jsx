@@ -12,7 +12,8 @@ import {
   Settings,
   LogOut,
   X,
-  Menu
+  Menu, 
+  Archive
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import logo from '../../assets/logo.svg';
@@ -20,6 +21,7 @@ import logo from '../../assets/logo.svg';
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
   { id: 'products', label: 'Products', icon: Gem, path: '/products' },
+  { id: 'collections', label: 'Collections', icon: Archive, path: '/collections'},
   { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/orders' },
   { id: 'customers', label: 'Customers', icon: Users, path: '/customers' },
   { id: 'inventory', label: 'Inventory', icon: Package, path: '/inventory' },

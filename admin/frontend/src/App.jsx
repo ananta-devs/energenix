@@ -5,6 +5,7 @@ import Sidebar from './components/Layout/Sidebar';
 import Navbar from './components/Layout/Navbar';
 import Dashboard from './pages/Dashboard';
 import ProductsData from './pages/ProductsData';
+import CollectionData from './pages/CollectionData';
 import OrdersData from './pages/OrdersData';
 import CustomersData from './pages/CustomersData';
 import InventoryData from './pages/InventoryData';
@@ -43,6 +44,7 @@ const AppContent = () => {
               <Route path="/" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<ProductsData />} />
+              <Route path="/collections" element={<CollectionData />} />
               <Route path="/orders" element={<OrdersData />} />
               <Route path="/customers" element={<CustomersData />} />
               <Route path="/inventory" element={<InventoryData />} />
