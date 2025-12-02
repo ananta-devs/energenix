@@ -1,6 +1,6 @@
 // components/DataDisplay/CollectionData.jsx
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Search, X, Edit, Trash2, AlertTriangle } from 'lucide-react';
+import { FileText, Plus, Search, X, Edit, Trash2, AlertTriangle, ImageIcon, Upload } from 'lucide-react';
 import { dataService } from '../utils/dataService';
 
 const CollectionData = () => {
@@ -14,8 +14,10 @@ const CollectionData = () => {
   const [editingCollection, setEditingCollection] = useState(null);
   const [formData, setFormData] = useState({
     hsn_number: '',
-    product_category: ''
+    product_category: '',
+    image: null
   });
+  const [imagePreview, setImagePreview] = useState(null);
   const [loadingAction, setLoadingAction] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -48,8 +50,10 @@ const CollectionData = () => {
     setEditingCollection(null);
     setFormData({
       hsn_number: '',
-      product_category: ''
+      product_category: '',
+      image: null
     });
+    setImagePreview(null);
     setMessage({ type: '', text: '' });
     setShowModal(true);
   };
@@ -58,8 +62,15 @@ const CollectionData = () => {
     setEditingCollection(collection);
     setFormData({
       hsn_number: collection.hsn_number,
-      product_category: collection.product_category
+      product_category: collection.product_category,
+      image: null
     });
+    // Set existing image as preview if available
+    if (collection.image_url) {
+      setImagePreview(collection.image_url);
+    } else {
+      setImagePreview(null);
+    }
     setMessage({ type: '', text: '' });
     setShowModal(true);
   };
@@ -74,8 +85,10 @@ const CollectionData = () => {
     setEditingCollection(null);
     setFormData({
       hsn_number: '',
-      product_category: ''
+      product_category: '',
+      image: null
     });
+    setImagePreview(null);
     setMessage({ type: '', text: '' });
   };
 
@@ -94,6 +107,55 @@ const CollectionData = () => {
     // Clear message when user starts typing
     if (message.text) {
       setMessage({ type: '', text: '' });
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        setMessage({ type: 'error', text: 'Please upload a valid image file (JPEG, PNG, GIF, WebP)' });
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        setMessage({ type: 'error', text: 'Image size should be less than 5MB' });
+        return;
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        image: file
+      }));
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+
+      // Clear message if any
+      setMessage({ type: '', text: '' });
+    }
+  };
+
+  const removeImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      image: null
+    }));
+    setImagePreview(null);
+    // If editing and there was an existing image, mark it for removal
+    if (editingCollection && editingCollection.image_url) {
+      setFormData(prev => ({
+        ...prev,
+        removeImage: true
+      }));
     }
   };
 
@@ -116,9 +178,23 @@ const CollectionData = () => {
     setMessage({ type: '', text: '' });
 
     try {
+      // Create FormData object to handle file upload
+      const submitFormData = new FormData();
+      submitFormData.append('hsn_number', formData.hsn_number);
+      submitFormData.append('product_category', formData.product_category);
+      
+      if (formData.image) {
+        submitFormData.append('image', formData.image);
+      }
+      
+      // Add flag to remove existing image if needed
+      if (formData.removeImage) {
+        submitFormData.append('removeImage', 'true');
+      }
+
       if (editingCollection) {
         // Update existing collection
-        const updatedCollection = await dataService.updateCollection(editingCollection._id, formData);
+        const updatedCollection = await dataService.updateCollection(editingCollection._id, submitFormData);
         setCollections(collections.map(item =>
           item._id === updatedCollection._id ? updatedCollection : item
         ));
@@ -128,7 +204,7 @@ const CollectionData = () => {
         });
       } else {
         // Create new collection
-        const newCollection = await dataService.createCollection(formData);
+        const newCollection = await dataService.createCollection(submitFormData);
         setCollections([...collections, newCollection]);
         setMessage({
           type: 'success',
@@ -251,8 +327,8 @@ const CollectionData = () => {
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700">
-              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">HSN Number</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Product Category</th>
+              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">HSN Number</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Created Date</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Updated Date</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Actions</th>
@@ -261,13 +337,29 @@ const CollectionData = () => {
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {filteredCollections.map((collection) => (
               <tr key={collection._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <td className="py-3 px-4 flex">
+                  <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                    {collection.image_url ? (
+                      <img 
+                        src={collection.image_url} 
+                        alt={collection.product_category}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<ImageIcon size={20} className="text-gray-400"/>';
+                        }}
+                      />
+                    ) : (
+                      <ImageIcon size={20} className="text-gray-400"/>
+                    )}
+                  </div>
+                  <p className="ml-3 mt-3 text-sm text-gray-900 dark:text-white">{collection.product_category}</p>
+                </td>
                 <td className="py-3 px-4">
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">{collection.hsn_number}</p>
                   </div>
-                </td>
-                <td className="py-3 px-4">
-                  <p className="text-sm text-gray-900 dark:text-white">{collection.product_category}</p>
                 </td>
                 <td className="py-3 px-4 text-sm text-gray-500 dark:text-gray-400">
                   {collection.createdAt ? new Date(collection.createdAt).toLocaleDateString() : 'N/A'}
@@ -348,6 +440,53 @@ const CollectionData = () => {
                   </div>
                 </div>
               )}
+
+              {/* Image Upload and Preview */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Collection Image
+                </label>
+                <div className="space-y-4">
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <div className="relative w-32 h-32 mx-auto">
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover rounded-lg border border-gray-300 dark:border-gray-600"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 cursor-pointer"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* Image Upload Input */}
+                  <div className="flex items-center justify-center w-full">
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload size={24} className="text-gray-400 mb-2" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          <span className="font-semibold">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          PNG, JPG, GIF, WebP (Max. 5MB)
+                        </p>
+                      </div>
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -441,6 +580,15 @@ const CollectionData = () => {
                 <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
                   Collection Details
                 </h4>
+                {collectionToDelete.image_url && (
+                  <div className="mb-4">
+                    <img 
+                      src={collectionToDelete.image_url} 
+                      alt={collectionToDelete.product_category}
+                      className="w-24 h-24 object-cover rounded-lg mx-auto"
+                    />
+                  </div>
+                )}
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">HSN Number:</span>

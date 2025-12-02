@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { API_BASE_URL } from "../utils/api";
 import { decodeToken, saveToken, getToken, clearToken } from "./authService";
+import api, { setupInterceptors } from "../utils/api"; // Import api and setupInterceptors
 
 const AuthContext = createContext(null);
 
@@ -10,6 +10,15 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
 
+  // Function to set default Authorization header for Axios
+  const setAuthHeader = (token) => {
+    if (token) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete api.defaults.headers.common['Authorization'];
+    }
+  };
+
   useEffect(() => {
     const token = getToken();
     if (token) {
@@ -18,34 +27,34 @@ export const AuthProvider = ({ children }) => {
       if (decoded && decoded.exp * 1000 > Date.now()) {
         setUser(decoded.user);
         setIsAuthenticated(true);
+        setAuthHeader(token); // Set Axios header on initial load
       } else {
         clearToken();
+        setAuthHeader(null); // Clear Axios header
       }
     }
 
     setLoading(false);
+    setupInterceptors(logout); // Setup interceptors after logout is defined
   }, []);
 
   const login = async (email) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/signin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      // Use Axios for the login request (OTP sending)
+      const res = await api.post("/auth/signin", { email });
 
-      const data = await res.json();
-
-      if (res.ok) {
+      if (res.status === 200) { // Axios uses status, not res.ok
         showToast("OTP sent to your email!", "success");
         return true;
       } else {
-        showToast(data.message || "Failed to send OTP", "error");
+        showToast(res.data.message || "Failed to send OTP", "error");
         return false;
       }
     } catch (err) {
       console.error("Login error:", err);
-      showToast("Something went wrong", "error");
+      // Axios errors have a response object with data and status
+      const message = err.response?.data?.message || err.message || "Something went wrong";
+      showToast(message, "error");
       return false;
     }
   };
@@ -55,12 +64,14 @@ export const AuthProvider = ({ children }) => {
     const decoded = decodeToken(token);
     setUser(decoded.user);
     setIsAuthenticated(true);
+    setAuthHeader(token); // Set Axios header when token is updated
   };
 
   const logout = () => {
     clearToken();
     setUser(null);
     setIsAuthenticated(false);
+    setAuthHeader(null); // Clear Axios header on logout
   };
 
   const showToast = (message, type = "info") => {

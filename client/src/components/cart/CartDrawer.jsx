@@ -4,7 +4,7 @@ import { useCart } from '../../hooks/useCart.js';
 import { ShoppingCart, X, Minus, Plus, Trash2 } from 'lucide-react';
 
 export default function CartDrawer() {
-  const { items, removeItem, updateQuantity, total, isOpen, setIsOpen } = useCart();
+  const { items, removeItem, updateQuantity, total, isOpen, setIsOpen, calculateItemPrice } = useCart();
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -59,40 +59,46 @@ export default function CartDrawer() {
               </div>
             ) : (
               <div className="space-y-4">
-                {items.map(item => (
-                  <div key={item._id} className="flex gap-4 pb-4 border-b">
-                    <img
-                      src={item.image_urls && item.image_urls.length > 0 ? item.image_urls[0] : ''}
-                      alt={item.p_name}
-                      className="w-20 h-20 object-cover rounded-lg"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-sm mb-1">{item.p_name}</h3>
-                      <p className="text-blue-950 font-semibold">₨. {item.discount_price.toLocaleString()}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <button
-                          onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                          className="p-1 hover:bg-gray-100 rounded"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="text-sm font-semibold px-2">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                          className="p-1 hover:bg-gray-100 rounded"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => removeItem(item._id)}
-                          className="ml-auto p-1 hover:bg-red-50 rounded text-red-500"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                {items.map(item => {
+                  const itemPrice = calculateItemPrice(item);
+                  return (
+                    <div key={item.cartItemId} className="flex gap-4 pb-4 border-b">
+                      <img
+                        src={item.image_urls && item.image_urls.length > 0 ? item.image_urls[0] : ''}
+                        alt={item.p_name}
+                        className="w-20 h-20 object-cover rounded-lg"
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-sm mb-1">{item.p_name}</h3>
+                        <p className="text-blue-950 font-semibold">₨. {Math.round(itemPrice).toLocaleString()}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {item.selectedPack && item.selectedPack !== "Pack of 1" ? item.selectedPack : "Pack of 1"}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            <Minus className="w-4 h-4" />
+                          </button>
+                          <span className="text-sm font-semibold px-2">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => removeItem(item.cartItemId)}
+                            className="ml-auto p-1 hover:bg-red-50 rounded text-red-500"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -122,7 +128,6 @@ export default function CartDrawer() {
                 </button>
               </div>
             </div>
-
           )}
         </div>
       </div>

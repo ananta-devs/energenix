@@ -35,6 +35,7 @@ const ProductsData = () => {
     const [formData, setFormData] = useState({
         p_name: "",
         p_subtitle: "",
+        sku: "",
         image_urls: [],
         p_category: "",
         p_price: "",
@@ -129,7 +130,7 @@ const ProductsData = () => {
         if (!price && price !== 0) return "N/A";
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'INR'
         }).format(price);
     };
 
@@ -153,6 +154,7 @@ const ProductsData = () => {
             const productToCreate = {
                 p_name: formData.p_name.trim(),
                 p_subtitle: formData.p_subtitle.trim(),
+                sku: formData.sku.trim(),
                 p_category: formData.p_category,
                 p_price: parseFloat(formData.p_price),
                 discount_price: formData.discount_price ? parseFloat(formData.discount_price) : null,
@@ -322,6 +324,7 @@ const ProductsData = () => {
             const productToUpdate = {
                 p_name: formData.p_name.trim(),
                 p_subtitle: formData.p_subtitle.trim(),
+                sku: formData.sku.trim(),
                 p_category: formData.p_category,
                 p_price: parseFloat(formData.p_price),
                 discount_price: formData.discount_price ? parseFloat(formData.discount_price) : null,
@@ -367,6 +370,7 @@ const ProductsData = () => {
         setFormData({
             p_name: "",
             p_subtitle: "",
+            sku: "",
             image_urls: [],
             p_category: "",
             p_price: "",
@@ -443,6 +447,7 @@ const ProductsData = () => {
         setFormData({
             p_name: product.p_name,
             p_subtitle: product.p_subtitle,
+            sku: product.sku,
             image_urls: product.image_urls
                 ? product.image_urls.map((url) => ({
                       type: "existing",
@@ -480,6 +485,7 @@ const ProductsData = () => {
             setFormData({
                 p_name: selectedProduct.p_name,
                 p_subtitle: selectedProduct.p_subtitle,
+                sku: selectedProduct.sku,
                 image_urls: selectedProduct.image_urls
                     ? selectedProduct.image_urls.map((url) => ({
                           type: "existing",
@@ -880,6 +886,34 @@ const ProductsData = () => {
                                         </p>
                                     )}
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        SKU Number *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.sku}
+                                        onChange={(e) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                sku: e.target.value,
+                                            }));
+                                            setAddModalMessage({ type: "", text: "" });
+                                            setFormErrors(prev => ({ ...prev, sku: "" }));
+                                        }}
+                                        className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                            formErrors.sku
+                                                ? "border-red-300 dark:border-red-600"
+                                                : "border-gray-300 dark:border-gray-600"
+                                        }`}
+                                        placeholder="Enter SKU number"
+                                    />
+                                    {formErrors.sku && (
+                                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                            {formErrors.sku}
+                                        </p>
+                                    )}
+                                </div>
                                 {/* Checkboxes */}
                                 <div className="flex items-center gap-3 mt-6">
                                     <label className="flex items-center gap-2 cursor-pointer">
@@ -1107,6 +1141,14 @@ const ProductsData = () => {
                                                 )}
                                                 <div className="flex items-center space-x-4">
                                                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        SKU Number:
+                                                    </span>
+                                                    <span className="inline-flex items-center px-2.5 py-0.5 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                        {selectedProduct.sku}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center space-x-4">
+                                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                         Trending:
                                                     </span>
                                                     <span className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -1299,6 +1341,33 @@ const ProductsData = () => {
                                             {formErrors.discount_price && (
                                                 <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                                                     {formErrors.discount_price}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                SKU Number
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={formData.sku}
+                                                onChange={(e) => {
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        sku: e.target.value,
+                                                    }));
+                                                    setAddModalMessage({ type: "", text: "" });
+                                                    setFormErrors(prev => ({ ...prev, sku: "" }));
+                                                }}
+                                                className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                                    formErrors.sku 
+                                                        ? "border-red-300 dark:border-red-600" 
+                                                        : "border-gray-300 dark:border-gray-600"
+                                                }`}
+                                            />
+                                            {formErrors.sku && (
+                                                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                                                    {formErrors.sku}
                                                 </p>
                                             )}
                                         </div>

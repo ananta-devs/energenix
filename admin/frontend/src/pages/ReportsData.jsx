@@ -70,7 +70,7 @@ const ReportsData = () => {
     {
       id: 'sales',
       title: 'Sales Summary',
-      value: `$${reports.salesSummary?.totalRevenue?.toLocaleString() || '0'}`,
+      value: `₹${reports.salesSummary?.totalRevenue?.toLocaleString() || '0'}`,
       change: reports.salesSummary?.monthOverMonthGrowth || 0,
       description: 'Total revenue and growth metrics',
       icon: DollarSign,
@@ -200,7 +200,7 @@ const ReportsData = () => {
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</p>
                 <p className="text-xl font-bold text-gray-900 dark:text-white">
-                  ${reports.salesSummary?.totalRevenue?.toLocaleString() || '0'}
+                  ₹{reports.salesSummary?.totalRevenue?.toLocaleString() || '0'}
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
@@ -212,7 +212,7 @@ const ReportsData = () => {
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg Order Value</p>
                 <p className="text-xl font-bold text-gray-900 dark:text-white">
-                  ${reports.salesSummary?.averageOrderValue || '0'}
+                  ₹{reports.salesSummary?.averageOrderValue || '0'}
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">

@@ -125,7 +125,7 @@ export default function Header() {
               ) : (
                 <button
                   onClick={handleNavigation}
-                  className="hidden md:flex p-2 rounded-full"
+                  className="hidden md:flex p-2 rounded-full cursor-pointer"
                 >
                   <User className="w-5 h-5 text-white" />
                 </button>
@@ -134,7 +134,7 @@ export default function Header() {
               {/* Cart */}
               <button
                 onClick={() => setIsOpen(true)}
-                className="relative p-2 rounded-full"
+                className="relative p-2 rounded-full cursor-pointer"
               >
                 <ShoppingCart className="w-5 h-5 text-white hover:text-amber-300" />
 

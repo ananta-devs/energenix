@@ -84,7 +84,7 @@ exports.verifyOtp = async (req, res) => {
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
-      { expiresIn: 3600 },
+      { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
         res.json({ token });
@@ -124,7 +124,7 @@ exports.verifySigninOtp = async (req, res) => {
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
-      { expiresIn: 3600 },
+      { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
         res.json({ token });

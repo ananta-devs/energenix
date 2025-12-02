@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { API_BASE_URL } from '../utils/api';
+import api from '../utils/api'; // Import api
 
 export const ProductContext = createContext();
 
@@ -14,13 +14,9 @@ export function ProductProvider({ children }) {
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/products`, { signal });
+      const res = await api.get('/products', { signal }); // Use api.get
 
-      if (!res.ok) {
-        throw new Error(`Request failed: ${res.status}`);
-      }
-
-      const data = await res.json();
+      const data = res.data; // Axios puts data in res.data
 
       if (!Array.isArray(data)) {
         throw new Error("Invalid response format: expected an array");
@@ -28,7 +24,7 @@ export function ProductProvider({ children }) {
 
       setProducts(data);
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name !== 'CanceledError') { // Axios abort errors are 'CanceledError'
         setError(err.message);
       }
     } finally {

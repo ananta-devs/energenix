@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../hooks/useCart.js";
-import axios from "axios";
+import { useAuth } from "../../hooks/useAuth.js";
+import api from "../../utils/api";
 import ap from "../../assets/logo.svg";
 
 import CheckoutHeader from "./checkout/CheckoutHeader.jsx";
@@ -14,6 +15,7 @@ import EmptyCart from "./checkout/EmptyCart.jsx";
 
 export default function CheckoutFlow() {
     const { items, total, clearCart } = useCart();
+    const { user } = useAuth(); // Get user from useAuth
     const navigate = useNavigate();
 
     const [step, setStep] = useState(1);
@@ -41,7 +43,7 @@ export default function CheckoutFlow() {
 
     const fetchCityState = async (pin) => {
         try {
-            const res = await axios.get(`/api/pincode/${pin}`);
+            const res = await api.get(`/pincode/${pin}`); // Use api.get
             return { city: res.data.city || "", state: res.data.state || "" };
         } catch {
             return { city: "", state: "" };
@@ -107,7 +109,7 @@ export default function CheckoutFlow() {
         try {
             const {
                 data: { orderId, key },
-            } = await axios.post("/api/payment/create-order", {
+            } = await api.post("/payment/create-order", { // Use api.post
                 amount: finalTotal,
             });
 
@@ -126,8 +128,8 @@ export default function CheckoutFlow() {
                         razorpay_signature,
                     } = response;
                     try {
-                        const { data } = await axios.post(
-                            "/api/payment/verify",
+                        const { data } = await api.post( // Use api.post
+                            "/payment/verify",
                             {
                                 razorpay_payment_id,
                                 razorpay_order_id,
@@ -145,7 +147,7 @@ export default function CheckoutFlow() {
                 },
                 prefill: {
                     name: addressForm.fullName,
-                    email: "test@example.com",
+                    email: user?.email,
                     contact: addressForm.phone,
                 },
                 notes: {
@@ -167,25 +169,52 @@ export default function CheckoutFlow() {
             alert("Please select a payment method");
             return;
         }
-
+    
         setIsProcessing(true);
-
-        // Simulate processing delay
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-
-        const orderId = Math.random().toString(36).substr(2, 9).toUpperCase();
-
-        const orderPayload = {
-            cartItems: items,
-            shippingAddress: addressForm,
-            paymentMethod,
-            total: finalTotal,
-            couponCode: couponApplied ? couponCode : null,
-        };
-        console.log("Order Payload:", orderPayload);
-
-        clearCart();
-        navigate(`/order-confirmation/${orderId}`);
+    
+        try {
+            const orderPayload = {
+                order_id: Math.random().toString(36).substr(2, 9),
+                customer: {
+                    name: addressForm.fullName,
+                    email: user?.email,
+                    phone: addressForm.phone,
+                    address_line_one: addressForm.addressLine1,
+                    address_line_two: addressForm.addressLine2,
+                    city: addressForm.city,
+                    state: addressForm.state,
+                    pincode: addressForm.pinCode,
+                },
+                items: items.map(item => ({
+                    name: item.name,
+                    sku_number: item._id, // Assuming item._id is the SKU
+                    quantity: item.quantity,
+                    unit_price: item.discount_price,
+                    pack_type: item.selectedPack.toUpperCase().replace(/ /g, '_'),
+                })),
+                payment_type: paymentMethod === "cod" ? "COD" : "Prepaid",
+                cod_amount: paymentMethod === "cod" ? String(finalTotal) : "0",
+                weight_kg: 0.5, // Hardcoded weight
+                length_cm: 20,  // Hardcoded dimensions
+                width_cm: 15,
+                height_cm: 10,
+            };
+            
+    
+            const { data } = await api.post("/orders/create", orderPayload);
+    
+            if (data.order) {
+                clearCart();
+                navigate(`/order-confirmation/${data.order.order_id}`);
+            } else {
+                throw new Error(data.error || "Order creation failed");
+            }
+        } catch (error) {
+            console.error("Order placement error:", error);
+            alert(`An error occurred while placing the order: ${error.message}`);
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     if (items.length === 0) {

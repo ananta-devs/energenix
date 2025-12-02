@@ -29,11 +29,12 @@ const getProductById = asyncHandler(async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = asyncHandler(async (req, res) => {
-  const { p_name, p_subtitle, p_category, p_price, discount_price, description, image_urls, trending, bestseller } = req.body;
+  const { p_name, p_subtitle, sku, p_category, p_price, discount_price, description, image_urls, trending, bestseller } = req.body;
 
   const product = new Product({
     p_name,
     p_subtitle,
+    sku,
     p_category,
     p_price,
     discount_price,
@@ -63,11 +64,12 @@ const createProduct = asyncHandler(async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = asyncHandler(async (req, res) => {
-  const { p_name, p_subtitle, p_category, p_price, discount_price, description, image_urls, trending, bestseller } = req.body;
+  const { p_name, p_subtitle, sku, p_category, p_price, discount_price, description, image_urls, trending, bestseller } = req.body;
 
   const updateData = {};
   if (p_name !== undefined) updateData.p_name = p_name;
   if (p_subtitle !== undefined) updateData.p_subtitle = p_subtitle;
+  if (sku !== undefined) updateData.sku = sku;
   if (p_category !== undefined) updateData.p_category = p_category;
   if (p_price !== undefined) updateData.p_price = p_price;
   if (discount_price !== undefined) updateData.discount_price = discount_price;

@@ -45,7 +45,7 @@ export const dataService = {
   },
 
   async updateCollection(id, collectionData) {
-    const response = await axios.put(`${API_BSE}/api/collections/${id}`, collectionData);
+    const response = await axios.put(`${API_BASE}/api/collections/${id}`, collectionData);
     return response.data;
   },
 

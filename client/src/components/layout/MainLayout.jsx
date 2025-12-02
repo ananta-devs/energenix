@@ -4,33 +4,39 @@ import Header from "./Header";
 import Footer from "./Footer";
 
 export default function MainLayout() {
-  const location = useLocation();
+    const location = useLocation();
 
-  // Pages that should NOT show header/footer
-  const hideLayout =
-    location.pathname.startsWith("/checkout") ||
-    location.pathname.startsWith("/dashboard");
+    // Pages that should NOT show header/footer
+    const hideLayout =
+        location.pathname.startsWith("/checkout") ||
+        location.pathname.startsWith("/dashboard");
 
-  // Home page should NOT wrap the top section (HeroSlider)
-  const isHomePage = location.pathname === "/";
+    // Home page should NOT wrap the top section (HeroSlider)
+    const isHomePage = location.pathname === "/";
+    const isDashboard = location.pathname.startsWith("/dashboard");
 
-  return (
-    <div className="min-h-screen flex flex-col bg-white">
-      {!hideLayout && <Header />}
+    return (
+        <div className="min-h-screen flex flex-col">
+            {!hideLayout && <Header />}
 
-      <main className="flex-1 w-full">
+            <main className="flex-1 w-full bg-gray-50">
+                {isHomePage ? (
+                    <div className="bg-white">
+                        <Outlet />
+                    </div>
+                ) : isDashboard ? (
+                    // NO padding, NO container for dashboard
+                    <div className="w-full">
+                        <Outlet />
+                    </div>
+                ) : (
+                    <div className="mx-auto w-full max-w-screen-xl px-4 py-4">
+                        <Outlet />
+                    </div>
+                )}
+            </main>
 
-        {isHomePage ? (
-          <Outlet />
-        ) : (
-          <div className="mx-auto w-full max-w-screen-xl px-4 py-4">
-            <Outlet />
-          </div>
-        )}
-        
-      </main>
-
-      {!hideLayout && <Footer />}
-    </div>
-  );
+            {!hideLayout && <Footer />}
+        </div>
+    );
 }

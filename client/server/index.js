@@ -9,6 +9,7 @@ const productRoutes = require('./routes/productRoutes');
 const pincodeRoutes = require('./routes/pincode');
 const paymentRoutes = require('./routes/paymentRoutes');
 const shipmozoRoutes = require('./routes/shipmozo.routes');
+const orderRoutes = require('./routes/order.routes.js');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/pincode', pincodeRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/shipmozo', shipmozoRoutes);
+app.use('/api/orders', orderRoutes);
 
 const PORT = process.env.PORT || 4000;
 

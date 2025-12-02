@@ -12,9 +12,9 @@ const ProductSchema = new mongoose.Schema(
       trim: true,
     },
     p_category: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
       required: true,
-      trim: true,
     },
     p_price: {
       type: Number,
@@ -40,6 +40,7 @@ const ProductSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    
   },
   { timestamps: true }
 );

@@ -3,7 +3,7 @@ import { Mail, Phone, User } from 'lucide-react';
 import Button from '../ui/Button';
 import InputField from '../ui/Input';
 import { useAuth } from '../../context/AuthContext';
-import { API_BASE_URL } from '../../utils/api';
+import api from '../../utils/api'; // Import api
 import { useNavigate } from 'react-router-dom';
 
 const SignUpPage = () => {
@@ -35,7 +35,7 @@ const SignUpPage = () => {
     return newErrors;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newErrors = validate();
     
     if (Object.keys(newErrors).length > 0) {
@@ -44,31 +44,16 @@ const SignUpPage = () => {
     }
 
     setLoading(true);
-    fetch(`${API_BASE_URL}/auth/signup`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    })
-      .then(async (res) => {
-        if (res.ok) {
-          return res.json();
-        } else {
-          const errorData = await res.json();
-          throw new Error(errorData.msg || 'Something went wrong');
-        }
-      })
-      .then((data) => {
-        showToast(data.msg, 'success');
-        navigate('/verify-otp', { state: { from: 'signup', contact: formData.email } });
-      })
-      .catch((err) => {
-        showToast(err.message, 'error');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const res = await api.post('/auth/signup', formData); // Use api.post
+      showToast(res.data.msg, 'success');
+      navigate('/verify-otp', { state: { from: 'signup', contact: formData.email } });
+    } catch (err) {
+      const message = err.response?.data?.msg || err.message || 'Something went wrong';
+      showToast(message, 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

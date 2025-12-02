@@ -1,26 +1,25 @@
+// config/shipmozo.config.js
 const dotenv = require("dotenv");
 dotenv.config();
 
 const shipmozoConfig = {
-  // Use login credentials (recommended) rather than sending api_key in body
-  email: process.env.SHIPMOZO_EMAIL || "",
+  // Prefer explicit public/private keys if provided
+  publicKey: process.env.SHIPMOZO_PUBLIC_KEY || "",
+  privateKey: process.env.SHIPMOZO_PRIVATE_KEY || "",
+
+  // Credentials to fetch keys via /login if public/private not provided
+  username: process.env.SHIPMOZO_USERNAME || process.env.SHIPMOZO_EMAIL || "",
   password: process.env.SHIPMOZO_PASSWORD || "",
 
-  // Fallback base url — adjust if Shipmozo gives you a different base for your account
-  baseUrl: process.env.SHIPMOZO_BASE_URL || "https://apiv2.shipmozo.com/api/v1",
+  // Base URL (no trailing slash)
+  baseUrl: (process.env.SHIPMOZO_BASE_URL || "https://shipping-api.com/app/api/v1").replace(/\/$/, ""),
 
-  // Optional pickup defaults used when a pickup address is not provided per-order
-  pickup: {
-    name: process.env.PICKUP_NAME || "",
-    phone: process.env.PICKUP_PHONE || "",
-    address: process.env.PICKUP_ADDRESS || "",
-    pincode: process.env.PICKUP_PINCODE || "",
-    city: process.env.PICKUP_CITY || "",
-    state: process.env.PICKUP_STATE || "",
-  },
+  // Optionally fallback warehouse info (if you want env override)
+  warehouseId: process.env.WAREHOUSE_ID || "",
+  warehousePincode: process.env.WAREHOUSE_PINCODE || "",
 
-  // Token cache settings (seconds before expiry to proactively refresh)
-  tokenRefreshBufferSeconds: Number(process.env.SHIPMOZO_TOKEN_BUFFER || 60)
+  // Debug logging
+  debug: process.env.SHIPMOZO_DEBUG === "1" || false
 };
 
 module.exports = shipmozoConfig;

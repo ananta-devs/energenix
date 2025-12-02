@@ -9,10 +9,18 @@ export default function CategoryPage() {
   const { products, loading, error } = useProducts();
   const [sortBy, setSortBy] = useState('featured');
 
-  const categories = [...new Set(products.map(p => p.p_category))];
+  const uniqueCategories = [];
+  products.forEach(p => {
+    if (p.p_category && !uniqueCategories.some(cat => cat._id === p.p_category._id)) {
+      uniqueCategories.push({ _id: p.p_category._id, name: p.p_category.product_category });
+    }
+  });
+
+  const currentCategory = uniqueCategories.find(cat => cat._id === categoryId);
+  const currentCategoryName = currentCategory ? currentCategory.name : 'All Products';
 
   const filteredProducts = products.filter(p => 
-    categoryId === 'all' || p.p_category === categoryId
+    categoryId === 'all' || (p.p_category && p.p_category._id === categoryId)
   ).sort((a, b) => {
     if (sortBy === 'price-low') return a.discount_price - b.discount_price;
     if (sortBy === 'price-high') return b.discount_price - a.discount_price;
@@ -47,10 +55,26 @@ export default function CategoryPage() {
               <div className="mb-6">
                 <h4 className="font-semibold mb-3">Category</h4>
                 <div className="space-y-2">
-                  {categories.map(cat => (
-                    <label key={cat} className="flex items-center cursor-pointer">
-                      <input type="radio" name="category" className="mr-2" />
-                      <span className="text-sm">{cat}</span>
+                  <label key="all" className="flex items-center cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="category" 
+                      className="mr-2" 
+                      checked={categoryId === 'all'}
+                      onChange={() => window.location.href = '/products/category/all'}
+                    />
+                    <span className="text-sm">All Products</span>
+                  </label>
+                  {uniqueCategories.map(cat => (
+                    <label key={cat._id} className="flex items-center cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="category" 
+                        className="mr-2" 
+                        checked={categoryId === cat._id}
+                        onChange={() => window.location.href = `/products/category/${cat._id}`}
+                      />
+                      <span className="text-sm">{cat.name}</span>
                     </label>
                   ))}
                 </div>
@@ -62,19 +86,19 @@ export default function CategoryPage() {
                 <div className="space-y-2">
                   <label className="flex items-center cursor-pointer">
                     <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">Under $1,000</span>
+                    <span className="text-sm">Under 1,000</span>
                   </label>
                   <label className="flex items-center cursor-pointer">
                     <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">$1,000 - $3,000</span>
+                    <span className="text-sm">1,000 - 3,000</span>
                   </label>
                   <label className="flex items-center cursor-pointer">
                     <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">$3,000 - $5,000</span>
+                    <span className="text-sm">3,000 - 5,000</span>
                   </label>
                   <label className="flex items-center cursor-pointer">
                     <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">Over $5,000</span>
+                    <span className="text-sm">Over 5,000</span>
                   </label>
                 </div>
               </div>
@@ -83,6 +107,7 @@ export default function CategoryPage() {
 
           {/* Products */}
           <div className="flex-1">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">{currentCategoryName}</h2>
             {/* Toolbar */}
             <div className="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-gray-600">{filteredProducts.length} products found</p>

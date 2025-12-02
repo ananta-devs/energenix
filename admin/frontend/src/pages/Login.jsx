@@ -1,18 +1,34 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import logo from '../assets/logo.svg';
 
 export default function AdminSignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
+    // Reset previous errors
+    setError('');
+    
+    // Basic validation
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      return;
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/admins/login`, {
@@ -22,9 +38,51 @@ export default function AdminSignIn() {
       localStorage.setItem('token', response.data.token);
       navigate('/dashboard');
     } catch (error) {
-      alert('Invalid credentials');
+      if (error.response) {
+        // Server responded with error status
+        switch (error.response.status) {
+          case 401:
+            setError('Invalid email or password. Please try again.');
+            break;
+          case 404:
+            setError('Account not found. Please check your email.');
+            break;
+          case 422:
+            setError('Invalid input. Please check your email and password.');
+            break;
+          case 500:
+            setError('Server error. Please try again later.');
+            break;
+          default:
+            setError('Login failed. Please try again.');
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        // Something else happened
+        setError('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Clear error when user starts typing
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (error) setError('');
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    if (error) setError('');
+  };
+
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !isLoading) {
+      handleSubmit();
     }
   };
 
@@ -40,13 +98,21 @@ export default function AdminSignIn() {
               className="w-full h-full object-cover"
             />
           </div>
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">Admin Portal</h1>
+          <h1 className="text-3xl font-bold text-slate-800 mb-2">EnergeniX Admin</h1>
           <p className="text-slate-600">Sign in to access your dashboard</p>
         </div>
 
         {/* Sign In Card */}
         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 p-8">
           <div className="space-y-6">
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3 animate-fade-in">
+                <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+            )}
+
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
@@ -60,8 +126,11 @@ export default function AdminSignIn() {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 bg-white border border-slate-300 rounded-lg text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  onChange={handleEmailChange}
+                  onKeyPress={handleKeyPress}
+                  className={`block w-full pl-10 pr-3 py-3 bg-white border ${
+                    error ? 'border-red-300' : 'border-slate-300'
+                  } rounded-lg text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition`}
                   placeholder="admin@example.com"
                   required
                 />
@@ -81,15 +150,18 @@ export default function AdminSignIn() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-12 py-3 bg-white border border-slate-300 rounded-lg text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  onChange={handlePasswordChange}
+                  onKeyPress={handleKeyPress}
+                  className={`block w-full pl-10 pr-12 py-3 bg-white border ${
+                    error ? 'border-red-300' : 'border-slate-300'
+                  } rounded-lg text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition`}
                   placeholder="••••••••"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-700 transition"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-700 transition cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -100,33 +172,11 @@ export default function AdminSignIn() {
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 bg-white border-slate-300 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-white"
-                />
-                <label htmlFor="remember" className="ml-2 block text-sm text-slate-700">
-                  Remember me
-                </label>
-              </div>
-              <button
-                type="button"
-                className="text-sm text-blue-600 hover:text-blue-800 transition"
-              >
-                Forgot password?
-              </button>
-            </div>
-
             {/* Submit Button */}
             <button
               onClick={handleSubmit}
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 flex items-center justify-center"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 flex items-center justify-center cursor-pointer"
             >
               {isLoading ? (
                 <>
@@ -138,18 +188,11 @@ export default function AdminSignIn() {
               )}
             </button>
           </div>
-
-          {/* Security Notice */}
-          <div className="mt-6 pt-6 border-t border-slate-200">
-            <p className="text-xs text-slate-500 text-center">
-              Protected by enterprise-grade security. Unauthorized access attempts are logged.
-            </p>
-          </div>
         </div>
 
         {/* Footer */}
         <p className="text-center text-slate-500 text-sm mt-8">
-          © 2024 Admin Portal. All rights reserved.
+          © 2024 EnergeniX. All rights reserved.
         </p>
       </div>
     </div>

@@ -4,7 +4,7 @@ import Button from '../ui/Button';
 import OtpInput from './OtpInput';
 import { useAuth } from '../../context/AuthContext';
 import useOtpTimer from '../../hooks/useOtpTimer';
-import { API_BASE_URL } from '../../utils/api';
+import api from '../../utils/api'; // Import api
 
 const OtpVerificationPage = () => {
   const [otp, setOtp] = useState('');
@@ -19,7 +19,7 @@ const OtpVerificationPage = () => {
     startTimer();
   }, [startTimer]);
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     if (otp.length !== 6) {
       showToast('Please enter a valid 6-digit OTP', 'error');
       return;
@@ -27,92 +27,44 @@ const OtpVerificationPage = () => {
 
     setLoading(true);
     
-    if (from === 'signin') {
-      // Handle sign in with OTP
-      fetch(`${API_BASE_URL}/auth/verify-signin-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: contact, otp }),
-      })
-        .then(async (res) => {
-          if (res.ok) {
-            return res.json();
-          } else {
-            const errorData = await res.json();
-            throw new Error(errorData.msg || 'Something went wrong');
-          }
-        })
-        .then((data) => {
-          setAuthToken(data.token);
-          showToast('Signed in successfully!', 'success');
-          navigate('/');
-        })
-        .catch((err) => {
-          showToast(err.message, 'error');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      // Handle other OTP verifications (signup)
-      fetch(`${API_BASE_URL}/auth/verify-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: contact, otp, from: from }),
-      })
-        .then(async (res) => {
-          if (res.ok) {
-            return res.json();
-          } else {
-            const errorData = await res.json();
-            throw new Error(errorData.msg || 'Something went wrong');
-          }
-        })
-        .then((data) => {
-          if (from === 'signup') {
-            showToast('Account created successfully! Please sign in.', 'success');
-            setTimeout(() => navigate('/login'), 1000);
-          }
-        })
-        .catch((err) => {
-          showToast(err.message, 'error');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+    try {
+      if (from === 'signin') {
+        // Handle sign in with OTP
+        const res = await api.post('/auth/verify-signin-otp', { email: contact, otp });
+        setAuthToken(res.data.token);
+        showToast('Signed in successfully!', 'success');
+        navigate('/');
+      } else {
+        // Handle other OTP verifications (signup)
+        const res = await api.post('/auth/verify-otp', { email: contact, otp, from: from });
+        if (from === 'signup') {
+          showToast('Account created successfully! Please sign in.', 'success');
+          setTimeout(() => navigate('/login'), 1000);
+        }
+      }
+    } catch (err) {
+      const message = err.response?.data?.msg || err.message || 'Something went wrong';
+      showToast(message, 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleResend = () => {
-    if (from === 'signin') {
-      // Resend OTP for sign in
-      fetch(`${API_BASE_URL}/auth/signin`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: contact }),
-      })
-        .then(async (res) => {
-          if (res.ok) {
-            showToast('OTP resent successfully!', 'success');
-            startTimer();
-          } else {
-            const errorData = await res.json();
-            throw new Error(errorData.msg || 'Something went wrong');
-          }
-        })
-        .catch((err) => {
-          showToast(err.message, 'error');
-        });
-    } else {
-      // Resend OTP for other cases
-      startTimer();
-      showToast('OTP resent successfully!', 'success');
+  const handleResend = async () => {
+    try {
+      if (from === 'signin') {
+        // Resend OTP for sign in
+        await api.post('/auth/signin', { email: contact });
+        showToast('OTP resent successfully!', 'success');
+        startTimer();
+      } else {
+        // Resend OTP for other cases
+        startTimer();
+        showToast('OTP resent successfully!', 'success');
+      }
+    } catch (err) {
+      const message = err.response?.data?.msg || err.message || 'Something went wrong';
+      showToast(message, 'error');
     }
   };
 

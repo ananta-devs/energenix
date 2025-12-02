@@ -9,6 +9,12 @@ const ProductSchema = mongoose.Schema(
     p_subtitle: {
       type: String,
     },
+    sku: {
+      type: String,
+      required: true,
+      unique: true,
+      sparse: true,
+    },
     p_category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Collection',

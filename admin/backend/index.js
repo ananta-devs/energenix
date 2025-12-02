@@ -8,6 +8,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const productRoutes = require('./routes/productRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 const uploadRoutes = require('./routes/uploadRoutes'); // Import uploadRoutes
 const connectDB = require('./config/db');
 const Collection = require('./models/Collection');
@@ -19,7 +20,8 @@ connectDB().then(async () => {
   } catch (error) {
     if (error.code === 27) { // Index not found
       console.log('Index hsn_number_1 not found, it might have been already removed.');
-    } else {
+    }
+    else {
       console.error('Error dropping index:', error);
     }
   }
@@ -38,6 +40,7 @@ app.use('/api/admins', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/collections', collectionRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes); // Add uploadRoutes
 
 app.listen(PORT, () => {

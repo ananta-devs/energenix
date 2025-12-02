@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { API_BASE_URL } from '../../utils/api';
+import api from '../../utils/api'; // Import api
 
 export default function ContactPage() {
   const { user } = useAuth();
@@ -33,38 +33,30 @@ export default function ContactPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${API_BASE_URL}/contact`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await api.post('/contact', formData); // Use api.post
 
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-
-      if (user) {
-        const nameParts = user.fullName.split(' ');
-        setFormData({
-          firstName: nameParts[0] || '',
-          lastName: nameParts.slice(1).join(' ') || '',
-          email: user.email || '',
-          phone: user.phone || '',
-          message: '',
-        });
-      } else {
-        setFormData({
-          firstName: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          message: '',
-        });
+      if (response.status === 200) { // Axios uses status
+        if (user) {
+          const nameParts = user.fullName.split(' ');
+          setFormData({
+            firstName: nameParts[0] || '',
+            lastName: nameParts.slice(1).join(' ') || '',
+            email: user.email || '',
+            phone: user.phone || '',
+            message: '',
+          });
+        } else {
+          setFormData({
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            message: '',
+          });
+        }
       }
     } catch (error) {
-      console.error('Error submitting contact form:', error);
+      console.error('Error submitting contact form:', error.response?.data?.message || error.message);
     }
   };
 

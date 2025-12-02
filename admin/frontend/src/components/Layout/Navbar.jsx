@@ -1,5 +1,5 @@
 // Navbar.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Search, 
@@ -21,6 +21,31 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatted = (() => {
+  const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  const d = now;
+  const day = days[d.getDay()];
+  const month = months[d.getMonth()];
+  const date = String(d.getDate()).padStart(2, "0");
+  const year = d.getFullYear();
+
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  const ss = String(d.getSeconds()).padStart(2, "0");
+
+  return `${day} ${date} ${month} ${year} ${hh}:${mm}:${ss}`;
+})();
+
+
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
@@ -35,13 +60,10 @@ const Navbar = () => {
             </svg>
           </button>
           
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="pl-10 pr-4 py-2 w-40 sm:w-60 md:w-80 border border-gray-300 dark:border-gray-600 rounded-lg dark:text-gray-100 bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm sm:text-base transition-colors duration-200"
-            />
+          <div className="relative  px-3 py-2  border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent dark:text-gray-300 text-sm sm:text-base">
+              <span className="text-black dark:text-gray-400">
+                {formatted}
+              </span>
           </div>
         </div>
 

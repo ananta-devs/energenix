@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Bell, Shield, User, Globe, Mail, Key, Database, Palette, Clock, Save, UserPlus, Phone } from 'lucide-react';
 
 const Settings = () => {
-  const [activeTab, setActiveTab] = useState('general');
+  const [activeTab, setActiveTab] = useState('security');
   const [settings, setSettings] = useState({
     appName: 'Gemstone Admin',
     theme: 'system',

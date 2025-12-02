@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import axios from 'axios';
-import { dummyOrders } from './data/orders';
+import api from '../../utils/api.js'; // Import api instance
 
 // Import new components
 import DashboardHeader from './components/DashboardHeader.jsx';
@@ -22,6 +21,7 @@ const Dashboard = () => {
   const [userData, setUserData] = useState(null);
   const [verificationCode, setVerificationCode] = useState('');
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   const { user, logout, showToast } = useAuth();
   const navigate = useNavigate();
@@ -42,31 +42,31 @@ const Dashboard = () => {
   const [originalEmail, setOriginalEmail] = useState('');
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('/api/auth/me', {
-          headers: {
-            'x-auth-token': token,
-          },
-        });
-        setUserData(res.data);
-        setFormData({
-          fullName: res.data.fullName,
-          email: res.data.email,
-          phone: res.data.phone,
-        });
-        setOriginalEmail(res.data.email);
+        const [userRes, ordersRes] = await Promise.all([
+          api.get('/auth/me'),
+          api.get('/orders')
+        ]);
         
-        // Load dummy orders
-        setOrders(dummyOrders);
+        setUserData(userRes.data);
+        setFormData({
+          fullName: userRes.data.fullName,
+          email: userRes.data.email,
+          phone: userRes.data.phone,
+        });
+        setOriginalEmail(userRes.data.email);
+        setOrders(ordersRes.data.orders);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
 
     if (user) {
-      fetchUserData();
+      fetchData();
     }
   }, [user]);
   
@@ -129,16 +129,11 @@ const Dashboard = () => {
 
   const handleSaveProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
       // Check if email has changed
       if (formData.email !== originalEmail) {
         // Check if email already exists
         try {
-          await axios.post('/api/auth/check-email', { email: formData.email }, {
-            headers: {
-              'x-auth-token': token,
-            },
-          });
+          await api.post('/auth/check-email', { email: formData.email }); // Use api.post
         } catch (err) {
           if (err.response && err.response.status === 400) {
             showToast(err.response.data.msg, 'error');
@@ -147,21 +142,13 @@ const Dashboard = () => {
         }
 
         // Show email verification modal instead of saving immediately
-        await axios.post('/api/auth/send-update-email-otp', { email: formData.email }, {
-          headers: {
-            'x-auth-token': token,
-          },
-        });
+        await api.post('/auth/send-update-email-otp', { email: formData.email }); // Use api.post
         setShowEmailVerificationModal(true);
         return;
       }
 
       // If email hasn't changed, save profile normally
-      const res = await axios.put('/api/auth/me', { fullName: formData.fullName, phone: formData.phone }, {
-        headers: {
-          'x-auth-token': token,
-        },
-      });
+      const res = await api.put('/auth/me', { fullName: formData.fullName, phone: formData.phone }); // Use api.put
       setUserData(res.data);
       setShowEditProfileModal(false);
       showToast('Profile updated successfully!', 'success');
@@ -173,12 +160,7 @@ const Dashboard = () => {
 
   const handleVerifyEmail = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.post('/api/auth/verify-update-email-otp', { email: formData.email, otp: verificationCode }, {
-        headers: {
-          'x-auth-token': token,
-        },
-      });
+      const res = await api.post('/auth/verify-update-email-otp', { email: formData.email, otp: verificationCode }); // Use api.post
       
       setUserData(res.data);
       setOriginalEmail(formData.email); // Update original email
@@ -194,12 +176,7 @@ const Dashboard = () => {
 
   const handleResendCode = async () => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('/api/auth/send-update-email-otp', { email: formData.email }, {
-        headers: {
-          'x-auth-token': token,
-        },
-      });
+      await api.post('/auth/send-update-email-otp', { email: formData.email }); // Use api.post
       showToast('Verification code sent!', 'success');
     } catch (err) {
       console.error(err);
@@ -232,7 +209,7 @@ const Dashboard = () => {
   // Fetch city/state from backend
   const fetchCityState = async (pin) => {
     try {
-      const res = await axios.get(`/api/pincode/${pin}`);
+      const res = await api.get(`/pincode/${pin}`); // Use api.get
       return {
         city: res.data.city || "",
         state: res.data.state || ""
@@ -256,7 +233,7 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {currentPage === 'orders' && <OrdersContent orders={orders} />}
+        {currentPage === 'orders' && <OrdersContent orders={orders} loading={loading} />}
         {currentPage === 'profile' && userData && (
           <Profile
             userData={userData}

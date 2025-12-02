@@ -1,5 +1,5 @@
-import React from 'react';
 import { Package, Truck, CheckCircle, Clock } from 'lucide-react';
+import OrderSkeleton from './OrderSkeleton';
 
 // Function to get status icon and color - Moved from Dashboard.jsx
 const getStatusInfo = (status) => {
@@ -15,9 +15,18 @@ const getStatusInfo = (status) => {
   }
 };
 
-const OrdersContent = ({ orders }) => {
+const OrdersContent = ({ orders, loading }) => {
+  if (loading) {
+    return (
+      <div className="mb-20">
+        <h1 className="text-3xl font-semi-bold text-gray-900 mb-6">Orders</h1>
+        <OrderSkeleton />
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="mb-20">
       <h1 className="text-3xl font-semi-bold text-gray-900 mb-6">Orders</h1>
       
       {orders.length === 0 ? (
@@ -35,17 +44,18 @@ const OrdersContent = ({ orders }) => {
             const StatusIcon = getStatusInfo(order.status).icon;
             const statusColor = getStatusInfo(order.status).color;
             const statusBgColor = getStatusInfo(order.status).bgColor;
+            const total = order.items.reduce((acc, item) => acc + (item.unit_price * item.quantity), 0);
             
             return (
-              <div key={order.id} className="bg-white rounded-lg shadow-sm p-6">
+              <div key={order._id} className="bg-white rounded-lg shadow-sm p-6">
                 {/* Order Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">
-                      Order {order.id}
+                      Order {order.order_id}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Placed on {new Date(order.date).toLocaleDateString('en-IN', {
+                      Placed on {new Date(order.order_date).toLocaleDateString('en-IN', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'
@@ -62,15 +72,25 @@ const OrdersContent = ({ orders }) => {
                 <div className="border-t border-b border-gray-200 py-4 mb-4">
                   {order.items.map((item, index) => (
                     <div key={index} className="flex items-center space-x-4 mb-3 last:mb-0">
-                      <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Package className="w-6 h-6 text-gray-400" />
+                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                        {item.image_urls && item.image_urls.length > 0 ? (
+                          <img 
+                            src={item.image_urls[0]} 
+                            alt={item.name} 
+                            className="w-full h-full object-cover" 
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
+                            No Image
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1">
                         <h4 className="text-sm font-medium text-gray-900">{item.name}</h4>
                         <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                       </div>
                       <div className="text-sm font-medium text-gray-900">
-                        ₹{item.price.toLocaleString('en-IN')}
+                        ₹{item.unit_price.toLocaleString('en-IN')}
                       </div>
                     </div>
                   ))}
@@ -80,13 +100,13 @@ const OrdersContent = ({ orders }) => {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm text-gray-600">
-                      Shipped to: {order.shippingAddress.fullName}, {order.shippingAddress.city}
+                      Shipped to: {order.customer.name}
                     </p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-600">Total Amount</p>
                     <p className="text-lg font-semibold text-gray-900">
-                      ₹{order.total.toLocaleString('en-IN')}
+                      ₹{total.toLocaleString('en-IN')}
                     </p>
                   </div>
                 </div>
