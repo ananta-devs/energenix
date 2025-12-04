@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useCart } from '../../hooks/useCart.js';
 import { Minus, Plus, Package, Check, Award, X } from 'lucide-react';
 import trust_badge from '../../assets/TRUST_BADGE.webp';
@@ -9,6 +9,7 @@ import { slugify } from '../../utils/slugify.js';
 export default function ProductDetailPage() {
     const { identifier } = useParams();
     const { addItem } = useCart();
+    const navigate = useNavigate();
     const { products, loading, error } = useProducts();
     const [product, setProduct] = useState(null);
     const [currentImage, setCurrentImage] = useState(0);
@@ -63,12 +64,12 @@ export default function ProductDetailPage() {
     };
 
     const handleAddToCart = () => {
-        addItem(product, quantity, true, selectedPack);
+        addItem(product, quantity, selectedPack, { shouldOpenDrawer: true });
     };
 
     const handleBuyNow = () => {
-        addItem(product, quantity, false, selectedPack);
-        // navigate('/checkout'); // useNavigate is not imported, this should be handled differently if needed
+        addItem(product, quantity, selectedPack, { shouldOpenDrawer: false, isBuyNow: true });
+        navigate('/checkout');
     };
 
     if (loading) {
@@ -85,23 +86,8 @@ export default function ProductDetailPage() {
     const packPrices = calculatePackPrices();
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12">
+        <div className="min-h-screen bg-gray-50 py-5">
             <div className="container mx-auto px-4">
-                {/* Breadcrumb */}
-                <div className="text-sm text-gray-600 mb-8">
-                    <Link to="/" className="hover:underline">
-                        Home
-                    </Link>{" "}
-                    /{" "}
-                    <Link
-                        to={`/category/${product.p_category._id}`} // Revert to slug for category
-                        className="hover:underline"
-                    >
-                        {product.p_category.product_category}
-                    </Link>{" "}
-                    / {product.p_name}
-                </div>
-
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
                     {/* Image Gallery - Normal on small, sticky on large */}
                     <div className="lg:sticky lg:top-24 lg:self-start">

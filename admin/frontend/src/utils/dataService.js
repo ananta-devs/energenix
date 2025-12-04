@@ -73,4 +73,25 @@ export const dataService = {
     const response = await axios.put(`${API_BASE}/api/inventory/${id}`, inventoryData);
     return response.data;
   },
+
+  // Coupon methods
+  async getCoupons() {
+    const response = await axios.get(`${API_BASE}/api/coupons`);
+    return response.data;
+  },
+
+  async createCoupon(couponData) {
+    const response = await axios.post(`${API_BASE}/api/coupons`, couponData);
+    return response.data;
+  },
+
+  async updateCoupon(id, couponData) {
+    const response = await axios.put(`${API_BASE}/api/coupons/${id}`, couponData);
+    return response.data;
+  },
+
+  async deleteCoupon(id) {
+    const response = await axios.delete(`${API_BASE}/api/coupons/${id}`);
+    return response.data;
+  },
 };

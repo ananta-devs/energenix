@@ -13,7 +13,8 @@ import {
   LogOut,
   X,
   Menu, 
-  Archive
+  Archive,
+  Ticket
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import logo from '../../assets/logo.svg';
@@ -22,6 +23,7 @@ const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
   { id: 'products', label: 'Products', icon: Gem, path: '/products' },
   { id: 'collections', label: 'Collections', icon: Archive, path: '/collections'},
+  { id: 'coupons', label: 'Coupons', icon: Ticket, path: '/coupons' },
   { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/orders' },
   { id: 'customers', label: 'Customers', icon: Users, path: '/customers' },
   { id: 'inventory', label: 'Inventory', icon: Package, path: '/inventory' },

@@ -16,7 +16,9 @@ export function CartProvider({ children }) {
     return `${product._id}_${selectedPack}`;
   };
 
-  const addItem = (product, quantity = 1, shouldOpenDrawer = true, selectedPack = "Pack of 1") => {
+  const addItem = (product, quantity = 1, selectedPack = "Pack of 1", options = {}) => {
+    const { shouldOpenDrawer = true, isBuyNow = false } = options;
+    
     setItems(prev => {
       const cartItemId = generateCartItemId(product, selectedPack);
       const existing = prev.find(item => item.cartItemId === cartItemId);
@@ -24,17 +26,19 @@ export function CartProvider({ children }) {
       if (existing) {
         return prev.map(item =>
           item.cartItemId === cartItemId
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: item.quantity + quantity, isBuyNow } // Update quantity and isBuyNow status
             : item
         );
       }
       return [...prev, { 
         ...product, 
         quantity, 
-        selectedPack,
-        cartItemId 
+        selectedPack, // Use the passed in selectedPack
+        cartItemId,
+        isBuyNow
       }];
     });
+
     if (shouldOpenDrawer) {
       setIsOpen(true);
     }
@@ -56,6 +60,10 @@ export function CartProvider({ children }) {
   };
 
   const clearCart = () => setItems([]);
+  
+  const clearBuyNowItems = () => {
+    setItems(prev => prev.filter(item => !item.isBuyNow));
+  };
 
   // Calculate item price based on selected pack
   const calculateItemPrice = (item) => {
@@ -64,11 +72,11 @@ export function CartProvider({ children }) {
     
     switch(pack) {
       case "Pack of 2":
-        return basePrice * 2 * 0.85; // 15% discount
+        return Math.round(basePrice * 2 * 0.85); // 15% discount, rounded
       case "Pack of 4 (Family Discount)":
-        return basePrice * 4 * 0.80; // 20% discount
+        return Math.round(basePrice * 4 * 0.80); // 20% discount, rounded
       default: // Pack of 1
-        return basePrice;
+        return Math.round(basePrice); // Rounded even for default
     }
   };
 
@@ -89,6 +97,7 @@ export function CartProvider({ children }) {
         removeItem,
         updateQuantity,
         clearCart,
+        clearBuyNowItems, // Expose the new function
         total,
         itemCount,
         isOpen,

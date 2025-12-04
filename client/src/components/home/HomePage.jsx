@@ -45,21 +45,30 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold mb-6">Our Story</h2>
-              <p className="text-gray-700 mb-4">
+              <p className="text-gray-700 font-semibold mb-2">
                 70+ Years of Legacy.
-                Online Store. PAN-India Reach. EnergeniX was born in a small town over 70 years ago, where our family began offering pure beads, real gemstones, and powerful spiritual items to people who came searching for authentic products.
+              </p>
+              <p className="text-gray-700 mb-2">
+                <span className="font-semibold">EnergeniX</span> was born in a small town over 70 years ago, where our family began offering pure beads, real crystals, and powerful spiritual items to people searching for authentic products.
               </p>
               <p className="text-gray-700 mb-4">
-                 We never depended on ads.Our customers felt the energy… They came back with trust… And their trust built our legacy.
-              </p>
-              <p className="text-gray-700">
+                We never relied on ads. People felt the difference in our products. They returned because they trusted us — and that trust is what built our legacy.
               </p>
 
+              <h2 className="text-2xl font-semibold mb-4">Mission</h2>
+              <p className="text-gray-700 mb-2">
+                To protect people from fake and low-quality spiritual items, we deliver only pure, powerful, and authentically energized products that create real transformation in daily life.
+              </p>
+
+              <h2 className="text-2xl font-semibold mb-4">Vision</h2>
+              <p className="text-gray-700 mb-2">
+                To become India’s most trusted spiritual brand, carrying our 70+ year family heritage into every home with products that protect, transform, and uplift.
+              </p>
             </div>
 
             <img
               src={about}
-              className="rounded-xl shadow-xl"
+              className="rounded-xl shadow-xl w-full max-w-sm"
             />
           </div>
         </section>

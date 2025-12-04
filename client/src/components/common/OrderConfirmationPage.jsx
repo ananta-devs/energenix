@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CheckCircle } from 'lucide-react';
+import { useCart } from '../../hooks/useCart';
 
 export default function OrderConfirmationPage() {
   const { orderId } = useParams();
+  const { clearBuyNowItems } = useCart();
+
+  useEffect(() => {
+    // When the confirmation page loads, it means the order was successful.
+    // We can now clear any items that were part of the "Buy Now" flow.
+    clearBuyNowItems();
+  }, [clearBuyNowItems]); // Dependency array ensures this runs correctly
 
   return (
     <div className="min-h-screen bg-gray-50 py-20">
