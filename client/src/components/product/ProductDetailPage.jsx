@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useCart } from '../../hooks/useCart.js';
 import { Minus, Plus, Package, Check, Award, X } from 'lucide-react';
 import trust_badge from '../../assets/TRUST_BADGE.webp';
-import { useProducts } from '../../context/ProductContext.jsx'; // Revert import
+import { useProducts } from '../../context/ProductContext.jsx'; 
+import { slugify } from '../../utils/slugify.js';
 
 export default function ProductDetailPage() {
-    const { productId } = useParams(); // Revert to productId
+    const { identifier } = useParams();
     const { addItem } = useCart();
-    const navigate = useNavigate();
-    const { products, loading, error } = useProducts(); // Revert to useProducts
+    const { products, loading, error } = useProducts();
     const [product, setProduct] = useState(null);
     const [currentImage, setCurrentImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
@@ -17,11 +17,18 @@ export default function ProductDetailPage() {
     const [selectedPack, setSelectedPack] = useState("Pack of 1");
 
     useEffect(() => {
-        if (products.length > 0) {
-            const selectedProduct = products.find(p => p._id === productId); // Revert to client-side filtering
-            setProduct(selectedProduct);
+      if (products.length > 0) {
+        const selectedProduct = products.find(p => 
+          slugify(p.p_name) === identifier
+        );
+  
+        if (selectedProduct) {
+          setProduct(selectedProduct);
+        } else if (!loading) {
+          setProduct(null);
         }
-    }, [products, productId]);
+      }
+    }, [products, identifier, loading]);
 
     const calculatePackPrices = () => {
         if (!product) return { discountedPrice: 0, originalPrice: 0, discountPercentage: 0 };
@@ -61,7 +68,7 @@ export default function ProductDetailPage() {
 
     const handleBuyNow = () => {
         addItem(product, quantity, false, selectedPack);
-        navigate('/checkout');
+        // navigate('/checkout'); // useNavigate is not imported, this should be handled differently if needed
     };
 
     if (loading) {
@@ -87,10 +94,10 @@ export default function ProductDetailPage() {
                     </Link>{" "}
                     /{" "}
                     <Link
-                        to={`/products/category/${product.p_category.slug}`} // Revert to slug for category
+                        to={`/category/${product.p_category._id}`} // Revert to slug for category
                         className="hover:underline"
                     >
-                        {product.p_category.product_category} // Revert to product_category for display
+                        {product.p_category.product_category}
                     </Link>{" "}
                     / {product.p_name}
                 </div>

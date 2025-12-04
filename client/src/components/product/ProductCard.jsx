@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart.js';
 import { Check } from 'lucide-react';
+import { slugify } from '../../utils/slugify.js';
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
@@ -38,6 +39,8 @@ export default function ProductCard({ product }) {
     setTimeout(() => setShowToast(false), 1800);
   };
 
+  const productSlug = slugify(p_name);
+
   return (
     <div className="group relative bg-white rounded-xl shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full">
 
@@ -62,7 +65,7 @@ export default function ProductCard({ product }) {
 
       {/* Image */}
       <Link
-        to={`/product/${_id}`}
+        to={`/product/${productSlug}`}
         className="relative h-64 overflow-hidden cursor-pointer block flex-shrink-0"
       >
         <img
@@ -76,7 +79,7 @@ export default function ProductCard({ product }) {
       {/* Content */}
       <div className="p-5 flex-grow flex flex-col">
         <h3 className="font-semibold text-lg text-gray-900 group-hover:text-blue-950 transition line-clamp-2">
-          <Link to={`/product/${_id}`}>{p_name}</Link>
+          <Link to={`/product/${productSlug}`}>{p_name}</Link>
         </h3>
 
         {/* Price */}

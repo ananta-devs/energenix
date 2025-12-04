@@ -1,31 +1,59 @@
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Filter, Grid, List } from 'lucide-react';
 import ProductCard from './ProductCard.jsx';
 import { useProducts } from '../../context/ProductContext.jsx';
+import { slugify } from '../../utils/slugify.js';
 
 export default function CategoryPage() {
-  const { categoryId } = useParams();
+  const { identifier } = useParams();
+  const navigate = useNavigate();
   const { products, loading, error } = useProducts();
   const [sortBy, setSortBy] = useState('featured');
+  const [currentCategory, setCurrentCategory] = useState(null);
 
-  const uniqueCategories = [];
-  products.forEach(p => {
-    if (p.p_category && !uniqueCategories.some(cat => cat._id === p.p_category._id)) {
-      uniqueCategories.push({ _id: p.p_category._id, name: p.p_category.product_category });
+  const uniqueCategories = useMemo(() => {
+    const categories = [];
+    products.forEach(p => {
+      if (p.p_category && !categories.some(cat => cat._id === p.p_category._id)) {
+        categories.push({ _id: p.p_category._id, name: p.p_category.product_category });
+      }
+    });
+    return categories;
+  }, [products]);
+
+  useEffect(() => {
+    if (identifier === 'all') {
+      setCurrentCategory({ _id: 'all', name: 'All Products' });
+      return;
     }
-  });
 
-  const currentCategory = uniqueCategories.find(cat => cat._id === categoryId);
-  const currentCategoryName = currentCategory ? currentCategory.name : 'All Products';
+    if (uniqueCategories.length > 0) {
+      const foundCategory = uniqueCategories.find(c => 
+        c._id === identifier || slugify(c.name) === identifier
+      );
 
-  const filteredProducts = products.filter(p => 
-    categoryId === 'all' || (p.p_category && p.p_category._id === categoryId)
-  ).sort((a, b) => {
+      if (foundCategory) {
+        setCurrentCategory(foundCategory);
+        const categorySlug = slugify(foundCategory.name);
+        if (identifier !== categorySlug) {
+          navigate(`/category/${categorySlug}`, { replace: true });
+        }
+      } else if (!loading) {
+        setCurrentCategory(null);
+      }
+    }
+  }, [identifier, uniqueCategories, navigate, loading]);
+
+  const currentCategoryName = currentCategory ? currentCategory.name : '';
+  
+  const filteredProducts = products.filter(p => {
+    if (!currentCategory) return false;
+    if (currentCategory._id === 'all') return true;
+    return p.p_category && p.p_category._id === currentCategory._id;
+  }).sort((a, b) => {
     if (sortBy === 'price-low') return a.discount_price - b.discount_price;
     if (sortBy === 'price-high') return b.discount_price - a.discount_price;
-    // Assuming 'rating' might be a future field, for now, it won't sort
-    // if (sortBy === 'rating') return b.rating - a.rating; 
     return 0;
   });
 
@@ -60,8 +88,8 @@ export default function CategoryPage() {
                       type="radio" 
                       name="category" 
                       className="mr-2" 
-                      checked={categoryId === 'all'}
-                      onChange={() => window.location.href = '/products/category/all'}
+                      checked={currentCategory?._id === 'all'}
+                      onChange={() => navigate('/category/all')}
                     />
                     <span className="text-sm">All Products</span>
                   </label>
@@ -71,8 +99,8 @@ export default function CategoryPage() {
                         type="radio" 
                         name="category" 
                         className="mr-2" 
-                        checked={categoryId === cat._id}
-                        onChange={() => window.location.href = `/products/category/${cat._id}`}
+                        checked={currentCategory?._id === cat._id}
+                        onChange={() => navigate(`/category/${slugify(cat.name)}`)}
                       />
                       <span className="text-sm">{cat.name}</span>
                     </label>
