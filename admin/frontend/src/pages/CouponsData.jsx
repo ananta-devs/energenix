@@ -370,7 +370,7 @@ const CouponData = () => {
                 <tr key={coupon._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 p-3 rounded-lg">
+                      <div className="bg-linear-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 p-3 rounded-lg">
                         <Tag size={20} className="text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
@@ -484,7 +484,7 @@ const CouponData = () => {
       {showModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white dark:bg-gray-800 z-10 p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 z-10 p-3 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   {editingCoupon ? 'Edit Coupon' : 'Add New Coupon'}
@@ -560,7 +560,7 @@ const CouponData = () => {
                     value={formData.description}
                     onChange={handleInputChange}
                     rows="2"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
                     placeholder="Enter coupon description..."
                   />
                 </div>
@@ -578,7 +578,7 @@ const CouponData = () => {
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="percentage">Percentage (%)</option>
-                      <option value="fixed">Fixed Amount ($)</option>
+                      <option value="fixed">Fixed Amount (₹)</option>
                     </select>
                   </div>
 
@@ -591,7 +591,7 @@ const CouponData = () => {
                       {formData.discount_type === 'percentage' ? (
                         <Percent className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                       ) : (
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">$</span>
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₹</span>
                       )}
                       <input
                         type="number"
@@ -697,25 +697,10 @@ const CouponData = () => {
                     />
                   </div>
                 </div>
-
-                {/* Active Status */}
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="is_active"
-                    id="is_active"
-                    checked={formData.is_active}
-                    onChange={handleInputChange}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                  />
-                  <label htmlFor="is_active" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                    Active Coupon
-                  </label>
-                </div>
               </div>
             </div>
 
-            <div className="sticky bottom-0 bg-white dark:bg-gray-800 z-10 p-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="sticky bottom-0 bg-white dark:bg-gray-800 z-10 p-3 border-t border-gray-200 dark:border-gray-700">
               <div className="flex justify-end gap-3">
                 <button
                   onClick={closeModal}

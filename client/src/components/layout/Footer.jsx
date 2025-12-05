@@ -1,13 +1,27 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Youtube, ArrowRight } from "lucide-react";
 import logo from "../../assets/logo.svg";
 
 export default function Footer() {
   const location = useLocation();
+  const [isSmallScreen, setIsSmallScreen] = useState(false); // State to track screen size
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth < 768); // Define small screen breakpoint (e.g., 768px for md)
+    };
+
+    checkScreenSize(); // Initial check
+    window.addEventListener("resize", checkScreenSize); // Add event listener for resize
+
+    return () => window.removeEventListener("resize", checkScreenSize); // Cleanup on unmount
+  }, []);
 
   // Hide footer on dashboard page
   if (location.pathname === "/dashboard") return null;
+  // Hide footer on category or product pages only if it's a small screen
+  if (isSmallScreen && (location.pathname.startsWith("/category") || location.pathname.startsWith("/product"))) return null;
 
   return (
     <footer className="bg-gray-900 text-white pt-12 pb-8">

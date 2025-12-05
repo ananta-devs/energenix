@@ -4,7 +4,7 @@ import { useCart } from '../../hooks/useCart.js';
 import { Check } from 'lucide-react';
 import { slugify } from '../../utils/slugify.js';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, hideAddToCartOnMobile = false }) {
   const { addItem } = useCart();
   const [showToast, setShowToast] = useState(false);
 
@@ -40,6 +40,11 @@ export default function ProductCard({ product }) {
   };
 
   const productSlug = slugify(p_name);
+
+  // Function to format price with ₹ symbol
+  const formatPrice = (price) => {
+    return `₹${price.toLocaleString()}`;
+  };
 
   return (
     <div className="group relative bg-white rounded-xl shadow-sm transition-all duration-300 overflow-hidden flex flex-col h-full">
@@ -85,11 +90,11 @@ export default function ProductCard({ product }) {
         {/* Price */}
         <div className="flex items-center justify-between mt-auto mb-4">
           <div>
-            <span className="text-2xl font-semibold">₨. {finalPrice.toLocaleString()}</span>
+            <span className="text-2xl font-semibold">{formatPrice(finalPrice)}</span>
             {originalPrice > finalPrice && (
               <>
                 <span className="ml-2 text-sm text-gray-400 line-through">
-                  {originalPrice.toLocaleString()}
+                  {formatPrice(originalPrice)}
                 </span>
                 <span className="ml-2 text-xl font-semibold text-green-600">
                   {discountPercent}%
@@ -99,13 +104,15 @@ export default function ProductCard({ product }) {
           </div>
         </div>
 
-        {/* Add to Cart */}
-        <button
-          onClick={handleAddToCart}
-          className="w-full py-3 rounded-lg font-semibold border-2 border-blue-950 text-blue-950 hover:bg-blue-950 hover:text-white transition cursor-pointer"
-        >
-          Add to Cart
-        </button>
+        {/* Add to Cart - Hidden on mobile if hideAddToCartOnMobile prop is true */}
+        {(!hideAddToCartOnMobile) && (
+          <button
+            onClick={handleAddToCart}
+            className="w-full py-3 rounded-lg font-semibold border-2 border-blue-950 text-blue-950 hover:bg-blue-950 hover:text-white transition cursor-pointer hidden sm:block"
+          >
+            Add to Cart
+          </button>
+        )}
       </div>
 
       {/* Toast */}

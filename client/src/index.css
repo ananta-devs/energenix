@@ -82,3 +82,27 @@ html {
 .dark-scrollbar {
   scrollbar-color: #475569 #1e293b;
 }
+
+.touch-none {
+    touch-action: none;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}

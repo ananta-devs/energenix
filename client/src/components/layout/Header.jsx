@@ -148,13 +148,30 @@ export default function Header() {
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2"
+                className="lg:hidden p-2 relative w-10 h-10 flex items-center justify-center group"
+                aria-label="Toggle menu"
               >
-                {mobileMenuOpen ? (
-                  <X className="w-6 h-6 text-white" />
-                ) : (
-                  <Menu className="w-6 h-6 text-white" />
-                )}
+                <div className="relative w-6 h-5 flex flex-col justify-center items-center">
+                  <span
+                    className={`absolute h-0.5 w-6 bg-white rounded-full transform transition-all duration-300 ease-in-out ${
+                      mobileMenuOpen
+                        ? "rotate-45 translate-y-0"
+                        : "-translate-y-2 group-hover:w-5"
+                    }`}
+                  />
+                  <span
+                    className={`absolute h-0.5 bg-white rounded-full transform transition-all duration-300 ease-in-out ${
+                      mobileMenuOpen ? "w-0 opacity-0" : "w-6 opacity-100"
+                    }`}
+                  />
+                  <span
+                    className={`absolute h-0.5 w-6 bg-white rounded-full transform transition-all duration-300 ease-in-out ${
+                      mobileMenuOpen
+                        ? "-rotate-45 translate-y-0"
+                        : "translate-y-2 group-hover:w-5"
+                    }`}
+                  />
+                </div>
               </button>
             </div>
           </div>

@@ -8,9 +8,36 @@ export default function ProgressStepper({ step }) {
         { icon: Package, label: "Review", number: 3 },
     ];
 
+    const iconSize = 40; // w-10 = 40px
+    const halfIconSize = iconSize / 2; // 20px
+    const lineHeight = 4; // h-1 = 4px
+    const lineTopPosition = halfIconSize - (lineHeight / 2); // Center line vertically with icon
+
     return (
         <div className="bg-white rounded-2xl shadow-lg p-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between relative">
+                {/* Progress line positioned absolutely */}
+                <div className="absolute top-0 left-0 w-full">
+                    <div 
+                        className="absolute h-1 bg-gray-200 rounded transition-all duration-300"
+                        style={{
+                            left: `${halfIconSize}px`,
+                            right: `${halfIconSize}px`,
+                            top: `${lineTopPosition}px`,
+                        }}
+                    ></div>
+                    
+                    {/* Filled progress line */}
+                    <div 
+                        className="absolute h-1 bg-green-500 rounded transition-all duration-300"
+                        style={{
+                            left: `${halfIconSize}px`,
+                            width: step > 1 ? `${((step - 1) / (steps.length - 1)) * 100}%` : '0%',
+                            top: `${lineTopPosition}px`,
+                        }}
+                    ></div>
+                </div>
+
                 {steps.map((s, i) => {
                     const StepIcon = s.icon;
                     const isActive = step === s.number;
@@ -18,7 +45,7 @@ export default function ProgressStepper({ step }) {
 
                     return (
                         <React.Fragment key={i}>
-                            <div className="flex flex-col items-center gap-2">
+                            <div className="flex flex-col items-center gap-2 relative z-10">
                                 <div
                                     className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
                                         isCompleted
@@ -40,19 +67,10 @@ export default function ProgressStepper({ step }) {
                                             ? "text-gray-900"
                                             : "text-gray-400"
                                     }`}
-                                    >
+                                >
                                     {s.label}
                                 </span>
                             </div>
-                            {i < steps.length - 1 && (
-                                <div
-                                    className={`flex-1 h-1 mx-4 rounded transition-all duration-300 ${
-                                        step > s.number
-                                            ? "bg-green-500"
-                                            : "bg-gray-200"
-                                    }`}
-                                />
-                            )}
                         </React.Fragment>
                     );
                 })}

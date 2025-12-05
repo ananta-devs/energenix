@@ -189,20 +189,6 @@ const OrdersData = () => {
     }
   };
 
-  // Available status options
-  const statusOptions = [
-    { value: 'created', label: 'Created' },
-    { value: 'processing', label: 'Processing' },
-    { value: 'packed', label: 'Packed' },
-    { value: 'ready to ship', label: 'Ready to Ship' },
-    { value: 'shipped', label: 'Shipped' },
-    { value: 'in transit', label: 'In Transit' },
-    { value: 'out for delivery', label: 'Out for Delivery' },
-    { value: 'delivered', label: 'Delivered' },
-    { value: 'rto delivered', label: 'RTO Delivered' },
-    { value: 'cancelled', label: 'Cancelled' }
-  ];
-
   if (loading) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
@@ -600,12 +586,9 @@ const OrdersData = () => {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   disabled={saving}
                 >
-                  <option value="">Select Status</option>
-                  {statusOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
+                  <option key="cancelled" value="cancelled">
+                    Cancelled
+                  </option>
                 </select>
               </div>
 
