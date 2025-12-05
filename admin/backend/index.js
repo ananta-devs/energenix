@@ -10,6 +10,7 @@ const collectionRoutes = require('./routes/collectionRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const uploadRoutes = require('./routes/uploadRoutes'); // Import uploadRoutes
+const couponRoutes = require('./routes/couponRoutes');
 const connectDB = require('./config/db');
 const Collection = require('./models/Collection');
 
@@ -42,6 +43,7 @@ app.use('/api/collections', collectionRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes); // Add uploadRoutes
+app.use('/api/coupons', couponRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

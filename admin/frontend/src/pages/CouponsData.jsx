@@ -22,7 +22,8 @@ const CouponData = () => {
     valid_from: '',
     valid_until: '',
     is_active: true,
-    description: ''
+    description: '',
+    visibility: 'public'
   });
   const [loadingAction, setLoadingAction] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -66,7 +67,8 @@ const CouponData = () => {
       valid_from: new Date().toISOString().split('T')[0],
       valid_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
       is_active: true,
-      description: ''
+      description: '',
+      visibility: 'public',
     });
     setMessage({ type: '', text: '' });
     setShowModal(true);
@@ -84,7 +86,8 @@ const CouponData = () => {
       valid_from: coupon.valid_from ? new Date(coupon.valid_from).toISOString().split('T')[0] : '',
       valid_until: coupon.valid_until ? new Date(coupon.valid_until).toISOString().split('T')[0] : '',
       is_active: coupon.is_active,
-      description: coupon.description || ''
+      description: coupon.description || '',
+      visibility: coupon.visibility || 'public',
     });
     setMessage({ type: '', text: '' });
     setShowModal(true);
@@ -108,7 +111,8 @@ const CouponData = () => {
       valid_from: '',
       valid_until: '',
       is_active: true,
-      description: ''
+      description: '',
+      visibility: 'public'
     });
     setMessage({ type: '', text: '' });
   };
@@ -134,7 +138,6 @@ const CouponData = () => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let code = '';
     for (let i = 0; i < 8; i++) {
-      if (i === 4) code += '-';
       code += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     return code;
@@ -359,6 +362,7 @@ const CouponData = () => {
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Discount</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Usage</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Validity</th>
+              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Visibility</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Status</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Actions</th>
             </tr>
@@ -370,9 +374,6 @@ const CouponData = () => {
                 <tr key={coupon._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-3">
-                      <div className="bg-linear-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 p-3 rounded-lg">
-                        <Tag size={20} className="text-blue-600 dark:text-blue-400" />
-                      </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <p className="font-mono font-semibold text-gray-900 dark:text-white">{coupon.code}</p>
@@ -440,6 +441,11 @@ const CouponData = () => {
                         From {formatDate(coupon.valid_from)}
                       </p>
                     </div>
+                  </td>
+                  <td className="py-3 px-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize">
+                      {coupon.visibility}
+                    </span>
                   </td>
                   <td className="py-3 px-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
@@ -564,6 +570,38 @@ const CouponData = () => {
                     placeholder="Enter coupon description..."
                   />
                 </div>
+
+                {/* Visibility */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Visibility
+                  </label>
+                  <div className="flex items-center space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="visibility"
+                        value="public"
+                        checked={formData.visibility === 'public'}
+                        onChange={handleInputChange}
+                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Public</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="visibility"
+                        value="private"
+                        checked={formData.visibility === 'private'}
+                        onChange={handleInputChange}
+                        className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Private</span>
+                    </label>
+                  </div>
+                </div>
+
 
                 <div className="grid grid-cols-2 gap-4">
                   {/* Discount Type */}
