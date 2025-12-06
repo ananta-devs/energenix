@@ -46,13 +46,18 @@ const DashboardHeader = ({ userData, dropdownOpen, setDropdownOpen, handleNaviga
               <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                 <User className="w-5 h-5 text-gray-600" />
               </div>
+              {/* Show user's full name on large screens */}
+              <span className="hidden lg:inline text-sm font-medium text-gray-700">
+                {userData?.fullName}
+              </span>
               <ChevronDown className="w-4 h-4 text-gray-600" />
             </button>
 
             {/* Dropdown Menu */}
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                <div className="px-4 py-3 border-b border-gray-100">
+              <div className="absolute right-0 mt-2 w-64 lg:w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
+                {/* Show user info in dropdown only on small/medium screens */}
+                <div className="lg:hidden px-4 py-3 border-b border-gray-100">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
                       <User className="w-6 h-6 text-gray-600" />

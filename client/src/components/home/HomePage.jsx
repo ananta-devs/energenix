@@ -27,8 +27,7 @@ export default function HomePage() {
 
         {/* TRENDING */}
         <section>
-          <div className="text-center mb-12 bg-white">
-            <TrendingUp className="w-12 h-12 mx-auto text-amber-500 mb-4" />
+          <div className="text-center mb-12 bg-white mt-6">
             <h2 className="text-3xl font-bold">Trending Now</h2>
             <p className="text-gray-600">Popular choices this season</p>
           </div>

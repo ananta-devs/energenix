@@ -34,7 +34,7 @@ const getCollectionById = asyncHandler(async (req, res) => {
 // @route   POST /api/collections
 // @access  Private/Admin
 const createCollection = asyncHandler(async (req, res) => {
-  const { hsn_number, product_category } = req.body;
+  const { hsn_number, product_category, title, subtitle } = req.body;
   
   let image_data = {};
 
@@ -52,6 +52,8 @@ const createCollection = asyncHandler(async (req, res) => {
   const collection = new Collection({
     hsn_number,
     product_category,
+    title,
+    subtitle,
     image: image_data,
   });
 
@@ -66,13 +68,15 @@ const createCollection = asyncHandler(async (req, res) => {
 // @route   PUT /api/collections/:id
 // @access  Private/Admin
 const updateCollection = asyncHandler(async (req, res) => {
-  const { hsn_number, product_category, removeImage } = req.body;
+  const { hsn_number, product_category, title, subtitle, removeImage } = req.body;
 
   const collection = await Collection.findById(req.params.id);
 
   if (collection) {
     collection.hsn_number = hsn_number || collection.hsn_number;
     collection.product_category = product_category || collection.product_category;
+    collection.title = title || collection.title;
+    collection.subtitle = subtitle || collection.subtitle;
 
     // Check if there is a new image to upload
     if (req.files && req.files.image) {

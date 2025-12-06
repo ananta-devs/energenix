@@ -15,6 +15,8 @@ const CollectionData = () => {
   const [formData, setFormData] = useState({
     hsn_number: '',
     product_category: '',
+    title: '',
+    subtitle: '',
     image: null
   });
   const [imagePreview, setImagePreview] = useState(null);
@@ -29,7 +31,9 @@ const CollectionData = () => {
   useEffect(() => {
     const filtered = collections.filter(collection =>
       collection.hsn_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      collection.product_category.toLowerCase().includes(searchTerm.toLowerCase())
+      collection.product_category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (collection.title && collection.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (collection.subtitle && collection.subtitle.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredCollections(filtered);
   }, [searchTerm, collections]);
@@ -51,6 +55,8 @@ const CollectionData = () => {
     setFormData({
       hsn_number: '',
       product_category: '',
+      title: '',
+      subtitle: '',
       image: null
     });
     setImagePreview(null);
@@ -63,6 +69,8 @@ const CollectionData = () => {
     setFormData({
       hsn_number: collection.hsn_number,
       product_category: collection.product_category,
+      title: collection.title || '',
+      subtitle: collection.subtitle || '',
       image: null
     });
     // Set existing image as preview if available
@@ -86,6 +94,8 @@ const CollectionData = () => {
     setFormData({
       hsn_number: '',
       product_category: '',
+      title: '',
+      subtitle: '',
       image: null
     });
     setImagePreview(null);
@@ -182,6 +192,8 @@ const CollectionData = () => {
       const submitFormData = new FormData();
       submitFormData.append('hsn_number', formData.hsn_number);
       submitFormData.append('product_category', formData.product_category);
+      submitFormData.append('title', formData.title);
+      submitFormData.append('subtitle', formData.subtitle);
       
       if (formData.image) {
         submitFormData.append('image', formData.image);
@@ -328,6 +340,8 @@ const CollectionData = () => {
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700">
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Product Category</th>
+              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Title</th>
+              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Subtitle</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">HSN Number</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Created Date</th>
               <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">Updated Date</th>
@@ -355,6 +369,12 @@ const CollectionData = () => {
                     )}
                   </div>
                   <p className="ml-3 mt-3 text-sm text-gray-900 dark:text-white">{collection.product_category}</p>
+                </td>
+                <td className="py-3 px-4 text-sm text-gray-500 dark:text-gray-400">
+                  {collection.title ? collection.title : 'N/A'}
+                </td>
+                <td className="py-3 px-4 text-sm text-gray-500 dark:text-gray-400">
+                  {collection.subtitle ? collection.subtitle : 'N/A'}
                 </td>
                 <td className="py-3 px-4">
                   <div>
@@ -513,6 +533,34 @@ const CollectionData = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter product category"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter title"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Subtitle
+                </label>
+                <input
+                  type="text"
+                  name="subtitle"
+                  value={formData.subtitle}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter subtitle"
                 />
               </div>
             </div>

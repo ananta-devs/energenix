@@ -184,7 +184,7 @@ const ProgressBar = ({ status, steps, isMobile = false }) => {
                     const textSize = isMobile ? "text-[9px]" : "text-[10px]";
 
                     return (
-                        <div key={idx} className="flex flex-col z-50 items-center">
+                        <div key={idx} className="flex flex-col z-40 items-center">
                             <motion.div
                                 layout
                                 transition={{ duration: 0.5 }}

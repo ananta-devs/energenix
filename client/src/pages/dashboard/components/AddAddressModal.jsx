@@ -82,16 +82,18 @@ const AddAddressModal = ({ showAddAddressModal, setShowAddAddressModal, addressF
               type="text"
               value={addressForm.city}
               readOnly
+              placeholder='Auto-filled'
               ref={cityRef}
-              className="px-3 py-2 border rounded-md bg-gray-100 cursor-not-allowed"
+              className="px-3 py-2 border rounded-md cursor-not-allowed"
             />
 
             <input
               type="text"
               value={addressForm.state}
-              disabled
+              readOnly
+              placeholder='Auto-filled'
               ref={stateRef}
-              className="px-3 py-2 border rounded-md bg-gray-100 cursor-not-allowed"
+              className="px-3 py-2 border rounded-md cursor-not-allowed"
             />
 
             <input
@@ -109,13 +111,13 @@ const AddAddressModal = ({ showAddAddressModal, setShowAddAddressModal, addressF
         <div className="flex justify-end space-x-3">
           <button
             onClick={() => setShowAddAddressModal(false)}
-            className="px-6 py-2 text-gray-700 hover:text-gray-900"
+            className="px-6 py-2 text-gray-900 bg-red-500 rounded-md hover:text-gray-900 cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleSaveAddress}
-            className="px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800"
+            className="px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 cursor-pointer"
           >
             Save
           </button>

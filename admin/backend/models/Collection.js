@@ -10,6 +10,12 @@ const CollectionSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    title: {
+      type: String,
+    },
+    subtitle: {
+      type: String,
+    },
     image: {
       url: String,
       public_id: String,

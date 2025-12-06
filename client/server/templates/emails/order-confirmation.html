@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Your Company</title>
+    <style>
+        /* Email styles */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Order Confirmation</h1>
+            <p>Order #{{orderId}}</p>
+        </div>
+        
+        <div class="content">
+            <p>Hi {{customerName}},</p>
+            <p>Thank you for your order! We're getting it ready to be shipped.</p>
+            
+            <div class="secure-link">
+                <p><strong>Secure Order Details:</strong></p>
+                <a href="{{confirmationLink}}" class="btn">
+                    View Your Order Details
+                </a>
+                <p class="note">This link will expire on {{expiry}}</p>
+            </div>
+            
+            <!-- Order summary -->
+            <!-- Support information -->
+        </div>
+        
+        <div class="footer">
+            <p>If you have any questions, contact our support team:</p>
+            <p>Email: {{supportEmail}} | Phone: {{contactPhone}}</p>
+            <p class="security-note">
+                ⚠️ For security reasons, never share your confirmation link or token with anyone.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
