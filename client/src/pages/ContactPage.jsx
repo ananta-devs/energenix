@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
-import api from '../../utils/api'; // Import api
+import { useAuth } from '../hooks/useAuth';
+import api from '../utils/api'; // Import api
 
 export default function ContactPage() {
   const { user } = useAuth();

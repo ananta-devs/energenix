@@ -1,17 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../hooks/useCart.js";
-import {
-    Minus,
-    Plus,
-    Package,
-    Check,
-    Award,
-    X,
-    ChevronLeft,
-    ChevronRight,
-    Share2,
-} from "lucide-react";
+import { Minus, Plus, X, Share2 } from "lucide-react";
 import trust_badge from "../../assets/TRUST_BADGE.webp";
 import { useProducts } from "../../context/ProductContext.jsx";
 import { slugify } from "../../utils/slugify.js";
@@ -139,7 +129,7 @@ export default function ProductDetailPage() {
                                 >
                                     <Share2 className="w-5 h-5 text-gray-700" />
                                 </button>
-                                
+
                                 <div
                                     ref={imageContainerRef}
                                     className="relative w-full h-[400px] touch-none"
@@ -217,7 +207,7 @@ export default function ProductDetailPage() {
                             >
                                 <Share2 className="w-5 h-5 text-gray-700" />
                             </button>
-                            
+
                             {/* Main Image */}
                             <div
                                 className="bg-white rounded-xl overflow-hidden mb-4 cursor-zoom-in"
@@ -414,9 +404,14 @@ export default function ProductDetailPage() {
             {/* Share Options Overlay */}
             {showShareOptions && (
                 <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+                    <div
+                        className="bg-white rounded-xl p-6 max-w-md w-full"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-semibold">Share Product</h3>
+                            <h3 className="text-xl font-semibold">
+                                Share Product
+                            </h3>
                             <button
                                 onClick={() => setShowShareOptions(false)}
                                 className="p-1 hover:bg-gray-100 rounded-full"
@@ -427,25 +422,33 @@ export default function ProductDetailPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <button className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition">
                                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                                    <span className="text-blue-600 font-semibold">FB</span>
+                                    <span className="text-blue-600 font-semibold">
+                                        FB
+                                    </span>
                                 </div>
                                 <span className="text-sm">Facebook</span>
                             </button>
                             <button className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition">
                                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                                    <span className="text-blue-400 font-semibold">TW</span>
+                                    <span className="text-blue-400 font-semibold">
+                                        TW
+                                    </span>
                                 </div>
                                 <span className="text-sm">Twitter</span>
                             </button>
                             <button className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition">
                                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                                    <span className="text-green-600 font-semibold">WA</span>
+                                    <span className="text-green-600 font-semibold">
+                                        WA
+                                    </span>
                                 </div>
                                 <span className="text-sm">WhatsApp</span>
                             </button>
                             <button className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition">
                                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-2">
-                                    <span className="text-gray-800 font-semibold">CP</span>
+                                    <span className="text-gray-800 font-semibold">
+                                        CP
+                                    </span>
                                 </div>
                                 <span className="text-sm">Copy Link</span>
                             </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { CartContext } from './CartContext.js';
 
 export function CartProvider({ children }) {
@@ -16,7 +16,7 @@ export function CartProvider({ children }) {
     return `${product._id}_${selectedPack}`;
   };
 
-  const addItem = (product, quantity = 1, selectedPack = "Pack of 1", options = {}) => {
+  const addItem = useCallback((product, quantity = 1, selectedPack = "Pack of 1", options = {}) => {
     const { shouldOpenDrawer = true, isBuyNow = false } = options;
     
     setItems(prev => {
@@ -42,28 +42,28 @@ export function CartProvider({ children }) {
     if (shouldOpenDrawer) {
       setIsOpen(true);
     }
-  };
+  }, []);
 
-  const removeItem = (cartItemId) => {
+  const removeItem = useCallback((cartItemId) => {
     setItems(prev => prev.filter(item => item.cartItemId !== cartItemId));
-  };
+  }, []);
 
-  const updateQuantity = (cartItemId, quantity) => {
-    if (quantity <= 0) {
-      removeItem(cartItemId);
-      return;
-    }
+  const updateQuantity = useCallback((cartItemId, quantity) => {
+    setItems(prev => {
+      if (quantity <= 0) {
+        return prev.filter(item => item.cartItemId !== cartItemId);
+      }
+      return prev.map(item =>
+        item.cartItemId === cartItemId ? { ...item, quantity } : item
+      );
+    });
+  }, []);
 
-    setItems(prev =>
-      prev.map(item => (item.cartItemId === cartItemId ? { ...item, quantity } : item))
-    );
-  };
-
-  const clearCart = () => setItems([]);
+  const clearCart = useCallback(() => setItems([]), []);
   
-  const clearBuyNowItems = () => {
+  const clearBuyNowItems = useCallback(() => {
     setItems(prev => prev.filter(item => !item.isBuyNow));
-  };
+  }, []);
 
   // Calculate item price based on selected pack
   const calculateItemPrice = (item) => {

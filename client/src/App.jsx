@@ -3,9 +3,9 @@ import { Routes, Route } from 'react-router-dom';
 import HomePage from './components/home/HomePage.jsx';
 import CategoryPage from './components/product/CategoryPage.jsx';
 import ProductDetailPage from './components/product/ProductDetailPage.jsx';
-import CheckoutPage from './components/cart/CheckoutPage.jsx';
+import Checkout from './components/cart/CheckoutPage.jsx';
 import OrderConfirmationPage from './components/common/OrderConfirmationPage.jsx';
-import ContactPage from './components/common/ContactPage.jsx';
+import ContactPage from './pages/ContactPage.jsx';
 import LoginPage from './components/auth/LoginPage.jsx';
 import SignUpPage from './components/auth/SignUpPage.jsx';
 import OtpVerificationPage from './components/auth/OtpVerificationPage.jsx';
@@ -15,9 +15,9 @@ import Dashboard from './pages/dashboard/Dashboard.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toast } from './components/ui/Toast.jsx';
 import { useAuth } from './context/AuthContext.jsx';
-import PrivacyPolicy from './components/common/Privacy.jsx';
-import TermsOfService from './components/common/Terms.jsx';
-import CookiePolicy from './components/common/Cookie.jsx';
+import PrivacyPolicy from './pages/Privacy.jsx';
+import TermsOfService from './pages/Terms.jsx';
+import CookiePolicy from './pages/Cookie.jsx';
 
 function App() {
   const { toast, closeToast } = useAuth();
@@ -35,7 +35,7 @@ function App() {
             path="/checkout"
             element={
               <ProtectedRoute>
-                <CheckoutPage />
+                <Checkout />
               </ProtectedRoute>
             }
           />
