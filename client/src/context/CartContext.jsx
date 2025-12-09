@@ -6,7 +6,19 @@ export function CartProvider({ children }) {
   // Load cart from localStorage
   const [items, setItems] = useState(() => {
     const stored = localStorage.getItem('cart_items');
-    return stored ? JSON.parse(stored) : [];
+    if (!stored) return [];
+    
+    const parsedItems = JSON.parse(stored);
+    
+    // One-time migration for items that don't have the 'image' property
+    const migratedItems = parsedItems.map(item => {
+      if (!item.image && item.image_urls && item.image_urls.length > 0) {
+        return { ...item, image: item.image_urls[0] };
+      }
+      return item;
+    });
+
+    return migratedItems;
   });
 
   const [isOpen, setIsOpen] = useState(false);
@@ -80,6 +92,21 @@ export function CartProvider({ children }) {
     }
   };
 
+  // New function to get the price per unit for a given pack
+  const getUnitPriceForPack = (item) => {
+    const basePrice = item.discount_price;
+    const pack = item.selectedPack || "Pack of 1";
+    
+    switch(pack) {
+      case "Pack of 2":
+        return Math.round(basePrice * 0.85); // 15% discount
+      case "Pack of 4 (Family Discount)":
+        return Math.round(basePrice * 0.80); // 20% discount
+      default: // Pack of 1
+        return Math.round(basePrice);
+    }
+  };
+
   // Calculate totals based on pack prices
   const total = items.reduce((sum, item) => sum + calculateItemPrice(item) * item.quantity, 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -102,7 +129,8 @@ export function CartProvider({ children }) {
         itemCount,
         isOpen,
         setIsOpen,
-        calculateItemPrice
+        calculateItemPrice,
+        getUnitPriceForPack // Export the new function
       }}
     >
       {children}

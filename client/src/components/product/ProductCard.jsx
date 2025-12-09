@@ -84,7 +84,7 @@ export default function ProductCard({
             </Link>
 
             {/* Content */}
-            <div className="pl-3 lg:p-3 flex-grow flex flex-col">
+            <div className="pl-1 lg:p-3 flex-grow flex flex-col">
                 <h3
                     className="font-semibold text-sm lg:text-lg text-gray-900 group-hover:text-blue-950 transition line-clamp-1 lg:line-clamp-2"
                 >

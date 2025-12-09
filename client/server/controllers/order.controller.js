@@ -26,7 +26,10 @@ module.exports = {
     console.log("--- CREATE ORDER START ---");
     try {
       const body = req.body;
-      console.log("1. Received Body:", JSON.stringify(body, null, 2));
+      // Map client's alternativePhone to alternate_phone for consistency
+      if (body.customer.alternativePhone) {
+        body.customer.alternate_phone = body.customer.alternativePhone;
+      }
 
       // Check duplicate order_id
       const existing = await orderService.findByOrderId(body.order_id);
@@ -121,7 +124,7 @@ module.exports = {
         customer: body.customer,
         items: enrichedItems,
         payment_type: body.payment_type.toUpperCase(),
-        cod_amount: body.cod_amount || 0,
+        cod_amount: Number(body.cod_amount) || 0,
         weight_grams: payload.weight,
         length_cm: payload.length,
         width_cm: payload.width,

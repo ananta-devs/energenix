@@ -4,7 +4,6 @@ import HomePage from './components/home/HomePage.jsx';
 import CategoryPage from './components/product/CategoryPage.jsx';
 import ProductDetailPage from './components/product/ProductDetailPage.jsx';
 import Checkout from './components/cart/CheckoutPage.jsx';
-import OrderConfirmationPage from './components/common/OrderConfirmationPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
 import LoginPage from './components/auth/LoginPage.jsx';
 import SignUpPage from './components/auth/SignUpPage.jsx';
@@ -39,7 +38,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route
             path="/dashboard"

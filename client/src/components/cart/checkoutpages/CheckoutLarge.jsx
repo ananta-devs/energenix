@@ -4,12 +4,23 @@ import { useCart } from "../../../hooks/useCart.js";
 import { useAuth } from "../../../hooks/useAuth.js";
 import api from "../../../utils/api";
 import ap from "../../../assets/logo.svg";
-import { 
-    Lock, Shield, Award, MapPin, CreditCard, Package, Check, 
-    ChevronRight, Loader2, Navigation, Tag, Gift, ChevronDown, 
-    ChevronUp, Truck, Clock, Wallet, Smartphone, Banknote, 
-    ArrowLeft, Sparkles, ShoppingBag 
-} from 'lucide-react';
+import {
+    Shield,
+    MapPin,
+    CreditCard,
+    Package,
+    Check,
+    ChevronRight,
+    Loader2,
+    Navigation,
+    Tag,
+    Gift,
+    ChevronDown,
+    ChevronUp,
+    Clock,
+    Banknote,
+    ShoppingBag,
+} from "lucide-react";
 
 // ============================ CheckoutHeader Component ============================
 function CheckoutHeader() {
@@ -17,14 +28,20 @@ function CheckoutHeader() {
         <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-3 mb-4">
                 <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
-                <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                <div
+                    className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"
+                    style={{ animationDelay: "0.2s" }}
+                ></div>
+                <div
+                    className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"
+                    style={{ animationDelay: "0.4s" }}
+                ></div>
             </div>
-            
+
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3">
                 Secure Checkout
             </h1>
-            
+
             <p className="text-gray-600 text-lg md:text-xl mb-6">
                 Complete your purchase in just a few steps
             </p>
@@ -46,10 +63,12 @@ function ProgressStepper({ step }) {
                 {/* Progress line container */}
                 <div className="absolute top-1/4 left-0 right-0 transform -translate-y-1/2 hidden md:block">
                     <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
+                        <div
                             className="h-full bg-green-500 rounded-full transition-all duration-500 ease-out"
-                            style={{ 
-                                width: `${((step - 1) / (steps.length - 1)) * 100}%` 
+                            style={{
+                                width: `${
+                                    ((step - 1) / (steps.length - 1)) * 100
+                                }%`,
                             }}
                         ></div>
                     </div>
@@ -64,27 +83,57 @@ function ProgressStepper({ step }) {
                         const isUpcoming = step < s.number;
 
                         return (
-                            <div 
-                                key={i} 
-                                className={`flex flex-col items-center ${i === 1 ? 'mx-4 md:mx-8' : ''}`}
+                            <div
+                                key={i}
+                                className={`flex flex-col items-center ${
+                                    i === 1 ? "mx-4 md:mx-8" : ""
+                                }`}
                             >
                                 {/* Step circle */}
-                                <div className={`relative z-20 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 transform ${isActive ? 'scale-110' : ''} ${isCompleted ? 'bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-200' : isActive ? 'bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-200' : 'bg-gray-100 border-2 border-gray-200'}`}>
+                                <div
+                                    className={`relative z-20 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 transform ${
+                                        isActive ? "scale-110" : ""
+                                    } ${
+                                        isCompleted
+                                            ? "bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-200"
+                                            : isActive
+                                            ? "bg-gradient-to-br from-purple-600 to-indigo-600 shadow-lg shadow-purple-200"
+                                            : "bg-gray-100 border-2 border-gray-200"
+                                    }`}
+                                >
                                     {isCompleted ? (
                                         <Check className="w-6 h-6 md:w-7 md:h-7 text-white" />
                                     ) : (
-                                        <StepIcon className={`w-6 h-6 md:w-7 md:h-7 ${isActive ? 'text-white' : isUpcoming ? 'text-gray-400' : 'text-gray-600'}`} />
+                                        <StepIcon
+                                            className={`w-6 h-6 md:w-7 md:h-7 ${
+                                                isActive
+                                                    ? "text-white"
+                                                    : isUpcoming
+                                                    ? "text-gray-400"
+                                                    : "text-gray-600"
+                                            }`}
+                                        />
                                     )}
-                                    
+
                                     {/* Step number for mobile */}
                                     <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center text-xs font-bold text-gray-700 md:hidden">
                                         {s.number}
                                     </div>
                                 </div>
-                                
+
                                 {/* Step label */}
                                 <div className="mt-3 text-center">
-                                    <span className={`text-xs md:text-sm font-semibold ${isActive || isCompleted ? 'text-gray-900' : 'text-gray-500'} ${isActive ? 'underline decoration-purple-500 decoration-2' : ''}`}>
+                                    <span
+                                        className={`text-xs md:text-sm font-semibold ${
+                                            isActive || isCompleted
+                                                ? "text-gray-900"
+                                                : "text-gray-500"
+                                        } ${
+                                            isActive
+                                                ? "underline decoration-purple-500 decoration-2"
+                                                : ""
+                                        }`}
+                                    >
                                         {s.label}
                                     </span>
                                     <div className="hidden md:block text-xs text-gray-500 mt-1">
@@ -99,16 +148,20 @@ function ProgressStepper({ step }) {
                 {/* Mobile progress indicator */}
                 <div className="mt-6 md:hidden">
                     <div className="flex items-center justify-between text-sm text-gray-600">
-                        <span>Step {step} of {steps.length}</span>
+                        <span>
+                            Step {step} of {steps.length}
+                        </span>
                         <span className="font-semibold text-purple-600">
                             {steps[step - 1]?.label}
                         </span>
                     </div>
                     <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
+                        <div
                             className="h-full bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full transition-all duration-500"
-                            style={{ 
-                                width: `${((step - 1) / (steps.length - 1)) * 100}%` 
+                            style={{
+                                width: `${
+                                    ((step - 1) / (steps.length - 1)) * 100
+                                }%`,
                             }}
                         ></div>
                     </div>
@@ -130,19 +183,19 @@ function ShippingForm({
 }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setAddressForm(prev => ({ ...prev, [name]: value }));
-        setErrors(prev => ({ ...prev, [name]: '' }));
+        setAddressForm((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
     const handlePhoneChange = (e) => {
-        const value = e.target.value.replace(/\D/g, '');
-        setAddressForm(prev => ({ ...prev, phone: value }));
-        setErrors(prev => ({ ...prev, phone: '' }));
+        const value = e.target.value.replace(/\D/g, "");
+        setAddressForm((prev) => ({ ...prev, phone: value }));
+        setErrors((prev) => ({ ...prev, phone: "" }));
     };
 
     const handleAlternativePhoneChange = (e) => {
-        const value = e.target.value.replace(/\D/g, '');
-        setAddressForm(prev => ({ ...prev, alternativePhone: value }));
+        const value = e.target.value.replace(/\D/g, "");
+        setAddressForm((prev) => ({ ...prev, alternativePhone: value }));
     };
 
     return (
@@ -395,7 +448,9 @@ function ShippingForm({
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div className="text-sm text-gray-600">
                         <p>Your information is secure with us</p>
-                        <p className="text-xs text-gray-500">We never share your personal details</p>
+                        <p className="text-xs text-gray-500">
+                            We never share your personal details
+                        </p>
                     </div>
                     <button
                         onClick={handleNext}
@@ -411,7 +466,12 @@ function ShippingForm({
 }
 
 // ============================ PaymentMethod Component ============================
-function PaymentMethod({ paymentMethod, setPaymentMethod, handleBack, handleNext }) {
+function PaymentMethod({
+    paymentMethod,
+    setPaymentMethod,
+    handleBack,
+    handleNext,
+}) {
     const paymentMethods = [
         {
             id: "cod",
@@ -419,8 +479,8 @@ function PaymentMethod({ paymentMethod, setPaymentMethod, handleBack, handleNext
             description: "Pay when you receive your order",
             icon: Package,
             color: "from-blue-500 to-cyan-500",
-            badge: "No extra charges",
-            disabled: false
+            badge: "Cherges: ₹100 ",
+            disabled: false,
         },
         {
             id: "online",
@@ -429,8 +489,8 @@ function PaymentMethod({ paymentMethod, setPaymentMethod, handleBack, handleNext
             icon: CreditCard,
             color: "from-purple-600 to-indigo-600",
             badge: "Secure & Instant",
-            disabled: false
-        }
+            disabled: false,
+        },
     ];
 
     return (
@@ -454,27 +514,43 @@ function PaymentMethod({ paymentMethod, setPaymentMethod, handleBack, handleNext
                 {paymentMethods.map((method) => {
                     const MethodIcon = method.icon;
                     const isSelected = paymentMethod === method.id;
-                    
+
                     return (
                         <label
                             key={method.id}
-                            className={`relative cursor-pointer group ${method.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`relative cursor-pointer group ${
+                                method.disabled
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                            }`}
                         >
                             <input
                                 type="radio"
                                 name="payment"
                                 value={method.id}
                                 checked={isSelected}
-                                onChange={(e) => !method.disabled && setPaymentMethod(e.target.value)}
+                                onChange={(e) =>
+                                    !method.disabled &&
+                                    setPaymentMethod(e.target.value)
+                                }
                                 disabled={method.disabled}
                                 className="sr-only"
                             />
-                            <div className={`p-5 border-2 rounded-xl transition-all duration-200 h-full ${isSelected 
-                                ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-indigo-50 shadow-md' 
-                                : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
-                            } ${method.disabled ? 'hover:border-gray-200 hover:bg-white' : ''}`}>
+                            <div
+                                className={`p-5 border-2 rounded-xl transition-all duration-200 h-full ${
+                                    isSelected
+                                        ? "border-purple-500 bg-gradient-to-br from-purple-50 to-indigo-50 shadow-md"
+                                        : "border-gray-200 hover:border-purple-300 hover:bg-gray-50"
+                                } ${
+                                    method.disabled
+                                        ? "hover:border-gray-200 hover:bg-white"
+                                        : ""
+                                }`}
+                            >
                                 <div className="flex items-start gap-4">
-                                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center shadow-sm`}>
+                                    <div
+                                        className={`w-12 h-12 rounded-xl bg-gradient-to-br ${method.color} flex items-center justify-center shadow-sm`}
+                                    >
                                         <MethodIcon className="w-6 h-6 text-white" />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -483,10 +559,13 @@ function PaymentMethod({ paymentMethod, setPaymentMethod, handleBack, handleNext
                                                 {method.name}
                                             </span>
                                             {method.badge && (
-                                                <span className={`text-xs px-2 py-1 rounded-full ${isSelected 
-                                                    ? 'bg-purple-100 text-purple-700' 
-                                                    : 'bg-gray-100 text-gray-600'
-                                                }`}>
+                                                <span
+                                                    className={`text-xs px-2 py-1 rounded-full ${
+                                                        isSelected
+                                                            ? "bg-purple-100 text-purple-700"
+                                                            : "bg-gray-100 text-gray-600"
+                                                    }`}
+                                                >
                                                     {method.badge}
                                                 </span>
                                             )}
@@ -496,36 +575,51 @@ function PaymentMethod({ paymentMethod, setPaymentMethod, handleBack, handleNext
                                         </p>
                                     </div>
                                 </div>
-                                
+
                                 {isSelected && (
                                     <div className="mt-4 pt-4 border-t border-purple-100">
                                         {method.id === "cod" && (
                                             <div className="text-sm text-gray-600 bg-yellow-50 p-3 rounded-lg">
                                                 <div className="flex items-center gap-2">
                                                     <Banknote className="w-4 h-4" />
-                                                    <span>Cash payment upon delivery</span>
+                                                    <span>
+                                                        Cash payment upon
+                                                        delivery
+                                                    </span>
                                                 </div>
                                                 <p className="text-xs mt-2 text-gray-500">
-                                                    Please keep exact change ready. A small convenience fee may apply.
+                                                    Please keep exact change
+                                                    ready. A small convenience
+                                                    fee may apply.
                                                 </p>
                                             </div>
                                         )}
-                                        
+
                                         {method.id === "online" && (
                                             <div className="text-sm text-gray-600">
-                                                <p className="font-medium">Accepted Cards:</p>
+                                                <p className="font-medium">
+                                                    Accepted Cards:
+                                                </p>
                                                 <div className="flex items-center gap-2 mt-2">
-                                                    <div className="w-8 h-5 bg-blue-600 rounded text-xs text-white flex items-center justify-center font-bold">VISA</div>
-                                                    <div className="w-8 h-5 bg-red-500 rounded text-xs text-white flex items-center justify-center font-bold">RUPAY</div>
-                                                    <div className="w-8 h-5 bg-blue-800 rounded text-xs text-white flex items-center justify-center font-bold">MC</div>
-                                                    <div className="w-8 h-5 bg-orange-500 rounded text-xs text-white flex items-center justify-center font-bold">AMEX</div>
+                                                    <div className="w-8 h-5 bg-blue-600 rounded text-xs text-white flex items-center justify-center font-bold">
+                                                        VISA
+                                                    </div>
+                                                    <div className="w-8 h-5 bg-red-500 rounded text-xs text-white flex items-center justify-center font-bold">
+                                                        RUPAY
+                                                    </div>
+                                                    <div className="w-8 h-5 bg-blue-800 rounded text-xs text-white flex items-center justify-center font-bold">
+                                                        MC
+                                                    </div>
+                                                    <div className="w-8 h-5 bg-orange-500 rounded text-xs text-white flex items-center justify-center font-bold">
+                                                        AMEX
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
                                     </div>
                                 )}
                             </div>
-                            
+
                             {isSelected && (
                                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center shadow-lg">
                                     <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -572,7 +666,8 @@ function OrderReview({
     addressForm,
     handleBack,
     handlePlaceOrder,
-    isProcessing
+    isProcessing,
+    getUnitPriceForPack,
 }) {
     return (
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 md:p-6 space-y-6">
@@ -596,7 +691,9 @@ function OrderReview({
 
             {/* Order Items */}
             <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Order Items ({items.length})</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                    Order Items ({items.length})
+                </h3>
                 <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
                     {items.map((item) => (
                         <div
@@ -605,9 +702,9 @@ function OrderReview({
                         >
                             <div className="w-16 h-16 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
                                 {item.image ? (
-                                    <img 
-                                        src={item.image} 
-                                        alt={item.p_name} 
+                                    <img
+                                        src={item.image}
+                                        alt={item.p_name}
                                         className="w-full h-full object-contain rounded"
                                     />
                                 ) : (
@@ -628,7 +725,8 @@ function OrderReview({
                                 </div>
                             </div>
                             <div className="text-lg font-bold text-gray-900 whitespace-nowrap">
-                                ₹{(item.discount_price * item.quantity).toLocaleString()}
+                                ₹
+                                {Math.round(getUnitPriceForPack(item) * item.quantity).toLocaleString()}
                             </div>
                         </div>
                     ))}
@@ -644,14 +742,16 @@ function OrderReview({
                 <div className="text-gray-700 space-y-2">
                     <div className="font-medium">
                         {addressForm.fullName} • {addressForm.phone}
-                        {addressForm.alternativePhone && ` • ${addressForm.alternativePhone}`}
+                        {addressForm.alternativePhone &&
+                            ` • ${addressForm.alternativePhone}`}
                     </div>
                     <div>{addressForm.addressLine1}</div>
                     {addressForm.addressLine2 && (
                         <div>{addressForm.addressLine2}</div>
                     )}
                     <div>
-                        {addressForm.city}, {addressForm.state} - {addressForm.pinCode}
+                        {addressForm.city}, {addressForm.state} -{" "}
+                        {addressForm.pinCode}
                     </div>
                 </div>
                 <div className="flex items-center gap-2 mt-4 text-sm text-blue-600">
@@ -704,6 +804,7 @@ function OrderSummary({
     applyCoupon,
     errors,
     finalTotal,
+    getUnitPriceForPack,
 }) {
     const [showDetails, setShowDetails] = useState(false);
 
@@ -716,7 +817,7 @@ function OrderSummary({
                         Order Summary
                     </h3>
                     <p className="text-purple-100 text-sm mt-1">
-                        {items.length} {items.length === 1 ? 'item' : 'items'}
+                        {items.length} {items.length === 1 ? "item" : "items"}
                     </p>
                 </div>
 
@@ -737,12 +838,15 @@ function OrderSummary({
                     {showDetails && (
                         <div className="space-y-3 mb-6 max-h-64 overflow-y-auto pr-2">
                             {items.map((item) => (
-                                <div key={item._id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                <div
+                                    key={item._id}
+                                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                                >
                                     <div className="w-12 h-12 bg-white rounded border border-gray-200 flex-shrink-0">
                                         {item.image ? (
-                                            <img 
-                                                src={item.image} 
-                                                alt={item.p_name} 
+                                            <img
+                                                src={item.image}
+                                                alt={item.p_name}
                                                 className="w-full h-full object-contain rounded"
                                             />
                                         ) : (
@@ -756,11 +860,13 @@ function OrderSummary({
                                             {item.p_name}
                                         </div>
                                         <div className="text-xs text-gray-600">
-                                            Qty: {item.quantity} × ₹{item.discount_price.toLocaleString()}
+                                            Qty: {item.quantity} × ₹
+                                            {Math.round(getUnitPriceForPack(item)).toLocaleString()}
                                         </div>
                                     </div>
                                     <div className="font-semibold text-gray-900">
-                                        ₹{(item.discount_price * item.quantity).toLocaleString()}
+                                        ₹
+                                        {Math.round(getUnitPriceForPack(item) * item.quantity).toLocaleString()}
                                     </div>
                                 </div>
                             ))}
@@ -772,20 +878,28 @@ function OrderSummary({
                         <div className="space-y-3">
                             <div className="flex justify-between text-gray-700">
                                 <span>Subtotal</span>
-                                <span className="font-medium">₹{total.toLocaleString()}</span>
+                                <span className="font-medium">
+                                    ₹{total.toLocaleString()}
+                                </span>
                             </div>
 
                             {step >= 2 && (
                                 <div className="flex justify-between text-gray-700">
                                     <span>Shipping</span>
-                                    <span className={`font-medium ${shippingCost === 0 ? 'text-green-600' : ''}`}>
+                                    <span
+                                        className={`font-medium ${
+                                            shippingCost === 0
+                                                ? "text-green-600"
+                                                : ""
+                                        }`}
+                                    >
                                         {shippingCost === 0 ? (
                                             <span className="flex items-center gap-1">
                                                 FREE
                                                 <Gift className="w-4 h-4" />
                                             </span>
                                         ) : (
-                                            `₹${shippingCost.toFixed(2)}`
+                                            `₹${shippingCost.toLocaleString()}`
                                         )}
                                     </span>
                                 </div>
@@ -795,7 +909,7 @@ function OrderSummary({
                                 <div className="flex justify-between text-green-600">
                                     <span>Discount (SAVE10)</span>
                                     <span className="font-medium">
-                                        -₹{discount.toFixed(2)}
+                                        -₹{discount.toLocaleString()}
                                     </span>
                                 </div>
                             )}
@@ -810,9 +924,13 @@ function OrderSummary({
                                         placeholder="Enter coupon code"
                                         value={couponCode}
                                         onChange={(e) =>
-                                            setCouponCode(e.target.value.toUpperCase())
+                                            setCouponCode(
+                                                e.target.value.toUpperCase()
+                                            )
                                         }
-                                        onKeyPress={(e) => e.key === 'Enter' && applyCoupon()}
+                                        onKeyPress={(e) =>
+                                            e.key === "Enter" && applyCoupon()
+                                        }
                                         className="w-full border-2 border-gray-200 p-3 rounded-lg text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 pr-24"
                                     />
                                     <button
@@ -829,7 +947,13 @@ function OrderSummary({
                                     </p>
                                 )}
                                 <p className="text-xs text-gray-500 mt-2">
-                                    Try: <span className="font-medium text-purple-600 cursor-pointer hover:underline" onClick={() => setCouponCode('SAVE10')}>SAVE10</span>
+                                    Try:{" "}
+                                    <span
+                                        className="font-medium text-purple-600 cursor-pointer hover:underline"
+                                        onClick={() => setCouponCode("SAVE10")}
+                                    >
+                                        SAVE10
+                                    </span>
                                 </p>
                             </div>
                         )}
@@ -845,7 +969,7 @@ function OrderSummary({
                                             Coupon "SAVE10" applied!
                                         </div>
                                         <p className="text-xs text-green-600">
-                                            You saved ₹{discount.toFixed(2)}
+                                            You saved ₹{discount.toLocaleString()}
                                         </p>
                                     </div>
                                 </div>
@@ -859,7 +983,7 @@ function OrderSummary({
                                     Total Amount
                                 </span>
                                 <span className="text-2xl font-bold text-purple-600">
-                                    ₹{finalTotal.toLocaleString()}
+                                    ₹{step >= 2 ? `${finalTotal.toLocaleString()}` : `${total.toLocaleString()}` } 
                                 </span>
                             </div>
                             <p className="text-xs text-gray-500 text-right">
@@ -911,7 +1035,7 @@ function EmptyCart() {
 
 // ============================ Main CheckoutFlow Component ============================
 export default function CheckoutLarge() {
-    const { items, total, clearCart } = useCart();
+    const { items, total, clearCart, getUnitPriceForPack } = useCart();
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -934,9 +1058,12 @@ export default function CheckoutLarge() {
 
     const [errors, setErrors] = useState({});
     const [pinLoading, setPinLoading] = useState(false);
-    const shippingCost = 100; // FIXED as per original
-    const discount = couponApplied ? total * 0.1 : 0;
-    const finalTotal = total + shippingCost - discount;
+    
+    const shippingCostValue = 100; // FIXED as per original
+    const totalAmount = Math.round(total);
+    const shippingCostAmount = Math.round(shippingCostValue);
+    const discountAmount = couponApplied ? Math.round(total * 0.1) : 0;
+    const finalTotalAmount = Math.round(totalAmount + shippingCostAmount - discountAmount);
 
     const fetchCityState = async (pin) => {
         try {
@@ -973,7 +1100,8 @@ export default function CheckoutLarge() {
 
     const validateShipping = () => {
         const newErrors = {};
-        const { fullName, phone, addressLine1, city, state, pinCode } = addressForm;
+        const { fullName, phone, addressLine1, city, state, pinCode } =
+            addressForm;
 
         if (!fullName.trim()) newErrors.fullName = "Full name is required";
         if (!phone.trim()) newErrors.phone = "Phone number is required";
@@ -1007,19 +1135,23 @@ export default function CheckoutLarge() {
     const handleOnlinePayment = async () => {
         try {
             const { data } = await api.post("/payment/create-order", {
-                amount: finalTotal,
+                amount: finalTotalAmount,
             });
 
             const options = {
                 key: data.key,
-                amount: finalTotal * 100,
+                amount: finalTotalAmount * 100,
                 currency: "INR",
                 name: "EnergeniX",
                 image: ap, // Using original import name
                 description: "Test Transaction",
                 order_id: data.orderId,
                 handler: async function (response) {
-                    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
+                    const {
+                        razorpay_payment_id,
+                        razorpay_order_id,
+                        razorpay_signature,
+                    } = response;
                     try {
                         const { data } = await api.post("/payment/verify", {
                             razorpay_payment_id,
@@ -1047,7 +1179,7 @@ export default function CheckoutLarge() {
                     color: "#162556",
                 },
             };
-            
+
             const rzp = new window.Razorpay(options);
             rzp.open();
         } catch (error) {
@@ -1060,9 +1192,9 @@ export default function CheckoutLarge() {
             alert("Please select a payment method");
             return;
         }
-    
+
         setIsProcessing(true);
-    
+
         try {
             const orderPayload = {
                 order_id: Math.random().toString(36).substr(2, 9),
@@ -1076,32 +1208,36 @@ export default function CheckoutLarge() {
                     state: addressForm.state,
                     pincode: addressForm.pinCode,
                 },
-                items: items.map(item => ({
+                items: items.map((item) => ({
                     name: item.p_name,
                     sku_number: item._id,
                     quantity: item.quantity,
-                    unit_price: item.discount_price,
-                    pack_type: item.selectedPack ? item.selectedPack.toUpperCase().replace(/ /g, '_') : "STANDARD",
+                    unit_price: getUnitPriceForPack(item),
+                    pack_type: item.selectedPack
+                        ? item.selectedPack.toUpperCase().replace(/ /g, "_")
+                        : "PACK_OF_1",
                 })),
-                payment_type: paymentMethod === "cod" ? "COD" : "Prepaid",
-                cod_amount: paymentMethod === "cod" ? String(finalTotal) : "0",
+                payment_type: paymentMethod === "cod" ? "COD" : "PREPAID",
+                cod_amount: paymentMethod === "cod" ? String(finalTotalAmount) : "0",
                 weight_kg: 0.5,
                 length_cm: 20,
                 width_cm: 15,
                 height_cm: 10,
             };
-    
+
             const { data } = await api.post("/orders/create", orderPayload);
-    
+
             if (data.order) {
                 clearCart();
-                navigate(`/order-confirmation/${data.order.order_id}`);
+                navigate('/dashboard');
             } else {
                 throw new Error(data.error || "Order creation failed");
             }
         } catch (error) {
             console.error("Order placement error:", error);
-            alert(`An error occurred while placing the order: ${error.message}`);
+            alert(
+                `An error occurred while placing the order: ${error.message}`
+            );
         } finally {
             setIsProcessing(false);
         }
@@ -1117,13 +1253,13 @@ export default function CheckoutLarge() {
                 <div className="mb-4 sm:mb-6">
                     <CheckoutHeader />
                 </div>
-                
+
                 <div className="grid lg:grid-cols-3 gap-4 lg:gap-4">
                     <div className="lg:col-span-2 space-y-1">
                         <div className="mb-2">
                             <ProgressStepper step={step} />
                         </div>
-                        
+
                         <div className="min-h-[400px]">
                             {step === 1 && (
                                 <ShippingForm
@@ -1147,31 +1283,32 @@ export default function CheckoutLarge() {
                             {step === 3 && (
                                 <OrderReview
                                     items={items}
-                                    shippingCost={shippingCost}
+                                    shippingCost={shippingCostAmount}
                                     addressForm={addressForm}
                                     handleBack={handleBack}
                                     handlePlaceOrder={handlePlaceOrder}
                                     isProcessing={isProcessing}
+                                    getUnitPriceForPack={getUnitPriceForPack}
                                 />
                             )}
                         </div>
                     </div>
-                    
+
                     <div className="lg:col-span-1">
-                        <OrderSummary
-                            items={items}
-                            total={total}
-                            step={step}
-                            shippingCost={shippingCost}
-                            couponApplied={couponApplied}
-                            discount={discount}
-                            couponCode={couponCode}
-                            setCouponCode={setCouponCode}
-                            applyCoupon={applyCoupon}
-                            errors={errors}
-                            finalTotal={finalTotal}
-                        />
-                    </div>
+                                                    <OrderSummary
+                                                        items={items}
+                                                        total={totalAmount}
+                                                        step={step}
+                                                        shippingCost={shippingCostAmount}
+                                                        couponApplied={couponApplied}
+                                                        discount={discountAmount}
+                                                        couponCode={couponCode}
+                                                        setCouponCode={setCouponCode}
+                                                        applyCoupon={applyCoupon}
+                                                        errors={errors}
+                                                        finalTotal={finalTotalAmount}
+                                                        getUnitPriceForPack={getUnitPriceForPack}
+                                                    />                    </div>
                 </div>
             </div>
         </div>

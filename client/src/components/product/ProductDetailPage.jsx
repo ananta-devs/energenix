@@ -716,7 +716,7 @@ export default function ProductDetailPage() {
                                 },
                                 {
                                     name: "Twitter",
-                                    color: "from-sky-400 to-sky-500",
+                                    color: "white",
                                     icon: (
                                         <TwitterIcon className="w-5 h-5 text-white" />
                                     ),

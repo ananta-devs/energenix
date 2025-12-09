@@ -18,7 +18,7 @@ const Messages = () => {
 
   const loadMessages = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/contacts`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/contacts`);
       setMessages(response.data);
       setSelectedMessage(response.data[0] || null);
     } catch (error) {
