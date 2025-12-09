@@ -12,7 +12,6 @@ const Profile = ({
 }) => {
     return (
         <div>
-            <h1 className="text-3xl font-semibold text-gray-900 mb-6">Profile</h1>
             
             {/* Name and Email Section */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -24,9 +23,10 @@ const Profile = ({
                         </div>
                         <button 
                             onClick={() => setShowEditProfileModal(true)}
-                            className="text-gray-600 hover:text-gray-900 cursor-pointer"
+                            className="text-gray-600 hover:text-gray-900 cursor-pointer flex"
                         >
                             <Edit className="w-4 h-4" />
+                            <p className="relative -top-1 pl-1" > Edit</p>
                         </button>
                     </div>
                 </div>
@@ -43,7 +43,7 @@ const Profile = ({
             </div>
 
             {/* Addresses Section */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-25 lg:mb-15">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-gray-900">Addresses</h2>
                     <button 

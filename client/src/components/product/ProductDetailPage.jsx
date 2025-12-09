@@ -1,10 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../hooks/useCart.js";
-import { Minus, Plus, X, Share2 } from "lucide-react";
+import { Minus, Plus, X, Share2, Link2 } from "lucide-react";
 import trust_badge from "../../assets/TRUST_BADGE.webp";
 import { useProducts } from "../../context/ProductContext.jsx";
 import { slugify } from "../../utils/slugify.js";
+
+// Import SVG icons from svg.js
+import {
+    FacebookIcon,
+    WhatsAppIcon,
+    TelegramIcon,
+    GmailIcon,
+    SMSIcon,
+    LinkedInIcon,
+    ArattaiIcon,
+    TwitterIcon,
+    InstagramIcon,
+    PinterestIcon,
+    DeviceMultipleIcon,
+} from "../../utils/svg.jsx";
 
 export default function ProductDetailPage() {
     const { identifier } = useParams();
@@ -401,58 +416,410 @@ export default function ProductDetailPage() {
                 </div>
             </div>
 
-            {/* Share Options Overlay */}
+            {/* Share Options Modal for Small Screens - Matching CategoryPage modals */}
             {showShareOptions && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                <>
+                    {/* Backdrop */}
                     <div
-                        className="bg-white rounded-xl p-6 max-w-md w-full"
+                        className="fixed inset-0 bg-black opacity-70 z-50 lg:hidden"
+                        onClick={() => setShowShareOptions(false)}
+                    />
+
+                    {/* Modal Content - Slides from bottom */}
+                    <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 lg:hidden animate-slideUp">
+                        <div className="p-6 max-h-[80vh] overflow-y-auto">
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-xl font-bold text-gray-900">
+                                    Share
+                                </h3>
+                                <button
+                                    onClick={() => setShowShareOptions(false)}
+                                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                                >
+                                    <X className="w-5 h-5 text-gray-700" />
+                                </button>
+                            </div>
+
+                            {/* Product Preview */}
+                            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                    <img
+                                        src={product.image_urls[0]}
+                                        alt={product.p_name}
+                                        className="w-14 h-14 rounded-lg object-cover"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-gray-900 truncate">
+                                            {product.p_name}
+                                        </p>
+                                        <p className="text-xs text-gray-600 line-clamp-2 mt-1">
+                                            Buy {product.p_name.split(" ")[0]}{" "}
+                                            online at best price with offers in
+                                            India.{" "}
+                                            {product.p_name.split(" ")[0]} ...
+                                        </p>
+                                        <p className="text-sm font-bold text-purple-700 mt-1">
+                                            ₨.{" "}
+                                            {Math.round(
+                                                packPrices.discountedPrice
+                                            ).toLocaleString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Share Options Grid - 4 columns */}
+                            <div className="grid grid-cols-4 gap-4 mb-6">
+                                {/* Copy Link */}
+                                <button
+                                    onClick={async (e) => {
+                                        try {
+                                            await navigator.clipboard.writeText(
+                                                window.location.href
+                                            );
+                                            // Show toast notification
+                                            const button = e.currentTarget;
+                                            const originalText =
+                                                button.querySelector(
+                                                    "span"
+                                                ).textContent;
+                                            button.querySelector(
+                                                "span"
+                                            ).textContent = "Copied!";
+                                            button.classList.add("bg-green-50");
+
+                                            setTimeout(() => {
+                                                button.querySelector(
+                                                    "span"
+                                                ).textContent = originalText;
+                                                button.classList.remove(
+                                                    "bg-green-50"
+                                                );
+                                            }, 2000);
+                                        } catch (err) {
+                                            alert("Failed to copy link");
+                                        }
+                                    }}
+                                    className="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors active:scale-95"
+                                >
+                                    <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-700 rounded-full flex items-center justify-center mb-2">
+                                        <Link2 className="w-6 h-6 text-white" />
+                                    </div>
+                                    <span className="text-xs font-medium text-gray-800 text-center">
+                                        Copy Link
+                                    </span>
+                                </button>
+
+                                {/* WhatsApp */}
+                                <button
+                                    onClick={() =>
+                                        window.open(
+                                            `https://wa.me/?text=${encodeURIComponent(
+                                                `${product.p_name} - ${window.location.href}`
+                                            )}`,
+                                            "_blank"
+                                        )
+                                    }
+                                    className="flex flex-col items-center p-3 rounded-lg hover:bg-green-50 transition-colors active:scale-95"
+                                >
+                                    <div className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center mb-2">
+                                        <WhatsAppIcon className="w-6 h-6" />
+                                    </div>
+                                    <span className="text-xs font-medium text-gray-800 text-center">
+                                        WhatsApp
+                                    </span>
+                                </button>
+
+                                {/* Facebook */}
+                                <button
+                                    onClick={() =>
+                                        window.open(
+                                            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                                                window.location.href
+                                            )}&quote=${encodeURIComponent(
+                                                product.p_name
+                                            )}`,
+                                            "_blank"
+                                        )
+                                    }
+                                    className="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
+                                >
+                                    <div className="w-15 h-12 bg-transparent rounded-full flex items-center justify-center mb-2">
+                                        <FacebookIcon />
+                                    </div>
+                                    <span className="text-xs font-medium text-gray-800 text-center">
+                                        Facebook
+                                    </span>
+                                </button>
+
+                                {/* Gmail */}
+                                <button
+                                    onClick={() => {
+                                        const subject = `Check out ${product.p_name}`;
+                                        const body = `I found this product that you might like:\n\n${product.p_name}\n${product.p_subtitle}\n\nCheck it out here: ${window.location.href}`;
+                                        window.open(
+                                            `mailto:?subject=${encodeURIComponent(
+                                                subject
+                                            )}&body=${encodeURIComponent(
+                                                body
+                                            )}`,
+                                            "_blank"
+                                        );
+                                    }}
+                                    className="flex flex-col items-center p-3 rounded-lg hover:bg-red-50 transition-colors active:scale-95"
+                                >
+                                    <div className="w-11 h-12 bg-transparent rounded-full flex items-center justify-center mb-2">
+                                        <GmailIcon className="w-6 h-6" />
+                                    </div>
+                                    <span className="text-xs font-medium text-gray-800 text-center">
+                                        Gmail
+                                    </span>
+                                </button>
+
+                                {/* SMS */}
+                                <button
+                                    onClick={() => {
+                                        const text = `Check out ${product.p_name} at ${window.location.href}`;
+                                        window.open(
+                                            `sms:?body=${encodeURIComponent(
+                                                text
+                                            )}`,
+                                            "_blank"
+                                        );
+                                    }}
+                                    className="flex flex-col items-center p-3 rounded-lg hover:bg-green-50 transition-colors active:scale-95"
+                                >
+                                    <div className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center mb-2">
+                                        <SMSIcon className="w-5 h-5 text-white" />
+                                    </div>
+                                    <span className="text-xs font-medium text-gray-800 text-center">
+                                        SMS
+                                    </span>
+                                </button>
+
+                                {/* Telegram */}
+                                <button
+                                    onClick={() => {
+                                        const text = `Check out ${product.p_name} at ${window.location.href}`;
+                                        window.open(
+                                            `https://t.me/share/url?url=${encodeURIComponent(
+                                                window.location.href
+                                            )}&text=${encodeURIComponent(
+                                                text
+                                            )}`,
+                                            "_blank"
+                                        );
+                                    }}
+                                    className="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
+                                >
+                                    <div className="w-14 h-12 bg-transparent rounded-full flex items-center justify-center mb-2">
+                                        <TelegramIcon className="w-6 h-6" />
+                                    </div>
+                                    <span className="text-xs font-medium text-gray-800 text-center">
+                                        Telegram
+                                    </span>
+                                </button>
+
+                                {/* Twitter */}
+                                <button
+                                    onClick={() =>
+                                        window.open(
+                                            `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+                                                window.location.href
+                                            )}&text=${encodeURIComponent(
+                                                product.p_name
+                                            )}`,
+                                            "_blank"
+                                        )
+                                    }
+                                    className="flex flex-col items-center p-3 rounded-lg hover:bg-sky-50 transition-colors active:scale-95"
+                                >
+                                    <div className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center mb-2">
+                                        <TwitterIcon className="w-6 h-6 text-white" />
+                                    </div>
+                                    <span className="text-xs font-medium text-gray-800 text-center">
+                                        Twitter/X
+                                    </span>
+                                </button>
+
+                                {/* Native Sharing */}
+                                {navigator.share && (
+                                    <button
+                                        onClick={() => {
+                                            navigator.share({
+                                                title: product.p_name,
+                                                text: product.p_subtitle,
+                                                url: window.location.href,
+                                            });
+                                            setShowShareOptions(false);
+                                        }}
+                                        className="flex flex-col items-center p-3 rounded-lg hover:bg-purple-50 transition-colors active:scale-95"
+                                    >
+                                        <div className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center mb-2">
+                                            <DeviceMultipleIcon className="w-6 h-6 text-white" />
+                                        </div>
+                                        <span className="text-xs font-medium text-gray-800 text-center">
+                                            Device
+                                        </span>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </>
+            )}
+
+            {/* Desktop Share Options Overlay */}
+            {showShareOptions && (
+                <div className="hidden lg:flex fixed inset-0 bg-black/50 z-50 items-center justify-center p-4">
+                    <div
+                        className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-semibold">
-                                Share Product
-                            </h3>
+                        {/* Header */}
+                        <div className="flex justify-between items-center mb-8">
+                            <div>
+                                <h3 className="text-2xl font-bold text-gray-900">
+                                    Share This Product
+                                </h3>
+                                <p className="text-gray-500 text-sm mt-1">
+                                    Spread the word with friends
+                                </p>
+                            </div>
                             <button
                                 onClick={() => setShowShareOptions(false)}
-                                className="p-1 hover:bg-gray-100 rounded-full"
+                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                             >
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <button className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition">
-                                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                                    <span className="text-blue-600 font-semibold">
-                                        FB
+
+                        {/* Share Options - ICON TOP, TEXT BOTTOM - 4 COLS */}
+                        <div className="grid grid-cols-4 gap-4 mb-8">
+                            {[
+                                {
+                                    name: "Facebook",
+                                    color: "from-blue-500 to-blue-600",
+                                    icon: (
+                                        <FacebookIcon className="w-5 h-5 text-white" />
+                                    ),
+                                    action: () =>
+                                        window.open(
+                                            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                                                window.location.href
+                                            )}&quote=${encodeURIComponent(
+                                                product.p_name
+                                            )}`,
+                                            "_blank"
+                                        ),
+                                },
+                                {
+                                    name: "Twitter",
+                                    color: "from-sky-400 to-sky-500",
+                                    icon: (
+                                        <TwitterIcon className="w-5 h-5 text-white" />
+                                    ),
+                                    action: () =>
+                                        window.open(
+                                            `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+                                                window.location.href
+                                            )}&text=${encodeURIComponent(
+                                                product.p_name
+                                            )}`,
+                                            "_blank"
+                                        ),
+                                },
+                                {
+                                    name: "WhatsApp",
+                                    color: "from-emerald-500 to-emerald-600",
+                                    icon: (
+                                        <WhatsAppIcon className="w-5 h-5 text-white" />
+                                    ),
+                                    action: () =>
+                                        window.open(
+                                            `https://wa.me/?text=${encodeURIComponent(
+                                                `${product.p_name} - ${window.location.href}`
+                                            )}`,
+                                            "_blank"
+                                        ),
+                                },
+                                {
+                                    name: "Copy Link",
+                                    color: "from-gray-600 to-gray-700",
+                                    icon: (
+                                        <Link2 className="w-5 h-5 text-white" />
+                                    ),
+                                    action: async () => {
+                                        try {
+                                            await navigator.clipboard.writeText(
+                                                window.location.href
+                                            );
+                                            alert("Link copied!");
+                                        } catch {
+                                            alert("Copy failed");
+                                        }
+                                    },
+                                },
+                            ].map((option) => (
+                                <button
+                                    key={option.name}
+                                    onClick={option.action}
+                                    className="flex flex-col items-center p-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition active:scale-95"
+                                >
+                                    <div
+                                        className={`w-10 h-10 bg-gradient-to-br ${option.color} rounded-full flex items-center justify-center shadow mb-2`}
+                                    >
+                                        {option.icon}
+                                    </div>
+                                    <span className="text-xs font-medium text-gray-900 text-center">
+                                        {option.name}
                                     </span>
-                                </div>
-                                <span className="text-sm">Facebook</span>
-                            </button>
-                            <button className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition">
-                                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                                    <span className="text-blue-400 font-semibold">
-                                        TW
-                                    </span>
-                                </div>
-                                <span className="text-sm">Twitter</span>
-                            </button>
-                            <button className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition">
-                                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                                    <span className="text-green-600 font-semibold">
-                                        WA
-                                    </span>
-                                </div>
-                                <span className="text-sm">WhatsApp</span>
-                            </button>
-                            <button className="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition">
-                                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-2">
-                                    <span className="text-gray-800 font-semibold">
-                                        CP
-                                    </span>
-                                </div>
-                                <span className="text-sm">Copy Link</span>
-                            </button>
+                                </button>
+                            ))}
                         </div>
+
+                        {/* Product Preview */}
+                        <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100 mb-4">
+                            <div className="flex items-center gap-4">
+                                <img
+                                    src={product.image_urls[0]}
+                                    alt={product.p_name}
+                                    className="w-16 h-16 rounded-lg object-cover border-2 border-white shadow-sm"
+                                />
+                                <div className="flex-1">
+                                    <h4 className="font-semibold text-gray-900 truncate">
+                                        {product.p_name}
+                                    </h4>
+                                    <p className="text-sm text-gray-600 line-clamp-2">
+                                        {product.p_subtitle}
+                                    </p>
+                                    <p className="text-lg font-bold text-purple-700 mt-1">
+                                        ₨.{" "}
+                                        {Math.round(
+                                            packPrices.discountedPrice
+                                        ).toLocaleString()}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Native Sharing */}
+                        {navigator.share && (
+                            <button
+                                onClick={() => {
+                                    navigator.share({
+                                        title: product.p_name,
+                                        text: product.p_subtitle,
+                                        url: window.location.href,
+                                    });
+                                    setShowShareOptions(false);
+                                }}
+                                className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition"
+                            >
+                                Share via Device
+                            </button>
+                        )}
                     </div>
                 </div>
             )}

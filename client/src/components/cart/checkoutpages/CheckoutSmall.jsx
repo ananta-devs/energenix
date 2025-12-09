@@ -206,6 +206,33 @@ export default function CheckoutSmall() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address Line 1 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={addressData.building}
+                    onChange={(e) => setAddressData({...addressData, building: e.target.value})}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    placeholder="House no., Building, Street"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address Line 2 (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={addressData.road}
+                    onChange={(e) => setAddressData({...addressData, road: e.target.value})}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    placeholder="Area, Landmark, etc."
+                  />
+                </div>
+
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Pincode <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -240,32 +267,6 @@ export default function CheckoutSmall() {
                       readOnly
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Address Line 1 <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={addressData.building}
-                    onChange={(e) => setAddressData({...addressData, building: e.target.value})}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                    placeholder="House no., Building, Street"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Address Line 2 (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={addressData.road}
-                    onChange={(e) => setAddressData({...addressData, road: e.target.value})}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                    placeholder="Area, Landmark, etc."
-                  />
                 </div>
               </div>
             </div>
