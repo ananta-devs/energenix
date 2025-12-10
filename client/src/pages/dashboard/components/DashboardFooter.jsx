@@ -5,7 +5,7 @@ const PolicyModal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center z-50 justify-center p-4">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-xl">
         <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
           <h2 className="text-xl font-bold text-gray-800">{title}</h2>
@@ -228,7 +228,7 @@ const DashboardFooter = () => {
 
   return (
     <>
-      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 mt-auto">
+      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t z-50 border-gray-200 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-wrap gap-6 text-sm">
             <p 

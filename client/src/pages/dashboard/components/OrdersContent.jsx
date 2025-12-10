@@ -192,16 +192,16 @@ const ProgressBar = ({ status, steps, isMobile = false }) => {
                                     stepStatus === "completed"
                                         ? "bg-green-500 text-white"
                                         : stepStatus === "current"
-                                        ? "bg-yellow-400 text-white"
+                                        ? "bg-blue-900 text-white"
                                         : "bg-gray-200 text-gray-500"
                                 }`}
                             >
                                 {stepStatus === "completed" ? (
-                                    <CheckCircle className={isMobile ? "w-3 h-3" : "w-6 h-6"} />
+                                    <CheckCircle className={isMobile ? "w-6 h-6" : "w-6 h-6"} />
                                 ) : stepStatus === "current" ? (
-                                    <Clock className={isMobile ? "w-3 h-3" : "w-6 h-6"} />
+                                    <Clock className={isMobile ? "w-6 h-6" : "w-6 h-6"} />
                                 ) : (
-                                    <Package className={isMobile ? "w-3 h-3" : "w-6 h-6"} />
+                                    <Package className={isMobile ? "w-6 h-6" : "w-6 h-6"} />
                                 )}
                             </motion.div>
                             <span className={`${textSize} mt-1 whitespace-nowrap`}>

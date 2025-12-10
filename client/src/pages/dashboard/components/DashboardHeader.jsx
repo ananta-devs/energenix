@@ -31,7 +31,7 @@ const DashboardHeader = ({ userData, dropdownOpen, setDropdownOpen, handleNaviga
             </button>
             <button
               onClick={() => setPage('orders')}
-              className="text-gray-700 hover:text-gray-900 text-sm font-medium cursor-pointer"
+              className="hover:text-gray-900 text-sm font-medium cursor-pointer text-amber-500"
             >
               Orders
             </button>
