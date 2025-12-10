@@ -12,11 +12,21 @@ import {
     CheckCircle,
     XCircle,
     Upload,
+    Ruler,
+    Weight,
+    ChevronDown,
+    ChevronUp,
 } from "lucide-react";
 import { dataService } from "../utils/dataService";
 import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+const PACK_TYPES = [
+    { id: "pack-1", label: "Pack of 1", defaultEnabled: true },
+    { id: "pack-2", label: "Pack of 2", defaultEnabled: false },
+    { id: "pack-4", label: "Pack of 4", defaultEnabled: false },
+];
 
 const ProductsData = () => {
     const [products, setProducts] = useState([]);
@@ -30,6 +40,7 @@ const ProductsData = () => {
     const [editingProduct, setEditingProduct] = useState(null);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [formErrors, setFormErrors] = useState({});
+    const [expandedPackType, setExpandedPackType] = useState("pack-1");
 
     // Form state
     const [formData, setFormData] = useState({
@@ -43,6 +54,20 @@ const ProductsData = () => {
         description: "",
         trending: false,
         bestseller: false,
+        pack_types: {
+            "Pack of 1": {
+                dimensions: { height: "", width: "", length: "", weight: "" },
+                enabled: true
+            },
+            "Pack of 2": {
+                dimensions: { height: "", width: "", length: "", weight: "" },
+                enabled: false
+            },
+            "Pack of 4": {
+                dimensions: { height: "", width: "", length: "", weight: "" },
+                enabled: false
+            }
+        }
     });
 
     // Message states for each modal
@@ -122,6 +147,30 @@ const ProductsData = () => {
         if (formData.image_urls.length === 0) {
             errors.image_urls = "At least one image is required";
         }
+
+        // Validate at least one pack type is enabled
+        const enabledPackTypes = Object.values(formData.pack_types).filter(pack => pack.enabled);
+        if (enabledPackTypes.length === 0) {
+            errors.pack_types = "At least one pack type must be enabled";
+        }
+
+        // Validate dimensions for enabled pack types
+        Object.entries(formData.pack_types).forEach(([packType, packData]) => {
+            if (packData.enabled) {
+                if (!packData.dimensions.height || parseFloat(packData.dimensions.height) <= 0) {
+                    errors[`${packType}_height`] = `Height is required for ${packType}`;
+                }
+                if (!packData.dimensions.width || parseFloat(packData.dimensions.width) <= 0) {
+                    errors[`${packType}_width`] = `Width is required for ${packType}`;
+                }
+                if (!packData.dimensions.length || parseFloat(packData.dimensions.length) <= 0) {
+                    errors[`${packType}_length`] = `Length is required for ${packType}`;
+                }
+                if (!packData.dimensions.weight || parseFloat(packData.dimensions.weight) <= 0) {
+                    errors[`${packType}_weight`] = `Weight is required for ${packType}`;
+                }
+            }
+        });
         
         return errors;
     };
@@ -132,6 +181,11 @@ const ProductsData = () => {
             style: 'currency',
             currency: 'INR'
         }).format(price);
+    };
+
+    const formatDimensions = (dimensions) => {
+        if (!dimensions) return "N/A";
+        return `${dimensions.height}×${dimensions.width}×${dimensions.length} cm, ${dimensions.weight} kg`;
     };
 
     const handleAddProduct = async () => {
@@ -151,6 +205,21 @@ const ProductsData = () => {
             setAddModalMessage({ type: "", text: "" });
             setUploadProgress(0);
 
+            // Filter only enabled pack types
+            const enabledPackTypes = {};
+            Object.entries(formData.pack_types).forEach(([packType, packData]) => {
+                if (packData.enabled) {
+                    enabledPackTypes[packType] = {
+                        dimensions: {
+                            height: parseFloat(packData.dimensions.height),
+                            width: parseFloat(packData.dimensions.width),
+                            length: parseFloat(packData.dimensions.length),
+                            weight: parseFloat(packData.dimensions.weight)
+                        }
+                    };
+                }
+            });
+
             const productToCreate = {
                 p_name: formData.p_name.trim(),
                 p_subtitle: formData.p_subtitle.trim(),
@@ -162,6 +231,7 @@ const ProductsData = () => {
                 image_urls: [],
                 trending: formData.trending,
                 bestseller: formData.bestseller,
+                pack_types: enabledPackTypes
             };
 
             const createdProduct = await dataService.createProduct(productToCreate);
@@ -321,6 +391,21 @@ const ProductsData = () => {
                 ...uploadedCloudinaryUrls,
             ];
 
+            // Filter only enabled pack types
+            const enabledPackTypes = {};
+            Object.entries(formData.pack_types).forEach(([packType, packData]) => {
+                if (packData.enabled) {
+                    enabledPackTypes[packType] = {
+                        dimensions: {
+                            height: parseFloat(packData.dimensions.height),
+                            width: parseFloat(packData.dimensions.width),
+                            length: parseFloat(packData.dimensions.length),
+                            weight: parseFloat(packData.dimensions.weight)
+                        }
+                    };
+                }
+            });
+
             const productToUpdate = {
                 p_name: formData.p_name.trim(),
                 p_subtitle: formData.p_subtitle.trim(),
@@ -332,6 +417,7 @@ const ProductsData = () => {
                 image_urls: finalImageUrls,
                 trending: formData.trending,
                 bestseller: formData.bestseller,
+                pack_types: enabledPackTypes
             };
 
             const updatedProduct = await dataService.updateProduct(
@@ -378,7 +464,22 @@ const ProductsData = () => {
             description: "",
             trending: false,
             bestseller: false,
+            pack_types: {
+                "Pack of 1": {
+                    dimensions: { height: "", width: "", length: "", weight: "" },
+                    enabled: true
+                },
+                "Pack of 2": {
+                    dimensions: { height: "", width: "", length: "", weight: "" },
+                    enabled: false
+                },
+                "Pack of 4": {
+                    dimensions: { height: "", width: "", length: "", weight: "" },
+                    enabled: false
+                }
+            }
         });
+        setExpandedPackType("pack-1");
         setFormErrors({});
     };
 
@@ -444,6 +545,10 @@ const ProductsData = () => {
 
     const openViewModal = (product) => {
         setSelectedProduct(product);
+        setExpandedPackType("pack-1");
+        
+        // Initialize pack types from product data or defaults
+        const packTypes = product.pack_types || {};
         setFormData({
             p_name: product.p_name,
             p_subtitle: product.p_subtitle,
@@ -461,6 +566,20 @@ const ProductsData = () => {
             description: product.description || "",
             trending: product.trending || false,
             bestseller: product.bestseller || false,
+            pack_types: {
+                "Pack of 1": {
+                    dimensions: packTypes["Pack of 1"]?.dimensions || { height: "", width: "", length: "", weight: "" },
+                    enabled: !!packTypes["Pack of 1"]
+                },
+                "Pack of 2": {
+                    dimensions: packTypes["Pack of 2"]?.dimensions || { height: "", width: "", length: "", weight: "" },
+                    enabled: !!packTypes["Pack of 2"]
+                },
+                "Pack of 4": {
+                    dimensions: packTypes["Pack of 4"]?.dimensions || { height: "", width: "", length: "", weight: "" },
+                    enabled: !!packTypes["Pack of 4"]
+                }
+            }
         });
         setViewModalMessage({ type: "", text: "" });
         setFormErrors({});
@@ -482,6 +601,7 @@ const ProductsData = () => {
     const cancelEditing = () => {
         setEditingProduct(null);
         if (selectedProduct) {
+            const packTypes = selectedProduct.pack_types || {};
             setFormData({
                 p_name: selectedProduct.p_name,
                 p_subtitle: selectedProduct.p_subtitle,
@@ -499,6 +619,20 @@ const ProductsData = () => {
                 description: selectedProduct.description || "",
                 trending: selectedProduct.trending || false,
                 bestseller: selectedProduct.bestseller || false,
+                pack_types: {
+                    "Pack of 1": {
+                        dimensions: packTypes["Pack of 1"]?.dimensions || { height: "", width: "", length: "", weight: "" },
+                        enabled: !!packTypes["Pack of 1"]
+                    },
+                    "Pack of 2": {
+                        dimensions: packTypes["Pack of 2"]?.dimensions || { height: "", width: "", length: "", weight: "" },
+                        enabled: !!packTypes["Pack of 2"]
+                    },
+                    "Pack of 4": {
+                        dimensions: packTypes["Pack of 4"]?.dimensions || { height: "", width: "", length: "", weight: "" },
+                        enabled: !!packTypes["Pack of 4"]
+                    }
+                }
             });
         }
         setViewModalMessage({ type: "", text: "" });
@@ -524,6 +658,255 @@ const ProductsData = () => {
         setSelectedProduct(null);
         setDeleteModalMessage({ type: "", text: "" });
     };
+
+    const handlePackTypeToggle = (packType) => {
+        setFormData(prev => ({
+            ...prev,
+            pack_types: {
+                ...prev.pack_types,
+                [packType]: {
+                    ...prev.pack_types[packType],
+                    enabled: !prev.pack_types[packType].enabled
+                }
+            }
+        }));
+        setFormErrors(prev => {
+            const newErrors = { ...prev };
+            // Clear errors for this pack type when toggling
+            delete newErrors[`${packType}_height`];
+            delete newErrors[`${packType}_width`];
+            delete newErrors[`${packType}_length`];
+            delete newErrors[`${packType}_weight`];
+            return newErrors;
+        });
+    };
+
+    const handleDimensionChange = (packType, field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            pack_types: {
+                ...prev.pack_types,
+                [packType]: {
+                    ...prev.pack_types[packType],
+                    dimensions: {
+                        ...prev.pack_types[packType].dimensions,
+                        [field]: value
+                    }
+                }
+            }
+        }));
+        // Clear specific error when user starts typing
+        setFormErrors(prev => ({ ...prev, [`${packType}_${field}`]: "" }));
+    };
+
+    const togglePackTypeExpansion = (packId) => {
+        setExpandedPackType(expandedPackType === packId ? null : packId);
+    };
+
+    // Simplified Pack Types Component
+    const SimplePackTypesSection = ({ editing }) => (
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
+                <Ruler className="inline mr-2" size={16} />
+                Pack Types & Dimensions
+            </h4>
+            
+            <div className="space-y-3">
+                {PACK_TYPES.map(({ id, label }) => (
+                    <div 
+                        key={id} 
+                        className={`border rounded-lg overflow-hidden transition-all duration-200 ${
+                            formData.pack_types[label].enabled 
+                                ? "border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/20" 
+                                : "border-gray-200 dark:border-gray-700"
+                        }`}
+                    >
+                        {/* Pack Type Header */}
+                        <div 
+                            className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                            onClick={() => editing && togglePackTypeExpansion(id)}
+                        >
+                            <div className="flex items-center gap-3">
+                                {editing && (
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.pack_types[label].enabled}
+                                            onChange={() => handlePackTypeToggle(label)}
+                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                    </label>
+                                )}
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-sm font-medium ${
+                                        formData.pack_types[label].enabled 
+                                            ? "text-blue-700 dark:text-blue-300" 
+                                            : "text-gray-600 dark:text-gray-400"
+                                    }`}>
+                                        {label}
+                                    </span>
+                                    {formData.pack_types[label].enabled && (
+                                        <CheckCircle size={14} className="text-green-600 dark:text-green-400" />
+                                    )}
+                                </div>
+                            </div>
+                            {editing && (
+                                <div className="flex items-center gap-2">
+                                    {formData.pack_types[label].enabled && (
+                                        <span className="text-xs px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded">
+                                            Active
+                                        </span>
+                                    )}
+                                    {expandedPackType === id ? (
+                                        <ChevronUp size={16} className="text-gray-400" />
+                                    ) : (
+                                        <ChevronDown size={16} className="text-gray-400" />
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Dimensions Section - Show only if enabled and expanded */}
+                        {editing && formData.pack_types[label].enabled && expandedPackType === id && (
+                            <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                                <div className="mb-3">
+                                    <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Dimensions for {label}
+                                    </h5>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                                        Enter dimensions in centimeters (cm) and weight in kilograms (kg)
+                                    </p>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Height (cm) *
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={formData.pack_types[label].dimensions.height}
+                                            onChange={(e) => handleDimensionChange(label, "height", e.target.value)}
+                                            className={`w-full px-3 py-2 text-sm border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                                formErrors[`${label}_height`] 
+                                                    ? "border-red-300 dark:border-red-600" 
+                                                    : "border-gray-300 dark:border-gray-600"
+                                            }`}
+                                            placeholder="Enter height"
+                                        />
+                                        {formErrors[`${label}_height`] && (
+                                            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                                                {formErrors[`${label}_height`]}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Width (cm) *
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={formData.pack_types[label].dimensions.width}
+                                            onChange={(e) => handleDimensionChange(label, "width", e.target.value)}
+                                            className={`w-full px-3 py-2 text-sm border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                                formErrors[`${label}_width`] 
+                                                    ? "border-red-300 dark:border-red-600" 
+                                                    : "border-gray-300 dark:border-gray-600"
+                                            }`}
+                                            placeholder="Enter width"
+                                        />
+                                        {formErrors[`${label}_width`] && (
+                                            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                                                {formErrors[`${label}_width`]}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Length (cm) *
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={formData.pack_types[label].dimensions.length}
+                                            onChange={(e) => handleDimensionChange(label, "length", e.target.value)}
+                                            className={`w-full px-3 py-2 text-sm border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                                formErrors[`${label}_length`] 
+                                                    ? "border-red-300 dark:border-red-600" 
+                                                    : "border-gray-300 dark:border-gray-600"
+                                            }`}
+                                            placeholder="Enter length"
+                                        />
+                                        {formErrors[`${label}_length`] && (
+                                            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                                                {formErrors[`${label}_length`]}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Weight (kg) *
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={formData.pack_types[label].dimensions.weight}
+                                            onChange={(e) => handleDimensionChange(label, "weight", e.target.value)}
+                                            className={`w-full px-3 py-2 text-sm border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                                formErrors[`${label}_weight`] 
+                                                    ? "border-red-300 dark:border-red-600" 
+                                                    : "border-gray-300 dark:border-gray-600"
+                                            }`}
+                                            placeholder="Enter weight"
+                                        />
+                                        {formErrors[`${label}_weight`] && (
+                                            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                                                {formErrors[`${label}_weight`]}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {formErrors.pack_types && (
+                <p className="mt-3 text-sm text-red-600 dark:text-red-400">
+                    {formErrors.pack_types}
+                </p>
+            )}
+
+            {/* Enabled Pack Types Summary */}
+            <div className="mt-4">
+                <div className="flex items-center justify-between">
+                    <h6 className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        Enabled Pack Types:
+                    </h6>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                        Click on a pack type to edit its dimensions
+                    </span>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                    {PACK_TYPES.map(({ label }) => (
+                        formData.pack_types[label].enabled && (
+                            <div key={label} className="flex items-center gap-2 px-2 py-1 bg-green-50 dark:bg-green-900/20 rounded text-xs">
+                                <CheckCircle size={12} className="text-green-600 dark:text-green-400" />
+                                <span className="text-green-800 dark:text-green-300">{label}</span>
+                            </div>
+                        )
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
 
     // Message display component
     const MessageDisplay = ({ message }) => {
@@ -639,7 +1022,7 @@ const ProductsData = () => {
                                 Price
                             </th>
                             <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">
-                                Discounted Price
+                                Dimensions
                             </th>
                             <th className="text-left py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">
                                 Actions
@@ -647,73 +1030,94 @@ const ProductsData = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                        {filteredProducts.map((product, index) => (
-                            <tr
-                                key={product._id}
-                                className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                            >
-                                <td className="py-3 px-4">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
-                                            {product.image_urls &&
-                                            product.image_urls.length > 0 ? (
-                                                <img
-                                                    src={product.image_urls[0]}
-                                                    alt={product.p_name}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <ImageIcon
-                                                    size={20}
-                                                    className="text-gray-400"
-                                                />
-                                            )}
+                        {filteredProducts.map((product, index) => {
+                            const packTypes = product.pack_types || {};
+                            const enabledPackTypes = Object.keys(packTypes);
+                            const firstPackType = enabledPackTypes[0];
+                            const firstDimensions = firstPackType ? packTypes[firstPackType].dimensions : null;
+                            
+                            return (
+                                <tr
+                                    key={product._id}
+                                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                >
+                                    <td className="py-3 px-4">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                                                {product.image_urls &&
+                                                product.image_urls.length > 0 ? (
+                                                    <img
+                                                        src={product.image_urls[0]}
+                                                        alt={product.p_name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <ImageIcon
+                                                        size={20}
+                                                        className="text-gray-400"
+                                                    />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-900 dark:text-white">
+                                                    {product.p_name}
+                                                </p>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                                                    {product.description
+                                                        ? product.description.split(" ").length > 4
+                                                            ? product.description.split(" ").slice(0, 4).join(" ") + "..."
+                                                            : product.description
+                                                        : "No description"}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-medium text-gray-900 dark:text-white">
-                                                {product.p_name}
-                                            </p>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
-                                                {product.description
-                                                    ? product.description.split(" ").length > 4
-                                                        ? product.description.split(" ").slice(0, 4).join(" ") + "..."
-                                                        : product.description
-                                                    : "No description"}
-                                            </p>
+                                    </td>
+                                    <td className="py-3 px-4">
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                                            {product.p_category ? product.p_category.product_category : 'Uncategorized'}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 px-4 text-sm font-semibold text-gray-900 dark:text-white">
+                                        {formatPrice(product.p_price)}
+                                    </td>
+                                    <td className="py-3 px-4 text-sm text-gray-700 dark:text-gray-300">
+                                        {firstDimensions ? (
+                                            <div>
+                                                <div className="flex items-center gap-1 mb-1">
+                                                    <Ruler size={14} className="text-gray-400" />
+                                                    <span>{formatDimensions(firstDimensions)}</span>
+                                                </div>
+                                                {enabledPackTypes.length > 1 && (
+                                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                        +{enabledPackTypes.length - 1} more pack type(s)
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            "No dimensions set"
+                                        )}
+                                    </td>
+                                    <td className="py-3 px-4">
+                                        <div className="flex items-center space-x-2">
+                                            <button
+                                                onClick={() => openViewModal(product)}
+                                                className="p-1.5 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 rounded transition-colors"
+                                                title="View Details"
+                                            >
+                                                <Eye size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => openDeleteModal(product)}
+                                                className="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-red-900 rounded transition-colors"
+                                                title="Delete Product"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
                                         </div>
-                                    </div>
-                                </td>
-                                <td className="py-3 px-4">
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                                        {product.p_category ? product.p_category.product_category : 'Uncategorized'}
-                                    </span>
-                                </td>
-                                <td className="py-3 px-4 text-sm font-semibold text-gray-900 dark:text-white">
-                                    {formatPrice(product.p_price)}
-                                </td>
-                                <td className="py-3 px-4 text-sm font-semibold text-gray-900 dark:text-white">
-                                    {formatPrice(product.discount_price)}
-                                </td>
-                                <td className="py-3 px-4">
-                                    <div className="flex items-center space-x-2">
-                                        <button
-                                            onClick={() => openViewModal(product)}
-                                            className="p-1.5 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 rounded transition-colors"
-                                            title="View Details"
-                                        >
-                                            <Eye size={16} />
-                                        </button>
-                                        <button
-                                            onClick={() => openDeleteModal(product)}
-                                            className="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-red-900 rounded transition-colors"
-                                            title="Delete Product"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
@@ -730,7 +1134,7 @@ const ProductsData = () => {
             {/* Add Product Modal */}
             {showAddModal && (
                 <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                 Add New Product
@@ -914,42 +1318,46 @@ const ProductsData = () => {
                                         </p>
                                     )}
                                 </div>
-                                {/* Checkboxes */}
-                                <div className="flex items-center gap-3 mt-6">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.trending}
-                                            onChange={(e) =>
-                                                setFormData((prev) => ({
-                                                    ...prev,
-                                                    trending: e.target.checked,
-                                                }))
-                                            }
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        />
-                                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                                            Trending
-                                        </span>
-                                    </label>
+                            </div>
 
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.bestseller}
-                                            onChange={(e) =>
-                                                setFormData((prev) => ({
-                                                    ...prev,
-                                                    bestseller: e.target.checked,
-                                                }))
-                                            }
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        />
-                                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                                            Bestseller
-                                        </span>
-                                    </label>
-                                </div>
+                            {/* Simplified Pack Types Section */}
+                            <SimplePackTypesSection editing={true} />
+
+                            {/* Checkboxes */}
+                            <div className="flex items-center gap-3 mt-6">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.trending}
+                                        onChange={(e) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                trending: e.target.checked,
+                                            }))
+                                        }
+                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                                        Trending
+                                    </span>
+                                </label>
+
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.bestseller}
+                                        onChange={(e) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                bestseller: e.target.checked,
+                                            }))
+                                        }
+                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                                        Bestseller
+                                    </span>
+                                </label>
                             </div>
 
                             <div>
@@ -1053,6 +1461,7 @@ const ProductsData = () => {
                                     !formData.p_category ||
                                     !formData.p_price ||
                                     formData.image_urls.length === 0 ||
+                                    Object.values(formData.pack_types).filter(pack => pack.enabled).length === 0 ||
                                     addModalMessage.type === "success" ||
                                     uploadProgress > 0
                                 }
@@ -1166,6 +1575,57 @@ const ProductsData = () => {
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    {/* Pack Types Display */}
+                                    {selectedProduct.pack_types && Object.keys(selectedProduct.pack_types).length > 0 && (
+                                        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+                                                <Ruler className="inline mr-2" size={16} />
+                                                Pack Types & Dimensions
+                                            </h5>
+                                            <div className="space-y-3">
+                                                {Object.entries(selectedProduct.pack_types).map(([packType, packData]) => (
+                                                    <div key={packType} className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                {packType}
+                                                            </span>
+                                                            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 rounded">
+                                                                Enabled
+                                                            </span>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                            <div>
+                                                                <span className="text-xs text-gray-500 dark:text-gray-400">Height</span>
+                                                                <p className="text-sm text-gray-900 dark:text-white">
+                                                                    {packData.dimensions.height} cm
+                                                                </p>
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-xs text-gray-500 dark:text-gray-400">Width</span>
+                                                                <p className="text-sm text-gray-900 dark:text-white">
+                                                                    {packData.dimensions.width} cm
+                                                                </p>
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-xs text-gray-500 dark:text-gray-400">Length</span>
+                                                                <p className="text-sm text-gray-900 dark:text-white">
+                                                                    {packData.dimensions.length} cm
+                                                                </p>
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-xs text-gray-500 dark:text-gray-400">Weight</span>
+                                                                <p className="text-sm text-gray-900 dark:text-white">
+                                                                    {packData.dimensions.weight} kg
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {selectedProduct.description && (
                                         <div>
                                             <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1372,6 +1832,10 @@ const ProductsData = () => {
                                             )}
                                         </div>
                                     </div>
+
+                                    {/* Simplified Pack Types Section */}
+                                    <SimplePackTypesSection editing={true} />
+
                                     {/* Checkboxes */}
                                     <div className="flex items-center gap-4 mt-4">
                                         <label className="flex items-center gap-2 cursor-pointer">
@@ -1503,6 +1967,7 @@ const ProductsData = () => {
                                                 !formData.p_category ||
                                                 !formData.p_price ||
                                                 formData.image_urls.length === 0 ||
+                                                Object.values(formData.pack_types).filter(pack => pack.enabled).length === 0 ||
                                                 viewModalMessage.type === "success" ||
                                                 uploadProgress > 0
                                             }
