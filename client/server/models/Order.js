@@ -10,8 +10,8 @@ const OrderItemSchema = new mongoose.Schema({
   product_category: { type: String, default: "Other" },
     pack_type: {
     type: String,
-    enum: ["PACK_OF_1", "PACK_OF_2", "PACK_OF_4"],
-    default: "PACK_OF_1"
+    enum: ["Pack of 1", "Pack of 2", "Pack of 4 (Family Discount)"],
+    default: "Pack of 1"
   }
 }, { _id: false });
 
