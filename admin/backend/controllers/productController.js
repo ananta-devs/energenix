@@ -29,7 +29,7 @@ const getProductById = asyncHandler(async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = asyncHandler(async (req, res) => {
-  const { p_name, p_subtitle, sku, p_category, p_price, discount_price, description, image_urls, trending, bestseller } = req.body;
+  const { p_name, p_subtitle, sku, p_category, p_price, discount_price, description, image_urls, trending, bestseller, "weight&dimensio": weightAndDimensio } = req.body;
 
   const product = new Product({
     p_name,
@@ -42,6 +42,7 @@ const createProduct = asyncHandler(async (req, res) => {
     image_urls,
     trending,
     bestseller,
+    "weight&dimensio": weightAndDimensio,
   });
 
   const createdProduct = await product.save();
@@ -64,7 +65,7 @@ const createProduct = asyncHandler(async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = asyncHandler(async (req, res) => {
-  const { p_name, p_subtitle, sku, p_category, p_price, discount_price, description, image_urls, trending, bestseller } = req.body;
+  const { p_name, p_subtitle, sku, p_category, p_price, discount_price, description, image_urls, trending, bestseller, "weight&dimensio": weightAndDimensio } = req.body;
 
   const updateData = {};
   if (p_name !== undefined) updateData.p_name = p_name;
@@ -77,6 +78,7 @@ const updateProduct = asyncHandler(async (req, res) => {
   if (image_urls !== undefined) updateData.image_urls = image_urls;
   if (trending !== undefined) updateData.trending = trending;
   if (bestseller !== undefined) updateData.bestseller = bestseller;
+  if (weightAndDimensio !== undefined) updateData["weight&dimensio"] = weightAndDimensio;
 
   const updatedProduct = await Product.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true, runValidators: true });
 

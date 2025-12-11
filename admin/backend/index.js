@@ -14,23 +14,11 @@ const couponRoutes = require('./routes/couponRoutes');
 const connectDB = require('./config/db');
 const Collection = require('./models/Collection');
 
-connectDB().then(async () => {
-  try {
-    await Collection.collection.dropIndex('hsn_number_1');
-    console.log('Successfully dropped the unique index on hsn_number.');
-  } catch (error) {
-    if (error.code === 27) { // Index not found
-      console.log('Index hsn_number_1 not found, it might have been already removed.');
-    }
-    else {
-      console.error('Error dropping index:', error);
-    }
-  }
-});
+
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
+const PORT = process.env.PORT;
+connectDB();
 app.use(cors());
 app.use(express.json());
 app.use(fileUpload({ useTempFiles: true })); // Enable file uploads

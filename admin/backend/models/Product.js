@@ -11,9 +11,6 @@ const ProductSchema = mongoose.Schema(
     },
     sku: {
       type: String,
-      required: true,
-      unique: true,
-      sparse: true,
     },
     p_category: {
       type: mongoose.Schema.Types.ObjectId,
@@ -43,6 +40,9 @@ const ProductSchema = mongoose.Schema(
     bestseller: {
       type: Boolean,
       default: false,
+    },
+    "weight&dimensio": {
+      type: mongoose.Schema.Types.Mixed, // Stores product weight and dimensions for various pack sizes
     },
   },
   {
