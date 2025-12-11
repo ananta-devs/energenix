@@ -30,10 +30,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
+
   addresses: [addressSchema],
   createdAt: {
     type: Date,

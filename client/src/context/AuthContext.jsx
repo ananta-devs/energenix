@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { decodeToken, saveToken, getToken, clearToken } from "./authService";
-import api, { setupInterceptors } from "../utils/api"; // Import api and setupInterceptors
+import api, { setupInterceptors } from "../utils/api"; //
+import toast from 'react-hot-toast';
 
 const AuthContext = createContext(null);
 
@@ -8,7 +9,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState(null);
 
   // Function to set default Authorization header for Axios
   const setAuthHeader = (token) => {
@@ -52,9 +52,6 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (err) {
       console.error("Login error:", err);
-      // Axios errors have a response object with data and status
-      const message = err.response?.data?.message || err.message || "Something went wrong";
-      showToast(message, "error");
       return false;
     }
   };
@@ -75,10 +72,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   const showToast = (message, type = "info") => {
-    setToast({ message, type });
+    switch (type) {
+      case "success":
+        toast.success(message);
+        break;
+      case "error":
+        toast.error(message);
+        break;
+      case "info":
+      default:
+        toast(message);
+        break;
+    }
   };
-
-  const closeToast = () => setToast(null);
 
   return (
     <AuthContext.Provider
@@ -89,8 +95,6 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         showToast,
-        toast,
-        closeToast,
         setAuthToken,
       }}
     >

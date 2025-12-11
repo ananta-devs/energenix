@@ -10,6 +10,12 @@ const OTPSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  fullName: {
+    type: String,
+  },
+  phone: {
+    type: Number,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

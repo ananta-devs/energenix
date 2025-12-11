@@ -70,17 +70,22 @@ export default function ProductCard({
                 )}
             </div>
 
-            {/* Image */}
+            {/* Image Container with Fixed Aspect Ratio */}
             <Link
                 to={`/product/${productSlug}`}
-                className="relative overflow-hidden cursor-pointer block flex-shrink-0"
+                className="relative overflow-hidden cursor-pointer block w-full"
             >
-                <img
-                    src={imageUrl}
-                    alt={p_name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                />
+                <div className="relative pt-[100%]"> {/* 1:1 Aspect Ratio */}
+                    <img
+                        src={imageUrl}
+                        alt={p_name}
+                        className="absolute inset-0 w-full h-full object-contain bg-gray-50 group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
+                        onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/300x300?text=No+Image";
+                        }}
+                    />
+                </div>
             </Link>
 
             {/* Content */}

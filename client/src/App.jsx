@@ -12,18 +12,16 @@ import CartDrawer from './components/cart/CartDrawer.jsx';
 import MainLayout from './components/layout/MainLayout.jsx';
 import Dashboard from './pages/dashboard/Dashboard.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import { Toast } from './components/ui/Toast.jsx';
-import { useAuth } from './context/AuthContext.jsx';
+import { Toaster } from 'react-hot-toast';
 import PrivacyPolicy from './pages/Privacy.jsx';
 import TermsOfService from './pages/Terms.jsx';
 import CookiePolicy from './pages/Cookie.jsx';
 
 function App() {
-  const { toast, closeToast } = useAuth();
-
   return (
     <>
       <CartDrawer />
+      <Toaster />
 
       <Routes>
         <Route element={<MainLayout />}>
@@ -57,13 +55,6 @@ function App() {
         <Route path="/cookie" element={<CookiePolicy />} />
       </Routes>
 
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={closeToast}
-        />
-      )}
     </>
   );
 }
