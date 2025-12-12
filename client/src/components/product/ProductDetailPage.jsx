@@ -10,14 +10,7 @@ import { slugify } from "../../utils/slugify.js";
 import {
     FacebookIcon,
     WhatsAppIcon,
-    TelegramIcon,
-    GmailIcon,
-    SMSIcon,
-    LinkedInIcon,
-    ArattaiIcon,
     TwitterIcon,
-    InstagramIcon,
-    PinterestIcon,
     DeviceMultipleIcon,
 } from "../../utils/svg.jsx";
 
@@ -474,31 +467,28 @@ export default function ProductDetailPage() {
                                 {/* Copy Link */}
                                 <button
                                     onClick={async (e) => {
+                                        const btn = e.currentTarget;
+                                        const span = btn.querySelector("span");
+                                        const originalText = span.textContent;
+
                                         try {
                                             await navigator.clipboard.writeText(
                                                 window.location.href
                                             );
-                                            // Show toast notification
-                                            const button = e.currentTarget;
-                                            const originalText =
-                                                button.querySelector(
-                                                    "span"
-                                                ).textContent;
-                                            button.querySelector(
-                                                "span"
-                                            ).textContent = "Copied!";
-                                            button.classList.add("bg-green-50");
+
+                                            // Success UI
+                                            span.textContent = "Copied!";
+                                            btn.classList.add("bg-green-50");
 
                                             setTimeout(() => {
-                                                button.querySelector(
-                                                    "span"
-                                                ).textContent = originalText;
-                                                button.classList.remove(
+                                                span.textContent = originalText;
+                                                btn.classList.remove(
                                                     "bg-green-50"
                                                 );
-                                            }, 2000);
+                                            }, 1500);
                                         } catch (err) {
-                                            alert("Failed to copy link");
+                                            console.error(err);
+                                            // REMOVE alert - it's annoying and useless
                                         }
                                     }}
                                     className="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors active:scale-95"
@@ -528,96 +518,6 @@ export default function ProductDetailPage() {
                                     </div>
                                     <span className="text-xs font-medium text-gray-800 text-center">
                                         WhatsApp
-                                    </span>
-                                </button>
-
-                                {/* Facebook */}
-                                <button
-                                    onClick={() =>
-                                        window.open(
-                                            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                                                window.location.href
-                                            )}&quote=${encodeURIComponent(
-                                                product.p_name
-                                            )}`,
-                                            "_blank"
-                                        )
-                                    }
-                                    className="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
-                                >
-                                    <div className="w-15 h-12 bg-transparent rounded-full flex items-center justify-center mb-2">
-                                        <FacebookIcon />
-                                    </div>
-                                    <span className="text-xs font-medium text-gray-800 text-center">
-                                        Facebook
-                                    </span>
-                                </button>
-
-                                {/* Gmail */}
-                                <button
-                                    onClick={() => {
-                                        const subject = `Check out ${product.p_name}`;
-                                        const body = `I found this product that you might like:\n\n${product.p_name}\n${product.p_subtitle}\n\nCheck it out here: ${window.location.href}`;
-                                        window.open(
-                                            `mailto:?subject=${encodeURIComponent(
-                                                subject
-                                            )}&body=${encodeURIComponent(
-                                                body
-                                            )}`,
-                                            "_blank"
-                                        );
-                                    }}
-                                    className="flex flex-col items-center p-3 rounded-lg hover:bg-red-50 transition-colors active:scale-95"
-                                >
-                                    <div className="w-11 h-12 bg-transparent rounded-full flex items-center justify-center mb-2">
-                                        <GmailIcon className="w-6 h-6" />
-                                    </div>
-                                    <span className="text-xs font-medium text-gray-800 text-center">
-                                        Gmail
-                                    </span>
-                                </button>
-
-                                {/* SMS */}
-                                <button
-                                    onClick={() => {
-                                        const text = `Check out ${product.p_name} at ${window.location.href}`;
-                                        window.open(
-                                            `sms:?body=${encodeURIComponent(
-                                                text
-                                            )}`,
-                                            "_blank"
-                                        );
-                                    }}
-                                    className="flex flex-col items-center p-3 rounded-lg hover:bg-green-50 transition-colors active:scale-95"
-                                >
-                                    <div className="w-12 h-12 bg-transparent rounded-full flex items-center justify-center mb-2">
-                                        <SMSIcon className="w-5 h-5 text-white" />
-                                    </div>
-                                    <span className="text-xs font-medium text-gray-800 text-center">
-                                        SMS
-                                    </span>
-                                </button>
-
-                                {/* Telegram */}
-                                <button
-                                    onClick={() => {
-                                        const text = `Check out ${product.p_name} at ${window.location.href}`;
-                                        window.open(
-                                            `https://t.me/share/url?url=${encodeURIComponent(
-                                                window.location.href
-                                            )}&text=${encodeURIComponent(
-                                                text
-                                            )}`,
-                                            "_blank"
-                                        );
-                                    }}
-                                    className="flex flex-col items-center p-3 rounded-lg hover:bg-blue-50 transition-colors active:scale-95"
-                                >
-                                    <div className="w-14 h-12 bg-transparent rounded-full flex items-center justify-center mb-2">
-                                        <TelegramIcon className="w-6 h-6" />
-                                    </div>
-                                    <span className="text-xs font-medium text-gray-800 text-center">
-                                        Telegram
                                     </span>
                                 </button>
 
