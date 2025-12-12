@@ -107,10 +107,10 @@ module.exports = {
           body.payment_type.toUpperCase() === "COD"
             ? String(body.cod_amount)
             : "",
-        weight: Math.round(Number(body.weight_kg) * 1000),
-        length: Number(body.length_cm || 10),
-        width: Number(body.width_cm || 10),
-        height: Number(body.height_cm || 10),
+        weight: Number(body.weight),
+        length: Number(body.length_cm || 0),
+        width: Number(body.width_cm || 0),
+        height: Number(body.height_cm || 0),
         warehouse_id: warehouse.id,
         gst_ewaybill_number: body.gst_ewaybill_number || "",
         gstin_number: body.gstin_number || "",

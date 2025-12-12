@@ -630,6 +630,43 @@ export default function CheckoutSmall() {
     const handlePlaceOrder = async (paymentId = null) => {
         setIsProcessing(true);
         try {
+            let totalWeightGrams = 0;
+            let maxTotalLengthCm = 0;
+            let maxTotalWidthCm = 0;
+            let maxTotalHeightCm = 0;
+
+            items.forEach((item) => {
+                let actualPackKey = item.selectedPack || "Pack of 1";
+                if (actualPackKey === "Pack of 4 (Family Discount)") {
+                    actualPackKey = "Pack of 4";
+                }
+                const packDimensions =
+                    item["weight&dimensio"] && item["weight&dimensio"][actualPackKey];
+
+                if (packDimensions) {
+                    totalWeightGrams += packDimensions.weight * item.quantity; // Weight is in grams
+                    maxTotalLengthCm = Math.max(
+                        maxTotalLengthCm,
+                        packDimensions.length || 0
+                    );
+                    maxTotalWidthCm = Math.max(
+                        maxTotalWidthCm,
+                        packDimensions.width || 0
+                    );
+                    maxTotalHeightCm = Math.max(
+                        maxTotalHeightCm,
+                        packDimensions.height || 0
+                    );
+                } else {
+                    console.warn(
+                        "Could not find pack dimensions for item:",
+                        item._id,
+                        "with packKey:",
+                        actualPackKey
+                    );
+                }
+            });
+
             const orderPayload = {
                 order_id: `ENX-${Date.now()}`, // Add order_id generation
                 customer: {
@@ -650,10 +687,10 @@ export default function CheckoutSmall() {
                 })),
                 payment_type: paymentMethod === 'cod' ? 'COD' : 'PREPAID',
                 cod_amount: paymentMethod === 'cod' ? String(finalTotalAmount) : "0", // Ensure cod_amount is a string
-                weight_kg: 0.5, // Match CheckoutLarge.jsx
-                length_cm: 20, // Match CheckoutLarge.jsx
-                width_cm: 15, // Match CheckoutLarge.jsx
-                height_cm: 10, // Match CheckoutLarge.jsx
+                weight: totalWeightGrams,
+                length_cm: maxTotalLengthCm,
+                width_cm: maxTotalWidthCm,
+                height_cm: maxTotalHeightCm,
             };
 
 
@@ -829,7 +866,7 @@ export default function CheckoutSmall() {
                                 <div className="space-y-4">
                                     {items.map((item) => (
                                         <div
-                                            key={item._id}
+                                            key={item.cartItemId}
                                             className="flex gap-4 border-b border-gray-100 pb-4"
                                         >
                                             {item.image ? (

@@ -747,7 +747,7 @@ function OrderReview({
                     <div className="space-y-3">
                         {items.map((item) => (
                             <div
-                                key={item._id}
+                                key={item.cartItemId}
                                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                             >
                                 <div className="flex items-center gap-3">
@@ -1141,6 +1141,43 @@ export default function CheckoutLarge() {
         setIsProcessing(true);
 
         try {
+            let totalWeightGrams = 0;
+            let maxTotalLengthCm = 0;
+            let maxTotalWidthCm = 0;
+            let maxTotalHeightCm = 0;
+
+            items.forEach((item) => {
+                let actualPackKey = item.selectedPack || "Pack of 1";
+                if (actualPackKey === "Pack of 4 (Family Discount)") {
+                    actualPackKey = "Pack of 4";
+                }
+                const packDimensions =
+                    item["weight&dimensio"] && item["weight&dimensio"][actualPackKey];
+
+                if (packDimensions) {
+                    totalWeightGrams += packDimensions.weight * item.quantity; // Weight is in grams
+                    maxTotalLengthCm = Math.max(
+                        maxTotalLengthCm,
+                        packDimensions.length || 0
+                    );
+                    maxTotalWidthCm = Math.max(
+                        maxTotalWidthCm,
+                        packDimensions.width || 0
+                    );
+                    maxTotalHeightCm = Math.max(
+                        maxTotalHeightCm,
+                        packDimensions.height || 0
+                    );
+                } else {
+                    console.warn(
+                        "Could not find pack dimensions for item:",
+                        item._id,
+                        "with packKey:",
+                        packKey
+                    );
+                }
+            });
+
             const orderPayload = {
                 order_id: `ENX-${Date.now()}`,
                 customer: {
@@ -1161,10 +1198,10 @@ export default function CheckoutLarge() {
                 })),
                 payment_type: paymentMethod === "cod" ? "COD" : "PREPAID",
                 cod_amount: paymentMethod === "cod" ? String(finalTotal) : "0",
-                weight_kg: 0.5,
-                length_cm: 20,
-                width_cm: 15,
-                height_cm: 10,
+                weight: totalWeightGrams,
+                length_cm: maxTotalLengthCm,
+                width_cm: maxTotalWidthCm,
+                height_cm: maxTotalHeightCm,
             };
 
             await api.post("/orders/create", orderPayload);
