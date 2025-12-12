@@ -2,6 +2,7 @@ const orderService = require("../services/order.service");
 const { getAxios, getWarehouse } = require("../services/shipmozo.service");
 const Product = require("../models/Product");
 const Category = require("../models/Category"); // Import Category model
+const Coupon = require("../models/Coupon"); // Import Coupon model
 
 function getUnitPriceForPack(product, pack_type) {
   const basePrice = product.discount_price || product.p_price;
@@ -34,11 +35,13 @@ module.exports = {
    * 2. build Shipmozo payload
    * 3. call /push-order
    * 4. save to DB
+   * 5. Update coupon usage (if applicable)
    */
   async createOrder(req, res) {
     console.log("--- CREATE ORDER START ---");
     try {
       const body = req.body;
+      const { coupon: appliedCouponFromFrontend } = body; // Get coupon details from frontend
       // Map client's alternativePhone to alternate_phone for consistency
       if (body.customer.alternativePhone) {
         body.customer.alternate_phone = body.customer.alternativePhone;
@@ -159,8 +162,43 @@ module.exports = {
         height_cm: payload.height,
         warehouse_id: warehouse.id,
         shipmozo_create_response: resBody,
+        coupon_code: appliedCouponFromFrontend?.code, // Store applied coupon code
       });
       console.log("8. Order saved to database:", createdOrder._id);
+
+      // 9. Update coupon usage if a coupon was applied
+      if (appliedCouponFromFrontend?._id) {
+        try {
+          const coupon = await Coupon.findById(appliedCouponFromFrontend._id);
+          if (coupon) {
+            // Increment usage_count if there's a limit
+            if (coupon.usage_limit !== null && coupon.usage_count < coupon.usage_limit) {
+              coupon.usage_count += 1;
+            } else if (coupon.usage_limit !== null && coupon.usage_count >= coupon.usage_limit) {
+              console.warn(`Coupon ${coupon.code} exceeded its global usage limit but was still applied. This should have been caught earlier.`);
+            }
+
+            // Update per_user_limit if applicable
+            if (coupon.per_user_limit !== null) {
+              const customerPhoneNumber = String(body.customer.phone);
+              const userUsageCount = coupon.used_phone_numbers.filter(
+                (phone) => phone === customerPhoneNumber
+              ).length;
+
+              if (userUsageCount < coupon.per_user_limit) {
+                coupon.used_phone_numbers.push(customerPhoneNumber);
+              } else {
+                console.warn(`Coupon ${coupon.code} exceeded per-user limit for phone ${customerPhoneNumber} but was still applied. This should have been caught earlier.`);
+              }
+            }
+            await coupon.save();
+            console.log(`9. Coupon ${coupon.code} usage updated.`);
+          }
+        } catch (couponUpdateErr) {
+          console.error("Error updating coupon usage:", couponUpdateErr);
+          // Log the error but do not prevent order creation from succeeding
+        }
+      }
 
       console.log("--- CREATE ORDER END ---");
       return res.json({

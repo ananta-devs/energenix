@@ -11,6 +11,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const shipmozoRoutes = require('./routes/shipmozo.routes');
 const orderRoutes = require('./routes/order.routes.js');
 const addressRoutes = require('./routes/address.js');
+const couponRoutes = require('./routes/coupon.routes.js'); // Import coupon routes
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/shipmozo', shipmozoRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/address', addressRoutes);
+app.use('/api/coupons', couponRoutes); // Mount coupon routes
 
 const PORT = process.env.PORT || 4000;
 

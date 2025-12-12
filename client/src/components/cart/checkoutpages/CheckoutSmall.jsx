@@ -20,6 +20,10 @@ import {
     Users,
     Ticket,
     Gift,
+    ChevronUp, // Import ChevronUp
+    ChevronDown, // Import ChevronDown
+    Trash2, // Import Trash2
+    Banknote,
 } from "lucide-react";
 
 // ============================ CouponModal Component ============================
@@ -61,18 +65,18 @@ function CouponModal({
 
     const handleApplySelected = () => {
         if (selectedCoupon) {
-            setCouponCode(selectedCoupon.code);
+            setCouponCode(selectedCoupon.code); // Update state for display in main component
             onClose();
-            // Give a small delay before calling applyCoupon to ensure state is updated
-            setTimeout(applyCoupon, 100);
+            applyCoupon(selectedCoupon.code); // Call parent's applyCoupon directly with the code
         }
     };
 
     const handleManualApply = () => {
         if (manualCouponInput.trim()) {
-            setCouponCode(manualCouponInput.toUpperCase());
+            const codeToApply = manualCouponInput.toUpperCase();
+            setCouponCode(codeToApply); // Update state for display in main component
             onClose();
-            setTimeout(applyCoupon, 100);
+            applyCoupon(codeToApply); // Call parent's applyCoupon directly with the code
         }
     };
 
@@ -83,13 +87,6 @@ function CouponModal({
             month: "short",
             year: "numeric",
         });
-    };
-
-    const calculateDiscount = (coupon) => {
-        if (coupon.discount_type === "percentage") {
-            return (cartTotal * coupon.discount_value) / 100;
-        }
-        return coupon.discount_value;
     };
 
     const isCouponValidForCart = (coupon) => {
@@ -206,7 +203,6 @@ function CouponModal({
                                 const isSelected =
                                     selectedCoupon?._id === coupon._id;
                                 const isValid = isCouponValidForCart(coupon);
-                                const discountValue = calculateDiscount(coupon);
 
                                 return (
                                     <div
@@ -478,11 +474,22 @@ export default function CheckoutSmall() {
 
     const [step, setStep] = useState(1);
     const [couponCode, setCouponCode] = useState("");
-    const [couponApplied, setCouponApplied] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState("cod");
+    const [discount, setDiscount] = useState(0); // New state for discount amount
+    const [appliedCoupon, setAppliedCoupon] = useState(null); // New state for applied coupon object
+    const [paymentMethod, setPaymentMethod] = useState("online");
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [showCouponModal, setShowCouponModal] = useState(false);
+    const [isOrderItemsCollapsed, setIsOrderItemsCollapsed] = useState(true); // New state for collapsing order items
+
+    useEffect(() => {
+        // Set initial collapse state based on the number of items
+        if (items.length > 2) {
+            setIsOrderItemsCollapsed(true);
+        } else {
+            setIsOrderItemsCollapsed(false);
+        }
+    }, [items.length]); // Re-run when the number of items changes
 
     const [addressForm, setAddressForm] = useState({
         fullName: user?.name || "",
@@ -498,12 +505,12 @@ export default function CheckoutSmall() {
     const [errors, setErrors] = useState({});
     const [pinLoading, setPinLoading] = useState(false);
 
-    const shippingCost = total > 500 ? 0 : 40; // Shipping is 40, free over 500
+    const shippingCost = paymentMethod === "cod" ? 100 : 0;
     const totalAmount = Math.round(total);
     const shippingCostAmount = Math.round(shippingCost); // Already round, but for consistency
-    const discountAmount = couponApplied ? Math.round(total * 0.1) : 0;
+    const totalWithoutShipping = totalAmount - discount;
     const finalTotalAmount = Math.round(
-        totalAmount + shippingCostAmount - discountAmount
+        totalAmount + shippingCostAmount - discount
     );
 
     const fetchCityState = async (pin) => {
@@ -545,13 +552,47 @@ export default function CheckoutSmall() {
         setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
-    const applyCoupon = () => {
-        if (couponCode.toUpperCase() === "SAVE10") {
-            setCouponApplied(true);
-            setErrors((prev) => ({ ...prev, coupon: "" }));
-        } else {
-            setErrors((prev) => ({ ...prev, coupon: "Invalid coupon code" }));
+    const applyCoupon = async (code = couponCode) => {
+        // Accept code argument, default to state
+        if (!code) {
+            // Check the passed code or current state code
+            setErrors((prev) => ({
+                ...prev,
+                coupon: "Please enter a coupon code.",
+            }));
+            return;
         }
+        try {
+            const { data } = await api.post("/coupons/apply", {
+                couponCode: code, // Use the passed code
+                cartTotal: totalAmount, // Use totalAmount for cartTotal
+            });
+
+            setCouponCode(data.coupon.code); // Update couponCode state with the successfully applied code
+            setAppliedCoupon(data.coupon);
+            if (data.coupon.discount_type === "fixed") {
+                setDiscount(data.coupon.discount_value);
+            } else if (data.coupon.discount_type === "percentage") {
+                const discountValue =
+                    (totalAmount * data.coupon.discount_value) / 100;
+                setDiscount(Math.round(discountValue)); // Round the discount value
+            }
+            setErrors((prev) => ({ ...prev, coupon: "" }));
+        } catch (error) {
+            setAppliedCoupon(null);
+            setDiscount(0);
+            setErrors((prev) => ({
+                ...prev,
+                coupon: error.response?.data?.message || "Invalid coupon",
+            }));
+        }
+    };
+
+    const removeCoupon = () => {
+        setCouponCode("");
+        setAppliedCoupon(null);
+        setDiscount(0);
+        setErrors((prev) => ({ ...prev, coupon: "" }));
     };
 
     const handleCouponClick = () => {
@@ -641,7 +682,8 @@ export default function CheckoutSmall() {
                     actualPackKey = "Pack of 4";
                 }
                 const packDimensions =
-                    item["weight&dimensio"] && item["weight&dimensio"][actualPackKey];
+                    item["weight&dimensio"] &&
+                    item["weight&dimensio"][actualPackKey];
 
                 if (packDimensions) {
                     totalWeightGrams += packDimensions.weight * item.quantity; // Weight is in grams
@@ -680,19 +722,22 @@ export default function CheckoutSmall() {
                     city: addressForm.city,
                     state: addressForm.state,
                 },
-                items: items.map(item => ({
+                items: items.map((item) => ({
                     sku_number: item._id, // Use item._id
                     quantity: item.quantity,
                     pack_type: item.selectedPack || "Pack of 1",
                 })),
-                payment_type: paymentMethod === 'cod' ? 'COD' : 'PREPAID',
-                cod_amount: paymentMethod === 'cod' ? String(finalTotalAmount) : "0", // Ensure cod_amount is a string
+                payment_type: paymentMethod === "cod" ? "COD" : "PREPAID",
+                cod_amount:
+                    paymentMethod === "cod" ? String(finalTotalAmount) : "0", // Ensure cod_amount is a string
                 weight: totalWeightGrams,
                 length_cm: maxTotalLengthCm,
                 width_cm: maxTotalWidthCm,
                 height_cm: maxTotalHeightCm,
+                coupon: appliedCoupon
+                    ? { _id: appliedCoupon._id, code: appliedCoupon.code }
+                    : undefined, // Add applied coupon details
             };
-
 
             const { data } = await api.post("/orders/create", orderPayload);
 
@@ -860,11 +905,32 @@ export default function CheckoutSmall() {
                             </div>
 
                             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-                                <h3 className="font-semibold text-gray-800 mb-4">
-                                    Order Items
-                                </h3>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                                        Order Items
+                                    </h3>
+                                    {items.length > 2 && ( // Only show button if > 2 items
+                                        <button
+                                            onClick={() =>
+                                                setIsOrderItemsCollapsed(
+                                                    !isOrderItemsCollapsed
+                                                )
+                                            }
+                                            className="text-gray-500 hover:text-gray-700 transition"
+                                        >
+                                            {isOrderItemsCollapsed ? (
+                                                <ChevronDown className="w-5 h-5" />
+                                            ) : (
+                                                <ChevronUp className="w-5 h-5" />
+                                            )}
+                                        </button>
+                                    )}
+                                </div>
                                 <div className="space-y-4">
-                                    {items.map((item) => (
+                                    {(isOrderItemsCollapsed && items.length > 2
+                                        ? items.slice(0, 2)
+                                        : items
+                                    ).map((item) => (
                                         <div
                                             key={item.cartItemId}
                                             className="flex gap-4 border-b border-gray-100 pb-4"
@@ -896,6 +962,20 @@ export default function CheckoutSmall() {
                                             </div>
                                         </div>
                                     ))}
+                                    {isOrderItemsCollapsed &&
+                                        items.length > 2 && (
+                                            <button
+                                                onClick={() =>
+                                                    setIsOrderItemsCollapsed(
+                                                        false
+                                                    )
+                                                }
+                                                className="w-full text-center text-blue-600 hover:text-blue-800 mt-2 py-2"
+                                            >
+                                                Show {items.length - 2} more
+                                                items
+                                            </button>
+                                        )}
                                 </div>
                             </div>
 
@@ -908,23 +988,25 @@ export default function CheckoutSmall() {
                                         label="Subtotal"
                                         value={`₹${totalAmount.toLocaleString()}`}
                                     />
-                                    <PriceRow
-                                        label="Shipping"
-                                        value={
-                                            shippingCost > 0
-                                                ? `₹${shippingCost}`
-                                                : "FREE"
-                                        }
-                                        isGreen={shippingCost === 0}
-                                    />
-                                    {couponApplied && (
+                                    {appliedCoupon && (
                                         <PriceRow
-                                            label="Discount"
-                                            value={`-₹${discountAmount.toLocaleString()}`}
+                                            label={
+                                                <span className="flex items-center gap-1">
+                                                    Discount
+                                                    <button
+                                                        onClick={removeCoupon}
+                                                        className="text-red-600 hover:text-red-700 p-1 -my-1 rounded-md transition-colors -mt-0.5"
+                                                        aria-label="Remove coupon"
+                                                    >
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </button>
+                                                </span>
+                                            }
+                                            value={`-₹${discount.toLocaleString()}`}
                                             isGreen
                                         />
                                     )}
-                                    {!couponApplied && (
+                                    {!appliedCoupon && (
                                         <div className="pt-2">
                                             <div className="relative">
                                                 <input
@@ -953,7 +1035,10 @@ export default function CheckoutSmall() {
                                             </div>
                                             {errors.coupon && (
                                                 <p className="flex text-red-500 text-xs mt-1 gap-2">
-                                                    <AlertTriangle size={12} className="mt-0.5" />
+                                                    <AlertTriangle
+                                                        size={12}
+                                                        className="mt-0.5"
+                                                    />
                                                     {errors.coupon}
                                                 </p>
                                             )}
@@ -966,7 +1051,7 @@ export default function CheckoutSmall() {
                                     <hr className="my-2" />
                                     <PriceRow
                                         label="Total Amount"
-                                        value={`₹${finalTotalAmount.toLocaleString()}`}
+                                        value={`₹${totalWithoutShipping.toLocaleString()}`}
                                         isBold
                                     />
                                 </div>
@@ -994,7 +1079,7 @@ export default function CheckoutSmall() {
                                     id="cod"
                                     label="Cash on Delivery"
                                     desc="Pay at your doorstep"
-                                    icon={<Package />}
+                                    icon={<Banknote />}
                                     paymentMethod={paymentMethod}
                                     setPaymentMethod={setPaymentMethod}
                                 />
@@ -1005,29 +1090,29 @@ export default function CheckoutSmall() {
                                 Order Summary
                             </h3>
                             <div className="space-y-3 text-sm">
-                                {couponApplied && (
-                                    <div className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-lg border border-green-100">
-                                        <Gift className="w-4 h-4" />
-                                        <div className="flex-1">
-                                            <div className="font-semibold text-xs">
-                                                Coupon "{couponCode}" applied!
-                                            </div>
-                                            <p className="text-xs text-green-600">
-                                                You saved ₹
-                                                {discountAmount.toLocaleString()}
-                                            </p>
-                                        </div>
-                                        <button
-                                            onClick={() => {
-                                                setCouponCode("");
-                                                setCouponApplied(false);
-                                            }}
-                                            className="text-xs text-red-600 hover:text-red-700"
-                                        >
-                                            Remove
-                                        </button>
-                                    </div>
-                                )}
+                                <PriceRow
+                                    label="Subtotal"
+                                    value={`₹${totalAmount.toLocaleString()}`}
+                                />
+                                <PriceRow
+                                    label={
+                                        <span className="flex items-center gap-1">
+                                            Coupon
+                                        </span>
+                                    }
+                                    value={`-₹${discount.toLocaleString()}`}
+                                    isGreen
+                                />
+
+                                <PriceRow
+                                    label="Delivery Fee"
+                                    value={
+                                        shippingCost > 0
+                                            ? `+₹${shippingCost}`
+                                            : "FREE"
+                                    }
+                                    isGreen={shippingCost === 0}
+                                />
                                 <PriceRow
                                     label="Total Amount"
                                     value={`₹${finalTotalAmount.toLocaleString()}`}
@@ -1091,7 +1176,7 @@ export default function CheckoutSmall() {
                                                 : "bg-gray-200"
                                         }`}
                                     ></div>
-                                )}  
+                                )}
                             </React.Fragment>
                         ))}
                     </div>

@@ -30,9 +30,14 @@ export function CartProvider({ children }) {
 
   const addItem = useCallback((product, quantity = 1, selectedPack = "Pack of 1", options = {}) => {
     const { shouldOpenDrawer = true, isBuyNow = false } = options;
+
+    const hydratedProduct = { ...product };
+    if (!hydratedProduct.image && hydratedProduct.image_urls && hydratedProduct.image_urls.length > 0) {
+        hydratedProduct.image = hydratedProduct.image_urls[0];
+    }
     
     setItems(prev => {
-      const cartItemId = generateCartItemId(product, selectedPack);
+      const cartItemId = generateCartItemId(hydratedProduct, selectedPack);
       const existing = prev.find(item => item.cartItemId === cartItemId);
       
       if (existing) {
@@ -43,7 +48,7 @@ export function CartProvider({ children }) {
         );
       }
       return [...prev, { 
-        ...product, 
+        ...hydratedProduct, 
         quantity, 
         selectedPack, // Use the passed in selectedPack
         cartItemId,

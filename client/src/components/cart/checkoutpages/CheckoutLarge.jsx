@@ -5,7 +5,6 @@ import { useAuth } from "../../../hooks/useAuth.js";
 import api from "../../../utils/api";
 import ap from "../../../assets/logo.svg";
 import {
-    Shield,
     MapPin,
     CreditCard,
     Package,
@@ -14,13 +13,8 @@ import {
     Loader2,
     Tag,
     Gift,
-    Clock,
-    Banknote,
     ShoppingBag,
-    Percent,
     Calendar,
-    DollarSign,
-    Users,
     Ticket,
     X,
 } from "lucide-react";
@@ -63,15 +57,16 @@ function CouponModal({
     const handleApplySelected = () => {
         if (selectedCoupon) {
             setCouponCode(selectedCoupon.code);
-            applyCoupon();
+            applyCoupon(selectedCoupon.code);
             onClose();
         }
     };
 
     const handleManualApply = () => {
         if (manualCouponInput.trim()) {
-            setCouponCode(manualCouponInput.toUpperCase());
-            applyCoupon();
+            const codeToApply = manualCouponInput.toUpperCase();
+            setCouponCode(codeToApply);
+            applyCoupon(codeToApply);
             onClose();
         }
     };
@@ -669,6 +664,23 @@ function PaymentMethod({
                     <input
                         type="radio"
                         name="payment"
+                        value="online"
+                        checked={paymentMethod === "online"}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="w-5 h-5 accent-blue-700"
+                    />
+                    <div className="ml-3">
+                        <div className="font-medium">Online Payment</div>
+                        <div className="text-sm text-gray-600">
+                            Credit/Debit Cards, UPI, Net Banking
+                        </div>
+                    </div>
+                </label>
+
+                <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                        type="radio"
+                        name="payment"
                         value="cod"
                         checked={paymentMethod === "cod"}
                         onChange={(e) => setPaymentMethod(e.target.value)}
@@ -682,23 +694,6 @@ function PaymentMethod({
                     </div>
                     <div className="ml-auto text-sm text-gray-500">
                         + ₹100 charges
-                    </div>
-                </label>
-
-                <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
-                    <input
-                        type="radio"
-                        name="payment"
-                        value="online"
-                        checked={paymentMethod === "online"}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        className="w-5 h-5 accent-blue-700"
-                    />
-                    <div className="ml-3">
-                        <div className="font-medium">Online Payment</div>
-                        <div className="text-sm text-gray-600">
-                            Credit/Debit Cards, UPI, Net Banking
-                        </div>
                     </div>
                 </label>
             </div>
@@ -769,8 +764,7 @@ function OrderReview({
                                         <div className="text-sm text-gray-600">
                                             Qty: {item.quantity} × ₹
                                             {Math.round(
-                                                calculateItemPrice(item) /
-                                                    item.quantity
+                                                calculateItemPrice(item)
                                             ).toLocaleString()}
                                         </div>
                                     </div>
@@ -778,7 +772,7 @@ function OrderReview({
                                 <div className="font-bold">
                                     ₹
                                     {Math.round(
-                                        calculateItemPrice(item)
+                                        calculateItemPrice(item) * item.quantity
                                     ).toLocaleString()}
                                 </div>
                             </div>
@@ -844,7 +838,6 @@ function OrderReview({
 
 // ============================ OrderSummary Component ============================
 function OrderSummary({
-    items,
     total,
     shippingCost,
     appliedCoupon,
@@ -885,15 +878,6 @@ function OrderSummary({
                         </span>
                     </div>
 
-                    <div className="flex justify-between">
-                        <span className="text-gray-600">Shipping</span>
-                        <span className="font-medium">
-                            {shippingCost === 0
-                                ? "FREE"
-                                : `₹${shippingCost.toLocaleString()}`}
-                        </span>
-                    </div>
-
                     {appliedCoupon && (
                         <div className="flex justify-between text-green-600">
                             <span>Discount ({appliedCoupon.code})</span>
@@ -902,6 +886,15 @@ function OrderSummary({
                             </span>
                         </div>
                     )}
+
+                    <div className="flex justify-between">
+                        <span className="text-gray-600">Shipping</span>
+                        <span className="font-medium">
+                            {shippingCost === 0
+                                ? "FREE"
+                                : `₹${shippingCost.toLocaleString()}`}
+                        </span>
+                    </div>
                 </div>
 
                 {!appliedCoupon && (
@@ -957,13 +950,7 @@ function OrderSummary({
 
 // ============================ Main CheckoutFlow Component ============================
 export default function CheckoutLarge() {
-    const {
-        items,
-        total,
-        clearCart,
-        getUnitPriceForPack,
-        calculateItemPrice,
-    } = useCart();
+    const { items, total, clearCart, calculateItemPrice } = useCart();
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -971,7 +958,7 @@ export default function CheckoutLarge() {
     const [couponCode, setCouponCode] = useState("");
     const [discount, setDiscount] = useState(0);
     const [appliedCoupon, setAppliedCoupon] = useState(null);
-    const [paymentMethod, setPaymentMethod] = useState("cod");
+    const [paymentMethod, setPaymentMethod] = useState("online");
     const [isProcessing, setIsProcessing] = useState(false);
     const [pinLoading, setPinLoading] = useState(false);
 
@@ -988,7 +975,7 @@ export default function CheckoutLarge() {
 
     const [errors, setErrors] = useState({});
 
-    const shippingCost = 100;
+    const shippingCost = paymentMethod === "cod" ? 100 : 0;
     const cartTotal = Math.round(total);
     const finalTotal = Math.round(cartTotal + shippingCost - discount);
 
@@ -1016,8 +1003,8 @@ export default function CheckoutLarge() {
         }
     };
 
-    const applyCoupon = async () => {
-        if (!couponCode) {
+    const applyCoupon = async (code = couponCode) => {
+        if (!code) {
             setErrors((prev) => ({
                 ...prev,
                 coupon: "Please enter a coupon code.",
@@ -1026,10 +1013,11 @@ export default function CheckoutLarge() {
         }
         try {
             const { data } = await api.post("/coupons/apply", {
-                couponCode,
+                couponCode: code,
                 cartTotal,
             });
 
+            setCouponCode(data.coupon.code);
             setAppliedCoupon(data.coupon);
             if (data.coupon.discount_type === "fixed") {
                 setDiscount(data.coupon.discount_value);
@@ -1152,7 +1140,8 @@ export default function CheckoutLarge() {
                     actualPackKey = "Pack of 4";
                 }
                 const packDimensions =
-                    item["weight&dimensio"] && item["weight&dimensio"][actualPackKey];
+                    item["weight&dimensio"] &&
+                    item["weight&dimensio"][actualPackKey];
 
                 if (packDimensions) {
                     totalWeightGrams += packDimensions.weight * item.quantity; // Weight is in grams
