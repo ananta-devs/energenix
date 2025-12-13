@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Shield, User, Globe, Mail, Key, Database, Palette, Clock, Save, UserPlus, Phone } from 'lucide-react';
+import { Shield, User, Mail, Key, Database, Clock, Save, UserPlus, Phone } from 'lucide-react';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('security');

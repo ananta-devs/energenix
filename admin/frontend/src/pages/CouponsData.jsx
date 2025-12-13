@@ -400,16 +400,16 @@ const CouponData = () => {
                       <p className="font-semibold text-gray-900 dark:text-white">
                         {coupon.discount_type === 'percentage' ? (
                           <>
-                            <Percent size={12} className="inline mr-1" />
-                            {coupon.discount_value}%
+                            {coupon.discount_value}
+                            <Percent size={14} className="inline mr-1" />
                           </>
                         ) : (
-                          <>${coupon.discount_value}</>
+                          <>₹{coupon.discount_value}</>
                         )}
                       </p>
                       {coupon.minimum_purchase && (
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Min. purchase: ${coupon.minimum_purchase}
+                          Min. purchase: ₹{coupon.minimum_purchase}
                         </p>
                       )}
                     </div>
