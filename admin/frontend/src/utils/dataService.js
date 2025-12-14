@@ -4,10 +4,6 @@ import axios from 'axios';
 const API_BASE = import.meta.env.VITE_API_URL;
 
 export const dataService = {
-  async getProducts() {
-    const response = await axios.get(`${API_BASE}/api/products`);
-    return response.data;
-  },
 
   async getCollections() {
     const response = await axios.get(`${API_BASE}/api/collections`);
@@ -20,7 +16,7 @@ export const dataService = {
   },
 
   async getCustomers() {
-    const response = await axios.get(`${API_BASE}/api/customers`);
+    const response = await axios.get(`${API_BASE}/api/users`);
     return response.data;
   },
 
@@ -51,6 +47,11 @@ export const dataService = {
 
   async deleteCollection(id) {
     const response = await axios.delete(`${API_BASE}/api/collections/${id}`);
+    return response.data;
+  },
+
+  async getProducts() {
+    const response = await axios.get(`${API_BASE}/api/products`);
     return response.data;
   },
 
@@ -92,6 +93,34 @@ export const dataService = {
 
   async deleteCoupon(id) {
     const response = await axios.delete(`${API_BASE}/api/coupons/${id}`);
+    return response.data;
+  },
+
+  async deleteImage(public_id) {
+    const response = await axios.delete(`${API_BASE}/api/upload`, {
+      data: { public_id },
+    });
+    return response.data;
+  },
+
+  // Contact methods
+  async getContacts() {
+    const response = await axios.get(`${API_BASE}/api/contacts`);
+    return response.data;
+  },
+
+  async deleteContact(id) {
+    const response = await axios.delete(`${API_BASE}/api/contacts/${id}`);
+    return response.data;
+  },
+
+  // Message reply method (assuming an endpoint exists for this)
+  async replyToMessage(to, subject, content) {
+    const response = await axios.post(`${API_BASE}/api/messages/reply`, {
+      to,
+      subject,
+      content,
+    });
     return response.data;
   },
 };

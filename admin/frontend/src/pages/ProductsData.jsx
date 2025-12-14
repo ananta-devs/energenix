@@ -434,9 +434,7 @@ const ProductsData = () => {
                 URL.revokeObjectURL(imageToRemove.preview);
             } else if (imageToRemove.type === "existing") {
                 try {
-                    await axios.delete(`${API_BASE}/api/upload`, {
-                        data: { public_id: imageToRemove.public_id },
-                    });
+                    await dataService.deleteImage(imageToRemove.public_id);
                 } catch (error) {
                     console.error(
                         "Error deleting image from Cloudinary:",
@@ -1503,7 +1501,7 @@ const ImageUploadSection = ({
                             />
                             <button
                                 onClick={() => onRemoveImage(index)}
-                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                className="absolute -top-2 right-27 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                             >
                                 <X size={12} />
                             </button>

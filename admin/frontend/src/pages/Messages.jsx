@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Mail, Trash2, Search, Reply, X, Send } from 'lucide-react';
+import { dataService } from '../utils/dataService';
 
 const Messages = () => {
   const [messages, setMessages] = useState([]);
@@ -18,9 +18,9 @@ const Messages = () => {
 
   const loadMessages = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/contacts`);
-      setMessages(response.data);
-      setSelectedMessage(response.data[0] || null);
+      const response = await dataService.getContacts();
+      setMessages(response);
+      setSelectedMessage(response[0] || null);
     } catch (error) {
       console.error('Error loading messages:', error);
     } finally {
@@ -37,7 +37,7 @@ const Messages = () => {
     if (!messageToDelete) return;
     
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/contacts/${messageToDelete}`);
+      await dataService.deleteContact(messageToDelete);
       const updatedMessages = messages.filter((message) => message._id !== messageToDelete);
       setMessages(updatedMessages);
       if (selectedMessage && selectedMessage._id === messageToDelete) {
@@ -69,13 +69,11 @@ const Messages = () => {
       console.log('Reply content:', replyContent);
       
       // Simulate API call
-      // await axios.post(`${import.meta.env.VITE_API_URL}/messages/reply`, {
-      //   to: selectedMessage.email,
-      //   subject: `Re: Message from ${selectedMessage.fullName}`,
-      //   content: replyContent
-      // });
-
-      alert('Reply sent successfully!');
+      await dataService.replyToMessage(
+        selectedMessage.email,
+        `Re: Message from ${selectedMessage.fullName}`,
+        replyContent
+      );
       setShowReplyModal(false);
       setReplyContent('');
     } catch (error) {

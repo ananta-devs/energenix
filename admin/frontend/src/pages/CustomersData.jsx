@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Users, Search } from 'lucide-react';
+import { dataService } from '../utils/dataService';
 
 const CustomersData = () => {
   const [customers, setCustomers] = useState([]);
@@ -22,9 +22,9 @@ const CustomersData = () => {
 
   const loadCustomers = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users`);
-      setCustomers(response.data);
-      setFilteredCustomers(response.data);
+      const response = await dataService.getCustomers();
+      setCustomers(response);
+      setFilteredCustomers(response);
     } catch (error) {
       console.error('Error loading customers:', error);
     } finally {
