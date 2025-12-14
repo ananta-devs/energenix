@@ -64,6 +64,9 @@ const OrderSchema = new mongoose.Schema({
   width_cm: { type: Number, default: 10 },
   height_cm: { type: Number, default: 10 },
 
+  // For MPS orders
+  dimensions: { type: Array, default: [] },
+
   // Shipmozo warehouse
   warehouse_id: { type: String, required: true },
 

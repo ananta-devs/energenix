@@ -110,14 +110,32 @@ module.exports = {
           body.payment_type.toUpperCase() === "COD"
             ? String(body.cod_amount)
             : "",
-        weight: Number(body.weight),
-        length: Number(body.length_cm || 0),
-        width: Number(body.width_cm || 0),
-        height: Number(body.height_cm || 0),
-        warehouse_id: warehouse.id,
+        warehouse_id: warehouse.id, // Moved warehouse_id to be always present
         gst_ewaybill_number: body.gst_ewaybill_number || "",
         gstin_number: body.gstin_number || "",
       };
+
+      // Conditionally add shipping parameters based on package type
+      if (body.type_of_package === "MPS") {
+        payload.type_of_package = "MPS";
+        payload.dimensions = body.dimensions;
+        // Calculate total weight from dimensions for MPS orders
+        payload.weight = body.dimensions.reduce((acc, dim) => {
+            return acc + (Number(dim.no_of_box) * Number(dim.weight_per_box));
+        }, 0);
+      } else {
+        payload.weight = Number(body.weight);
+        payload.length = Number(body.length_cm || 0);
+        payload.width = Number(body.width_cm || 0);
+        payload.height = Number(body.height_cm || 0);
+      }
+
+      // DIAGNOSTIC: Enforce a minimum weight of 100g
+      if (payload.weight < 100) {
+        console.log(`Weight ${payload.weight}g is below minimum, setting to 100g for Shipmozo.`);
+        payload.weight = 100;
+      }
+      
       console.log(
         "3. Built Shipmozo Payload:",
         JSON.stringify(payload, null, 2)
@@ -156,10 +174,11 @@ module.exports = {
         items: enrichedItems,
         payment_type: body.payment_type.toUpperCase(),
         cod_amount: Number(body.cod_amount) || 0,
-        weight_grams: payload.weight,
-        length_cm: payload.length,
-        width_cm: payload.width,
-        height_cm: payload.height,
+        weight_grams: payload.weight, // This will be undefined for MPS
+        length_cm: payload.length,   // This will be undefined for MPS
+        width_cm: payload.width,     // This will be undefined for MPS
+        height_cm: payload.height,   // This will be undefined for MPS
+        dimensions: payload.dimensions, // This will be undefined for single package
         warehouse_id: warehouse.id,
         shipmozo_create_response: resBody,
         coupon_code: appliedCouponFromFrontend?.code, // Store applied coupon code
@@ -205,7 +224,8 @@ module.exports = {
         message: "Order created successfully",
         order: createdOrder,
       });
-    } catch (err) {
+    }
+    catch (err) {
       console.error("--- CREATE ORDER FAILED ---");
       console.error("createOrder error:", err); // Log the full error
       return res
