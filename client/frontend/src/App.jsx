@@ -5,9 +5,7 @@ import CategoryPage from './components/product/CategoryPage.jsx';
 import ProductDetailPage from './components/product/ProductDetailPage.jsx';
 import Checkout from './components/cart/CheckoutPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
-import LoginPage from './components/auth/LoginPage.jsx';
-import SignUpPage from './components/auth/SignUpPage.jsx';
-import OtpVerificationPage from './components/auth/OtpVerificationPage.jsx';
+import LoginPage from './components/auth/Login.jsx';
 import CartDrawer from './components/cart/CartDrawer.jsx';
 import MainLayout from './components/layout/MainLayout.jsx';
 import Dashboard from './pages/dashboard/Dashboard.jsx';
@@ -16,7 +14,6 @@ import { Toaster } from 'react-hot-toast';
 import PrivacyPolicy from './pages/Privacy.jsx';
 import TermsOfService from './pages/Terms.jsx';
 import CookiePolicy from './pages/Cookie.jsx';
-import SoginPage from './components/auth/Login.jsx';
 
 function App() {
   return (
@@ -49,12 +46,10 @@ function App() {
         </Route>
 
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/verify-otp" element={<OtpVerificationPage />} />
+        <Route path="/signup" element={<LoginPage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/cookie" element={<CookiePolicy />} />
-        <Route path="/signin" element={<SoginPage />} />
       </Routes>
 
     </>
