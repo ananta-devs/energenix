@@ -1,67 +1,70 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { dataService } from '../utils/dataService';
 import { Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import logo from '../assets/logo.svg';
+import { useStore } from '../store/useStore'; // Import useStore
+import { jwtDecode } from 'jwt-decode'; // Import jwt_decode
+import toast from 'react-hot-toast'; // Import toast
 
 export default function AdminSignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const loginUser = useStore((state) => state.login); // Get login action from store
 
   const handleSubmit = async () => {
-    // Reset previous errors
-    setError('');
-    
     // Basic validation
     if (!email || !password) {
-      setError('Please enter both email and password');
+      toast.error('Please enter both email and password');
       return;
     }
 
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address');
+      toast.error('Please enter a valid email address');
       return;
     }
 
     setIsLoading(true);
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/admins/login`, {
+      const response = await dataService.login({
         adm_email: email,
         password,
       });
-      localStorage.setItem('token', response.data.token);
+      // Decode the token and update the store with super admin status
+      const decoded = jwtDecode(response.token);
+      loginUser(decoded.admin.isSuper); // Pass isSuper to login action
       navigate('/dashboard');
     } catch (error) {
       if (error.response) {
         // Server responded with error status
         switch (error.response.status) {
           case 401:
-            setError('Invalid email or password. Please try again.');
+          case 400:
+            toast.error(error.response.data.message || 'Invalid email or password. Please try again.');
             break;
           case 404:
-            setError('Account not found. Please check your email.');
+            toast.error('Account not found. Please check your email.');
             break;
           case 422:
-            setError('Invalid input. Please check your email and password.');
+            toast.error('Invalid input. Please check your email and password.');
             break;
           case 500:
-            setError('Server error. Please try again later.');
+            toast.error('Server error. Please try again later.');
             break;
           default:
-            setError('Login failed. Please try again.');
+            toast.error('Login failed. Please try again.');
         }
       } else if (error.request) {
         // Request was made but no response received
-        setError('Network error. Please check your connection and try again.');
+        toast.error('Network error. Please check your connection and try again.');
       } else {
         // Something else happened
-        setError('An unexpected error occurred. Please try again.');
+        toast.error('An unexpected error occurred. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -71,12 +74,10 @@ export default function AdminSignIn() {
   // Clear error when user starts typing
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
-    if (error) setError('');
   };
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
-    if (error) setError('');
   };
 
   // Handle Enter key press
@@ -106,12 +107,7 @@ export default function AdminSignIn() {
         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200/50 p-8">
           <div className="space-y-6">
             {/* Error Message */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3 animate-fade-in">
-                <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
-                <p className="text-red-700 text-sm">{error}</p>
-              </div>
-            )}
+
 
             {/* Email Field */}
             <div>
@@ -128,9 +124,7 @@ export default function AdminSignIn() {
                   value={email}
                   onChange={handleEmailChange}
                   onKeyPress={handleKeyPress}
-                  className={`block w-full pl-10 pr-3 py-3 bg-white border ${
-                    error ? 'border-red-300' : 'border-slate-300'
-                  } rounded-lg text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition`}
+                  className={`block w-full pl-10 pr-3 py-3 bg-white border border-slate-300 rounded-lg text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition`}
                   placeholder="admin@example.com"
                   required
                 />
@@ -152,9 +146,7 @@ export default function AdminSignIn() {
                   value={password}
                   onChange={handlePasswordChange}
                   onKeyPress={handleKeyPress}
-                  className={`block w-full pl-10 pr-12 py-3 bg-white border ${
-                    error ? 'border-red-300' : 'border-slate-300'
-                  } rounded-lg text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition`}
+                  className={`block w-full pl-10 pr-12 py-3 bg-white border border-slate-300 rounded-lg text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition`}
                   placeholder="••••••••"
                   required
                 />

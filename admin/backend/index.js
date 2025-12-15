@@ -19,7 +19,9 @@ const Collection = require('./models/Collection');
 const app = express();
 const PORT = process.env.PORT;
 connectDB();
-app.use(cors());
+app.use(cors({
+  exposedHeaders: ['x-auth-token'],
+}));
 app.use(express.json());
 app.use(fileUpload({ useTempFiles: true })); // Enable file uploads
 

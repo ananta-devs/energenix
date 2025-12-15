@@ -18,9 +18,13 @@ const adminSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  is2fa: {
+  isSuper: {
     type: Boolean,
     default: false,
+  },
+  status: {
+    type: String,
+    default: 'active',
   },
 });
 

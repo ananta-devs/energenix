@@ -17,6 +17,7 @@
     "framer-motion": "^12.23.24",
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^3.5.16",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.546.0",
     "pdfmake": "^0.2.20",
     "react": "^19.1.1",
