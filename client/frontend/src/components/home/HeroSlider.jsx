@@ -258,7 +258,7 @@ export default function HeroSlider() {
                                         <span className="relative z-10">
                                             {slide.cta}
                                         </span>
-                                        <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-blue-800 via-blue-900 to-blue-950 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
                                     </Link>
                                 </div>
                             </div>

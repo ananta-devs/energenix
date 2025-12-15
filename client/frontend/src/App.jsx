@@ -16,6 +16,7 @@ import { Toaster } from 'react-hot-toast';
 import PrivacyPolicy from './pages/Privacy.jsx';
 import TermsOfService from './pages/Terms.jsx';
 import CookiePolicy from './pages/Cookie.jsx';
+import SoginPage from './components/auth/Login.jsx';
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/cookie" element={<CookiePolicy />} />
+        <Route path="/signin" element={<SoginPage />} />
       </Routes>
 
     </>

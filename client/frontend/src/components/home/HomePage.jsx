@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { TESTIMONIALS } from "../../data";
 import { Star } from "lucide-react";
 import HeroSlider from "./HeroSlider.jsx";
@@ -9,18 +9,26 @@ import about from "../../assets/aboutUs.webp";
 export default function HomePage() {
     const { products, loading, error } = useProducts();
 
+    const randomTestimonials = useMemo(() => {
+        return [...TESTIMONIALS].sort(() => 0.5 - Math.random()).slice(0, 3);
+    }, []);
+
+    const getRandomRating = () => Math.floor(Math.random() * 3) + 3; // 3–5
+
     const trendingProducts = products.filter((p) => p.trending);
-    // Show only first 3 trending products
     const displayedTrendingProducts = trendingProducts.slice(0, 3);
 
-    if (loading)
+    if (loading) {
         return (
             <div className="py-20 text-center">
                 Loading trending products...
             </div>
         );
-    if (error)
+    }
+
+    if (error) {
         return <div className="py-20 text-center">Error: {error.message}</div>;
+    }
 
     return (
         <div className="w-full ">
@@ -116,30 +124,36 @@ export default function HomePage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {TESTIMONIALS.map((t) => (
-                            <div
-                                key={t.id}
-                                className="bg-white p-6 rounded-xl shadow-sm border"
-                            >
-                                <div className="flex mb-4">
-                                    {[...Array(t.rating)].map((_, i) => (
-                                        <Star
-                                            key={i}
-                                            className="w-5 h-5 text-amber-400 fill-amber-400"
-                                        />
-                                    ))}
-                                </div>
-                                <p className="text-gray-700 mb-4">"{t.text}"</p>
-                                <div className="flex items-center">
-                                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3 font-semibold text-purple-600">
-                                        {t.avatar}
+                        {randomTestimonials.map((t) => {
+                            const rating = getRandomRating();
+
+                            return (
+                                <div
+                                    key={t.id}
+                                    className="bg-white p-6 rounded-xl shadow-sm border"
+                                >
+                                    <div className="flex mb-4">
+                                        {[...Array(rating)].map((_, i) => (
+                                            <Star
+                                                key={i}
+                                                className="w-5 h-5 text-amber-400 fill-amber-400"
+                                            />
+                                        ))}
                                     </div>
-                                    <span className="font-semibold">
-                                        {t.name}
-                                    </span>
+                                    <p className="text-gray-700 mb-4">
+                                        "{t.text}"
+                                    </p>
+                                    <div className="flex items-center">
+                                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3 font-semibold text-purple-600">
+                                            {t.avatar}
+                                        </div>
+                                        <span className="font-semibold">
+                                            {t.name}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </section>
             </div>
