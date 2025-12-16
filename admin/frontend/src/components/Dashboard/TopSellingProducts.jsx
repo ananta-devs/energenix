@@ -1,5 +1,4 @@
 import React from 'react';
-import { TrendingUp } from 'lucide-react';
 
 const TopSellingProducts = ({ products }) => {
   if (!products) {
@@ -48,7 +47,6 @@ const TopSellingProducts = ({ products }) => {
         {products.map((product) => (
           <div key={product.sku} className="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50">
             <div className="flex items-center space-x-4">
-              <img src={product.image} alt={product.name} className="w-10 h-10 rounded-full object-cover" />
               <div>
                 <p className="font-medium text-gray-900 dark:text-white">{product.name}</p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{product.totalQuantitySold} sales</p>

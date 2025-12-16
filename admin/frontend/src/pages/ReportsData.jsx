@@ -125,8 +125,8 @@ const ReportsData = () => {
 
   // Prepare data for GemstonePieChart
   const formattedCategoryRevenue = analytics.categoryRevenue?.map(item => ({
-    name: item.category,
-    value: item.revenue,
+    category: item.category,
+    revenue: item.revenue,
     color: item.color,
   })) || [];
 
@@ -252,8 +252,9 @@ const ReportsData = () => {
               </div>
             </div>
             {/* Sales Chart Integration */}
-            <div className="mt-8">
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
               <SalesChart data={analytics.monthlySales} loading={loading} error={error} />
+              <GemstonePieChart data={formattedCategoryRevenue} loading={loading} error={error} />
             </div>
           </div>
         )}
@@ -286,10 +287,6 @@ const ReportsData = () => {
                   {reports.customerInsights?.customerRetentionRate || '0'}%
                 </p>
               </div>
-            </div>
-            {/* Gemstone Pie Chart Integration */}
-            <div className="mt-8">
-              <GemstonePieChart data={formattedCategoryRevenue} loading={loading} error={error} />
             </div>
           </div>
         )}
