@@ -1,6 +1,6 @@
 // StatsCards.jsx
-import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import React from 'react';
+import { TrendingUp, TrendingDown, IndianRupee, ShoppingCart, Users, Archive } from 'lucide-react';
 
 const StatsCard = ({ title, value, change, icon: Icon, color }) => {
   const isPositive = change >= 0;
@@ -11,17 +11,19 @@ const StatsCard = ({ title, value, change, icon: Icon, color }) => {
         <div className="flex-1 min-w-0">
           <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">{title}</p>
           <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mt-1 truncate">{value}</p>
-          <div className={`flex items-center mt-1 sm:mt-2 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-            {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-            <span className="text-xs sm:text-sm font-medium ml-1">
-              {isPositive ? '+' : ''}{change}%
-            </span>
-            <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-1 hidden sm:inline">
-              from last month
-            </span>
-          </div>
+          {change !== undefined && (
+            <div className={`flex items-center mt-1 sm:mt-2 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+              <span className="text-xs sm:text-sm font-medium ml-1">
+                {isPositive ? '+' : ''}{change}%
+              </span>
+              <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-1 hidden sm:inline">
+                from last month
+              </span>
+            </div>
+          )}
         </div>
-        <div className={`p-2 sm:p-3 rounded-lg ${color} ml-3 flex-shrink-0`}>
+        <div className={`p-2 sm:p-3 rounded-lg ${color} ml-3 shrink-0`}>
           <Icon size={20} className="text-white" />
         </div>
       </div>
@@ -29,95 +31,53 @@ const StatsCard = ({ title, value, change, icon: Icon, color }) => {
   );
 };
 
-const StatsCards = () => {
-  const [stats, setStats] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const [reportsResponse, analyticsResponse] = await Promise.all([
-          fetch('http://localhost:3001/reports'),
-          fetch('http://localhost:3001/analytics')
-        ]);
-
-        if (!reportsResponse.ok || !analyticsResponse.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const reportsData = await reportsResponse.json();
-        const analyticsData = await analyticsResponse.json();
-
-        const formattedStats = [
-          {
-            title: 'Total Revenue',
-            value: `$${reportsData.salesSummary.totalRevenue.toLocaleString()}`,
-            change: reportsData.salesSummary.monthOverMonthGrowth,
-            icon: (props) => (
-              <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
-            ),
-            color: 'bg-green-500'
-          },
-          {
-            title: 'Total Gemstones',
-            value: reportsData.inventoryHealth.totalProducts.toLocaleString(),
-            change: 8.2, // Hardcoded change for now
-            icon: (props) => (
-              <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-              </svg>
-            ),
-            color: 'bg-blue-500'
-          },
-          {
-            title: 'Orders',
-            value: reportsData.salesSummary.totalOrders.toLocaleString(),
-            change: -2.1, // Hardcoded change for now
-            icon: (props) => (
-              <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
-            ),
-            color: 'bg-purple-500'
-          },
-          {
-            title: 'Customers',
-            value: analyticsData.customerMetrics.totalCustomers.toLocaleString(),
-            change: 5.7, // Hardcoded change for now
-            icon: (props) => (
-              <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            ),
-            color: 'bg-orange-500'
-          }
-        ];
-
-        setStats(formattedStats);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
+const StatsCards = ({ reports }) => {
+  if (!reports) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+        ))}
+      </div>
+    );
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  const { salesSummary, inventoryHealth, customerInsights } = reports;
+
+  const formattedStats = [
+    {
+      title: 'Total Revenue',
+      value: `₹${salesSummary.totalRevenue.toLocaleString('en-IN')}`,
+      change: salesSummary.monthOverMonthGrowth,
+      icon: IndianRupee,
+      color: 'bg-green-500'
+    },
+    {
+      title: 'Total Orders',
+      value: salesSummary.totalOrders.toLocaleString(),
+      change: undefined, // No MoM growth for orders in the API yet
+      icon: ShoppingCart,
+      color: 'bg-purple-500'
+    },
+    {
+      title: 'Total Customers',
+      value: customerInsights.totalCustomers.toLocaleString(),
+      change: undefined, // No MoM growth for customers in API
+      icon: Users,
+      color: 'bg-orange-500'
+    },
+    {
+      title: 'Total Products',
+      value: inventoryHealth.totalProducts.toLocaleString(),
+      change: undefined, // No MoM growth for products in API
+      icon: Archive,
+      color: 'bg-blue-500'
+    },
+  ];
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-      {stats.map((stat, index) => (
+      {formattedStats.map((stat, index) => (
         <StatsCard key={index} {...stat} />
       ))}
     </div>

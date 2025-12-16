@@ -5,15 +5,39 @@ import SalesChart from '../components/Charts/SalesChart';
 import GemstonePieChart from '../components/Charts/GemstonePieChart';
 import RecentActivity from '../components/Dashboard/RecentActivity';
 import TopSellingProducts from '../components/Dashboard/TopSellingProducts';
+import { dataService } from '../utils/dataService'; // Make sure this path is correct
 
 const Dashboard = () => {
+  const [reports, setReports] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [topProducts, setTopProducts] = useState(null);
+  const [recentActivity, setRecentActivity] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [reportsData, analyticsData, topProductsData, recentActivityData] = await Promise.all([
+          dataService.getReports(),
+          dataService.getAnalytics(),
+          dataService.getTopSellingProducts(),
+          dataService.getRecentActivity()
+        ]);
+        setReports(reportsData);
+        setAnalytics(analyticsData);
+        setTopProducts(topProductsData);
+        setRecentActivity(recentActivityData);
+      } catch (err) {
+        setError('Failed to fetch dashboard data. Please try again later.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   if (loading) {
@@ -42,18 +66,26 @@ const Dashboard = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="p-6 text-center text-red-500">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6 min-w-0">
       {/* Content */}
       <section className="animate-fade-in">
-        <StatsCards />
+        {reports && <StatsCards reports={reports} />}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6">
-          <SalesChart />
-          <GemstonePieChart />
+          {analytics && <SalesChart data={analytics.monthlySales} />}
+          {analytics && <GemstonePieChart data={analytics.categoryRevenue} />}
         </div>
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6">
-          <TopSellingProducts />
-          <RecentActivity />
+          {topProducts && <TopSellingProducts products={topProducts} />}
+          {recentActivity && <RecentActivity activities={recentActivity} />}
         </div>
       </section>
     </div>

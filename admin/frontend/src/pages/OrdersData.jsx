@@ -124,7 +124,7 @@ const OrdersData = () => {
     if (!selectedOrder) return;
     
     setEditFormData({
-      status: selectedOrder.status || '',
+      status: 'cancelled', // Default to 'cancelled' since it's the only option
       payment_type: selectedOrder.payment_type || ''
     });
     setEditModalOpen(true);
@@ -158,31 +158,36 @@ const OrdersData = () => {
     setSaving(true);
     setMessage({ type: '', text: '' });
 
+    const updateData = { ...editFormData };
+    if (editFormData.status === 'cancelled') {
+      updateData.cancelled = true;
+    }
+
     try {
-      const updatedOrder = await dataService.updateOrder(selectedOrder._id, editFormData);
-      
+      const updatedOrder = await dataService.updateOrder(selectedOrder._id, updateData);
+
       // Update orders list
-      setOrders(orders.map(order => 
+      setOrders(orders.map(order =>
         order._id === updatedOrder._id ? updatedOrder : order
       ));
-      
+
       // Update selected order in view modal
       setSelectedOrder(updatedOrder);
-      
-      setMessage({ 
-        type: 'success', 
-        text: 'Order updated successfully!' 
+
+      setMessage({
+        type: 'success',
+        text: 'Order updated successfully!'
       });
-      
+
       // Close edit modal after success
       setTimeout(() => {
         closeEditModal();
       }, 1500);
-      
+
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: 'Failed to update order. Please try again.' 
+      setMessage({
+        type: 'error',
+        text: 'Failed to update order. Please try again.'
       });
     } finally {
       setSaving(false);
@@ -323,13 +328,15 @@ const OrdersData = () => {
                   Order Details
                 </h3>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={openEditModal}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer"
-                  >
-                    <Edit size={16} />
-                    Edit Order
-                  </button>
+                  {selectedOrder.status !== 'cancelled' && !selectedOrder.cancelled && (
+                    <button
+                      onClick={openEditModal}
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <Edit size={16} />
+                      Edit Order
+                    </button>
+                  )}
                   <button
                     onClick={closeViewModal}
                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer p-2"
@@ -405,7 +412,7 @@ const OrdersData = () => {
                       <div className="flex items-center gap-2">
                         <Phone size={14} className="text-gray-400" />
                         <span className="text-gray-600 dark:text-gray-400">
-                          {selectedOrder.customer?.phone || 'N/A'}
+                          +91 {selectedOrder.customer?.phone || 'N/A'}
                         </span>
                       </div>
                     </div>
@@ -419,18 +426,18 @@ const OrdersData = () => {
                       Shipping Address
                     </h4>
                     <div className="space-y-2 text-sm">
-                      {selectedOrder.shipping_address ? (
+                      {selectedOrder.customer ? (
                         <>
-                          <p className="font-medium text-gray-900 dark:text-white">{selectedOrder.shipping_address.name}</p>
-                          <p className="text-gray-600 dark:text-gray-400">{selectedOrder.shipping_address.address_line1}</p>
-                          {selectedOrder.shipping_address.address_line2 && (
-                            <p className="text-gray-600 dark:text-gray-400">{selectedOrder.shipping_address.address_line2}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">{selectedOrder.customer.name}</p>
+                          <p className="text-gray-600 dark:text-gray-400">{selectedOrder.customer.address_line_one}</p>
+                          {selectedOrder.customer.address_line_two && (
+                            <p className="text-gray-600 dark:text-gray-400">{selectedOrder.customer.address_line_two}</p>
                           )}
                           <p className="text-gray-600 dark:text-gray-400">
-                            {selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} - {selectedOrder.shipping_address.pincode}
+                            {selectedOrder.customer.city}, {selectedOrder.customer.state} - {selectedOrder.customer.pincode}
                           </p>
-                          <p className="text-gray-600 dark:text-gray-400">{selectedOrder.shipping_address.country}</p>
-                          <p className="text-gray-600 dark:text-gray-400">Phone: {selectedOrder.shipping_address.phone}</p>
+                          {/* Country is not directly available in the provided sample customer object, skipping for now */}
+                          <p className="text-gray-600 dark:text-gray-400">Phone: +91 {selectedOrder.customer.phone}</p>
                         </>
                       ) : (
                         <p className="text-gray-500 dark:text-gray-400 italic">No shipping address provided</p>
@@ -438,38 +445,58 @@ const OrdersData = () => {
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                      <p size={16}>₹</p>
-                      Payment Summary
-                    </h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Subtotal:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          ₹{calculateTotal(selectedOrder.items).toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Shipping:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          ₹{(selectedOrder.shipping_charges || 0).toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Tax:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          ₹{(selectedOrder.tax_amount || 0).toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                      <div className="flex justify-between border-t border-gray-200 dark:border-gray-600 pt-2">
-                        <span className="text-gray-900 dark:text-white font-semibold">Total:</span>
-                        <span className="text-gray-900 dark:text-white font-bold">
-                          ₹{(calculateTotal(selectedOrder.items) + (selectedOrder.shipping_charges || 0) + (selectedOrder.tax_amount || 0)).toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                      {(() => {
+                        let subtotalValue = calculateTotal(selectedOrder.items);
+                        let shippingValue = 0;
+                        const taxValue = selectedOrder.tax_amount || 0;
+
+                        if (selectedOrder.payment_type === 'COD') {
+                          shippingValue = (selectedOrder.cod_amount || 0) - subtotalValue;
+                        } else if (selectedOrder.payment_type === 'PREPAID') {
+                          shippingValue = 0;
+                        }
+
+                        if (shippingValue < 0 || (selectedOrder.payment_type !== 'COD' && selectedOrder.payment_type !== 'PREPAID')) {
+                           shippingValue = selectedOrder.shipping_charges || 0;
+                        }
+
+                        const totalValue = subtotalValue + shippingValue + taxValue;
+
+                        return (
+                          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                              <p size={16}>₹</p>
+                              Payment Summary
+                            </h4>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Subtotal:</span>
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  ₹{subtotalValue.toLocaleString('en-IN')}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Shipping:</span>
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  ₹{shippingValue.toLocaleString('en-IN')}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600 dark:text-gray-400">Tax:</span>
+                                <span className="font-medium text-gray-900 dark:text-white">
+                                  ₹{taxValue.toLocaleString('en-IN')}
+                                </span>
+                              </div>
+                              <div className="flex justify-between border-t border-gray-200 dark:border-gray-600 pt-2">
+                                <span className="text-gray-900 dark:text-white font-semibold">Total:</span>
+                                <span className="text-gray-900 dark:text-white font-bold">
+                                  ₹{totalValue.toLocaleString('en-IN')}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
                 </div>
               </div>
 

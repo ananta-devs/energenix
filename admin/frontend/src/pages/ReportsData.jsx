@@ -1,13 +1,16 @@
 // components/DataDisplay/ReportsData.jsx
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Download, TrendingUp, Users, Package, DollarSign, PieChart } from 'lucide-react';
+import { BarChart3, Download, TrendingUp, Users, Package, IndianRupee, PieChart, } from 'lucide-react';
 import { dataService } from '../utils/dataService';
 import { exportToCSV, exportToPDF } from '../utils/exportUtils';
+import SalesChart from '../components/Charts/SalesChart'; // Import SalesChart
+import GemstonePieChart from '../components/Charts/GemstonePieChart'; // Import GemstonePieChart
 
 const ReportsData = () => {
   const [reports, setReports] = useState({});
   const [analytics, setAnalytics] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // Add error state
   const [activeReport, setActiveReport] = useState('sales');
 
   useEffect(() => {
@@ -22,8 +25,10 @@ const ReportsData = () => {
       ]);
       setReports(reportsData);
       setAnalytics(analyticsData);
-    } catch (error) {
-      console.error('Error loading reports:', error);
+      setError(null); // Clear any previous errors
+    } catch (err) {
+      console.error('Error loading reports:', err);
+      setError('Failed to load reports data.'); // Set error state
     } finally {
       setLoading(false);
     }
@@ -40,7 +45,7 @@ const ReportsData = () => {
         filename = 'sales_report';
         columns = [
           { key: 'month', label: 'Month' },
-          { key: 'sales', label: 'Sales ($)' },
+          { key: 'sales', label: 'Sales (₹)' },
           { key: 'orders', label: 'Orders' },
           { key: 'customers', label: 'Customers' }
         ];
@@ -73,7 +78,7 @@ const ReportsData = () => {
       value: `₹${reports.salesSummary?.totalRevenue?.toLocaleString() || '0'}`,
       change: reports.salesSummary?.monthOverMonthGrowth || 0,
       description: 'Total revenue and growth metrics',
-      icon: DollarSign,
+      icon: IndianRupee,
       color: 'bg-green-500'
     },
     {
@@ -87,7 +92,7 @@ const ReportsData = () => {
     }
   ];
 
-  if (loading) {
+  if (loading && !error) { // Only show global loading if no error
     return (
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="animate-pulse">
@@ -101,6 +106,30 @@ const ReportsData = () => {
       </div>
     );
   }
+
+  // Display a general error message if data loading failed
+  if (error) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 text-red-500">
+        <h3 className="text-lg font-semibold mb-4">Error</h3>
+        <p>{error}</p>
+        <button
+          onClick={loadReportsData}
+          className="mt-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 transition-colors duration-200"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  // Prepare data for GemstonePieChart
+  const formattedCategoryRevenue = analytics.categoryRevenue?.map(item => ({
+    name: item.category,
+    value: item.revenue,
+    color: item.color,
+  })) || [];
+
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
@@ -222,37 +251,9 @@ const ReportsData = () => {
                 </p>
               </div>
             </div>
-          </div>
-        )}
-
-        {activeReport === 'inventory' && (
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Inventory Overview</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Products</p>
-                <p className="text-xl font-bold text-gray-900 dark:text-white">
-                  {reports.inventoryHealth?.totalProducts || '0'}
-                </p>
-              </div>
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
-                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Low Stock Items</p>
-                <p className="text-xl font-bold text-yellow-700 dark:text-yellow-300">
-                  {reports.inventoryHealth?.lowStockItems || '0'}
-                </p>
-              </div>
-              <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
-                <p className="text-sm font-medium text-red-600 dark:text-red-400">Out of Stock</p>
-                <p className="text-xl font-bold text-red-700 dark:text-red-300">
-                  {reports.inventoryHealth?.outOfStockItems || '0'}
-                </p>
-              </div>
-              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-                <p className="text-sm font-medium text-green-600 dark:text-green-400">Turnover Rate</p>
-                <p className="text-xl font-bold text-green-700 dark:text-green-300">
-                  {reports.inventoryHealth?.stockTurnoverRate || '0'}x
-                </p>
-              </div>
+            {/* Sales Chart Integration */}
+            <div className="mt-8">
+              <SalesChart data={analytics.monthlySales} loading={loading} error={error} />
             </div>
           </div>
         )}
@@ -286,6 +287,10 @@ const ReportsData = () => {
                 </p>
               </div>
             </div>
+            {/* Gemstone Pie Chart Integration */}
+            <div className="mt-8">
+              <GemstonePieChart data={formattedCategoryRevenue} loading={loading} error={error} />
+            </div>
           </div>
         )}
       </div>
@@ -309,7 +314,7 @@ const ReportsData = () => {
                   <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                     <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">{month.month}</td>
                     <td className="py-3 px-4 text-sm font-semibold text-gray-900 dark:text-white">
-                      ${month.sales.toLocaleString()}
+                      ₹{month.sales.toLocaleString()}
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-900 dark:text-white">
                       {month.orders}

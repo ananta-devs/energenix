@@ -1,66 +1,87 @@
-import React, { useState, useEffect } from 'react';
-import { ShoppingCart, UserPlus, Package, AlertCircle } from 'lucide-react';
+import React from 'react';
+import { ShoppingCart, UserPlus } from 'lucide-react';
 
-const RecentActivity = () => {
-  const [activities, setActivities] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const ActivityItem = ({ activity }) => {
+  const { type, data, timestamp } = activity;
+  
+  const formatTime = (date) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(date).toLocaleDateString('en-US', options);
+  };
 
-  useEffect(() => {
-    const fetchRecentActivity = async () => {
-      try {
-        const [ordersResponse, customersResponse] = await Promise.all([
-          fetch('http://localhost:3001/orders?_sort=orderDate&_order=desc&_limit=5'),
-          fetch('http://localhost:3001/customers?_sort=joinDate&_order=desc&_limit=5')
-        ]);
-
-        if (!ordersResponse.ok || !customersResponse.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const orders = await ordersResponse.json();
-        const customers = await customersResponse.json();
-
-        const combinedActivities = [
-          ...orders.map(order => ({
-            id: `order-${order.id}`,
-            type: 'order',
-            message: `New order #${order.orderNumber} for ${order.product}`,
-            user: order.customer,
-            time: new Date(order.orderDate).toLocaleDateString(),
-            icon: ShoppingCart,
-            color: 'text-blue-500'
-          })),
-          ...customers.map(customer => ({
-            id: `customer-${customer.id}`,
-            type: 'user',
-            message: 'New customer registered',
-            user: customer.name,
-            time: new Date(customer.joinDate).toLocaleDateString(),
-            icon: UserPlus,
-            color: 'text-green-500'
-          }))
-        ];
-
-        const sortedActivities = combinedActivities.sort((a, b) => new Date(b.time) - new Date(a.time));
-
-        setActivities(sortedActivities.slice(0, 5));
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecentActivity();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
+  if (type === 'new_order') {
+    return (
+      <div className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+        <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-blue-500">
+          <ShoppingCart size={16} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-900 dark:text-white">
+            New Order <span className="font-mono text-blue-500">#{data.orderId}</span> for ₹{data.total.toLocaleString('en-IN')}
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            by {data.name} • {formatTime(timestamp)}
+          </p>
+        </div>
+      </div>
+    );
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
+  if (type === 'new_customer') {
+    return (
+      <div className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+        <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-green-500">
+          <UserPlus size={16} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-900 dark:text-white">
+            New Customer Registered
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {data.name} ({data.email}) • {formatTime(timestamp)}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+
+const RecentActivity = ({ activities }) => {
+  if (!activities) {
+    return (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+                Recent Activity
+            </h3>
+            <div className="space-y-4 animate-pulse">
+                {[...Array(5)].map((_, i) => (
+                    <div key={i} className="flex items-start space-x-3 p-3 rounded-lg">
+                        <div className="w-8 h-8 rounded-lg bg-gray-300 dark:bg-gray-600"></div>
+                        <div className="flex-1 space-y-2">
+                            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
+                            <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+  }
+
+  if (activities.length === 0) {
+    return (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+                Recent Activity
+            </h3>
+            <div className="flex items-center justify-center h-full">
+                <p className="text-gray-500 dark:text-gray-400">No recent activity.</p>
+            </div>
+        </div>
+    )
   }
 
   return (
@@ -69,24 +90,9 @@ const RecentActivity = () => {
         Recent Activity
       </h3>
       <div className="space-y-4">
-        {activities.map((activity) => {
-          const Icon = activity.icon;
-          return (
-            <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <div className={`p-2 rounded-lg bg-gray-100 dark:bg-gray-700 ${activity.color}`}>
-                <Icon size={16} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {activity.message}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  by {activity.user} • {activity.time}
-                </p>
-              </div>
-            </div>
-          );
-        })}
+        {activities.map((activity, index) => (
+          <ActivityItem key={index} activity={activity} />
+        ))}
       </div>
     </div>
   );

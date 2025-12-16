@@ -34,6 +34,8 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes); // Add uploadRoutes
 app.use('/api/coupons', couponRoutes);
+const analyticsRoutes = require('./routes/analyticsRoutes'); // Import analyticsRoutes
+app.use('/api', analyticsRoutes); // Add analyticsRoutes
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

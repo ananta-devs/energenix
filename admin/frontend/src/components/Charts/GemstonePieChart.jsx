@@ -1,39 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import React from 'react';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useStore } from '../../store/useStore';
 
-const GemstonePieChart = () => {
+const GemstonePieChart = ({ data }) => {
   const { darkMode } = useStore();
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchPieChartData = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/analytics');
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        const analyticsData = await response.json();
-        const formattedData = analyticsData.categoryRevenue.map(item => ({
-          name: item.category,
-          value: item.revenue,
-          color: item.color,
-        }));
-        setData(formattedData);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPieChartData();
-  }, []);
 
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+    if (percent === 0) return null;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
@@ -53,21 +27,21 @@ const GemstonePieChart = () => {
     );
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
+  if (!data || data.length === 0) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 flex items-center justify-center h-full">
+        <p className="text-gray-500 dark:text-gray-400">No product revenue data available.</p>
+      </div>
+    );
   }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
-        Revenue by Gemstone Type
+        Revenue by Product Type
       </h3>
-      <div className="w-full">
-        <PieChart width={500} height={350}>
+      <ResponsiveContainer width="100%" height={350}>
+        <PieChart>
           <Pie
             data={data}
             cx="50%"
@@ -76,8 +50,8 @@ const GemstonePieChart = () => {
             label={renderCustomizedLabel}
             outerRadius={100}
             fill="#8884d8"
-            dataKey="value"
-            nameKey="name"
+            dataKey="revenue"
+            nameKey="category"
           >
             {data.map((entry, index) => (
               <Cell
@@ -96,7 +70,7 @@ const GemstonePieChart = () => {
               borderRadius: '8px',
               fontSize: '14px',
             }}
-            formatter={(value, name) => [`${value}`, `${name}`]}
+            formatter={(value, name) => [`₹${value.toLocaleString()}`, name]}
           />
           <Legend
             wrapperStyle={{
@@ -108,7 +82,7 @@ const GemstonePieChart = () => {
             align="center"
           />
         </PieChart>
-      </div>
+      </ResponsiveContainer>
     </div>
   );
 };

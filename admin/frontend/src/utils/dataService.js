@@ -63,6 +63,11 @@ export const dataService = {
     return response.data;
   },
 
+  async updateOrder(id, orderData) {
+    const response = await api.put(`/api/orders/${id}`, orderData);
+    return response.data;
+  },
+
   async getCustomers() {
     const response = await api.get(`/api/users`);
     return response.data;
@@ -75,6 +80,16 @@ export const dataService = {
 
   async getAnalytics() {
     const response = await api.get(`/api/analytics`);
+    return response.data;
+  },
+
+  async getTopSellingProducts() {
+    const response = await api.get(`/api/analytics/topselling`);
+    return response.data;
+  },
+
+  async getRecentActivity() {
+    const response = await api.get(`/api/analytics/recentactivity`);
     return response.data;
   },
 

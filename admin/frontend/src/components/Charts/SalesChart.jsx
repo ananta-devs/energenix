@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   LineChart,
   Line,
@@ -7,40 +7,19 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  ResponsiveContainer
 } from 'recharts';
 import { useStore } from '../../store/useStore';
 
-const SalesChart = () => {
+const SalesChart = ({ data }) => {
   const { darkMode } = useStore();
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchSalesData = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/analytics');
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        const analyticsData = await response.json();
-        setData(analyticsData.monthlySales);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSalesData();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
+  if (!data || data.length === 0) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 flex items-center justify-center h-full">
+        <p className="text-gray-500 dark:text-gray-400">No sales data available.</p>
+      </div>
+    );
   }
 
   return (
@@ -48,10 +27,8 @@ const SalesChart = () => {
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
         Monthly Sales & Revenue
       </h3>
-      <div className="w-full">
+      <ResponsiveContainer width="100%" height={350}>
         <LineChart
-          width={500}
-          height={350}
           data={data}
           margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
           syncId="dashboard-charts"
@@ -83,10 +60,18 @@ const SalesChart = () => {
             tickLine={false}
           />
           <YAxis
+            yAxisId="left"
             stroke={darkMode ? '#9ca3af' : '#6b7280'}
             fontSize={12}
             tickLine={false}
-            tickFormatter={(val) => `$${val}`}
+            tickFormatter={(val) => `₹${val.toLocaleString()}`}
+          />
+          <YAxis
+            yAxisId="right"
+            orientation="right"
+            stroke={darkMode ? '#9ca3af' : '#6b7280'}
+            fontSize={12}
+            tickLine={false}
           />
           <Tooltip
             contentStyle={{
@@ -99,6 +84,12 @@ const SalesChart = () => {
             itemStyle={{
               color: darkMode ? '#ffffff' : '#000000',
             }}
+            formatter={(value, name) => {
+              if (name === 'Sales' || name === 'Revenue') {
+                return [`₹${value.toLocaleString()}`, name];
+              }
+              return [value, name];
+            }}
           />
           <Legend
             wrapperStyle={{
@@ -110,32 +101,35 @@ const SalesChart = () => {
           <Line
             type="monotone"
             dataKey="sales"
-            stroke="url(#colorSales)"
+            stroke="#22c55e"
             strokeWidth={2}
-            name="Sales ($)"
+            name="Sales"
+            yAxisId="left"
             dot={{ fill: '#22c55e', strokeWidth: 2, r: 4 }}
             activeDot={{ r: 6, stroke: '#22c55e', strokeWidth: 2 }}
           />
           <Line
             type="monotone"
             dataKey="revenue"
-            stroke="url(#colorRevenue)"
+            stroke="#3b82f6"
             strokeWidth={2}
-            name="Revenue ($)"
+            name="Revenue"
+            yAxisId="left"
             dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
             activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
           />
           <Line
             type="monotone"
             dataKey="orders"
-            stroke="url(#colorOrders)"
+            stroke="#8b5cf6"
             strokeWidth={2}
             name="Orders"
+            yAxisId="right"
             dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
             activeDot={{ r: 6, stroke: '#8b5cf6', strokeWidth: 2 }}
           />
         </LineChart>
-      </div>
+      </ResponsiveContainer>
     </div>
   );
 };
