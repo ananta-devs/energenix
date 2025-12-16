@@ -11,6 +11,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const uploadRoutes = require('./routes/uploadRoutes'); // Import uploadRoutes
 const couponRoutes = require('./routes/couponRoutes');
+const shipmozoRoutes = require('./routes/shipmozoRoutes');
 const connectDB = require('./config/db');
 const Collection = require('./models/Collection');
 
@@ -34,6 +35,7 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes); // Add uploadRoutes
 app.use('/api/coupons', couponRoutes);
+app.use('/api/shipmozo', shipmozoRoutes);
 const analyticsRoutes = require('./routes/analyticsRoutes'); // Import analyticsRoutes
 app.use('/api', analyticsRoutes); // Add analyticsRoutes
 

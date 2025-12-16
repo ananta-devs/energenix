@@ -68,6 +68,16 @@ export const dataService = {
     return response.data;
   },
 
+  async updateOrderAwb(id, awb_number) {
+    const response = await api.put(`/api/orders/${id}/update-awb`, { awb_number });
+    return response.data;
+  },
+
+  async updateOrderStatus(id, status) {
+    const response = await api.put(`/api/orders/${id}/update-status`, { status });
+    return response.data;
+  },
+
   async getCustomers() {
     const response = await api.get(`/api/users`);
     return response.data;
@@ -163,6 +173,11 @@ export const dataService = {
     const response = await api.delete(`/api/upload`, {
       data: { public_id },
     });
+    return response.data;
+  },
+
+  async getShipmozoConfig() {
+    const response = await api.get('/api/shipmozo/config');
     return response.data;
   },
 

@@ -37,8 +37,38 @@ const updateOrder = asyncHandler(async (req, res) => {
   }
 });
 
+const updateAwbNumber = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (order) {
+    const { awb_number } = req.body;
+    order.awb_number = awb_number;
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } else {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+});
+
+const updateOrderStatus = asyncHandler(async (req, res) => {
+    const order = await Order.findById(req.params.id);
+
+    if (order) {
+        const { status } = req.body;
+        order.status = status;
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+    } else {
+        res.status(404);
+        throw new Error('Order not found');
+    }
+});
+
 
 module.exports = {
   getOrders,
-  updateOrder
+  updateOrder,
+  updateAwbNumber,
+  updateOrderStatus
 };
