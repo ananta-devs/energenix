@@ -18,7 +18,9 @@ const seedAdmin = async () => {
       adm_email: 'admin@example.com',
       adm_phone: '1234567890',
       password: hashedPassword,
-      is2fa: false,
+      isSuper: true,
+      status:'active'
+
     });
 
     await admin.save();
