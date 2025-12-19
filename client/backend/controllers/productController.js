@@ -23,3 +23,21 @@ exports.getProductById = async (req, res) => {
   }
 };
 
+exports.searchProducts = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ message: 'Query parameter is required' });
+    }
+
+    const products = await Product.find({
+      p_name: { $regex: query, $options: 'i' }
+    }).select('p_name image_urls p_price discount_price').limit(10);
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+

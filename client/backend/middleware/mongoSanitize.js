@@ -19,7 +19,7 @@ const mongoSanitize = (req, res, next) => {
     if (req.query !== sanitizedQuery) {
         // If sanitize returned a new object or we want to ensure we update the existing reference
         Object.keys(req.query).forEach(key => {
-            if (!sanitizedQuery.hasOwnProperty(key)) {
+            if (!Object.prototype.hasOwnProperty.call(sanitizedQuery, key)) {
                 delete req.query[key];
             }
         });
