@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import api from '../../utils/api.js';
+import { dataService } from '../../utils/dataService.js';
 
 // Import components
 import DashboardHeader from './components/DashboardHeader.jsx';
@@ -70,9 +70,9 @@ const Dashboard = () => {
             setLoading(true);
             try {
                 const [userRes, ordersRes, addressRes] = await Promise.all([
-                    api.get('/auth/me'),
-                    api.get('/orders'),
-                    api.get('/address')
+                    dataService.getMe(),
+                    dataService.getOrders(),
+                    dataService.getAddresses()
                 ]);
                 
                 setUserData(userRes.data);
@@ -142,7 +142,7 @@ const Dashboard = () => {
         try {
             if (formData.email !== originalEmail) {
                 try {
-                    await api.post('/auth/check-email', { email: formData.email });
+                    await dataService.checkEmail(formData.email);
                 } catch (err) {
                     if (err.response && err.response.status === 400) {
                         showToast(err.response.data.msg, 'error');
@@ -150,12 +150,12 @@ const Dashboard = () => {
                     }
                 }
 
-                await api.post('/auth/send-update-email-otp', { email: formData.email });
+                await dataService.sendUpdateEmailOtp(formData.email);
                 setShowEmailVerificationModal(true);
                 return;
             }
 
-            const res = await api.put('/auth/me', { fullName: formData.fullName, phone: formData.phone });
+            const res = await dataService.updateMe({ fullName: formData.fullName, phone: formData.phone });
             setUserData(res.data);
             setShowEditProfileModal(false);
             showToast('Profile updated successfully!', 'success');
@@ -167,7 +167,7 @@ const Dashboard = () => {
 
     const handleVerifyEmail = async () => {
         try {
-            const res = await api.post('/auth/verify-update-email-otp', { email: formData.email, otp: verificationCode });
+            const res = await dataService.verifyUpdateEmailOtp(formData.email, verificationCode);
             
             setUserData(res.data);
             setOriginalEmail(formData.email);
@@ -183,7 +183,7 @@ const Dashboard = () => {
 
     const handleResendCode = async () => {
         try {
-            await api.post('/auth/send-update-email-otp', { email: formData.email });
+            await dataService.sendUpdateEmailOtp(formData.email);
             showToast('Verification code sent!', 'success');
         } catch (err) {
             console.error(err);
@@ -193,7 +193,7 @@ const Dashboard = () => {
 
     const fetchAddresses = async () => {
         try {
-            const res = await api.get('/address');
+            const res = await dataService.getAddresses();
             setAddresses(res.data.addresses);
         } catch (err) {
             console.error(err);
@@ -202,7 +202,7 @@ const Dashboard = () => {
 
     const handleSaveAddress = async () => {
         try {
-            await api.post('/address/add', addressForm);
+            await dataService.addAddress(addressForm);
             showToast('Address saved successfully!', 'success');
             setShowAddAddressModal(false);
             resetAddressForm();
@@ -236,7 +236,7 @@ const Dashboard = () => {
         
         setIsEditing(true);
         try {
-            await api.put(`/address/${currentAddressId}`, addressForm);
+            await dataService.updateAddress(currentAddressId, addressForm);
             showToast('Address updated successfully!', 'success');
             setShowEditAddressModal(false);
             resetAddressForm();
@@ -262,7 +262,7 @@ const Dashboard = () => {
         
         setIsDeleting(true);
         try {
-            await api.delete(`/address/${addressToDelete._id}`);
+            await dataService.deleteAddress(addressToDelete._id);
             showToast('Address deleted successfully!', 'success');
             setShowDeleteModal(false);
             fetchAddresses();
@@ -277,7 +277,7 @@ const Dashboard = () => {
 
     const handleSetActiveAddress = async (addressId) => {
         try {
-            const res = await api.patch(`/address/${addressId}/set-active`);
+            const res = await dataService.setActiveAddress(addressId);
             setAddresses(res.data.addresses);
             showToast("Address set as active!", "success");
         } catch (err) {
@@ -308,7 +308,7 @@ const Dashboard = () => {
     // Fetch city/state from backend
     const fetchCityState = async (pin) => {
         try {
-            const res = await api.get(`/pincode/${pin}`);
+            const res = await dataService.getPinCodeInfo(pin);
             return {
                 city: res.data.city || "",
                 state: res.data.state || ""

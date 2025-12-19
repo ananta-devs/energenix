@@ -6,7 +6,7 @@ import {
     LoginGifBig, LoginGifSm
 } from "../../utils/svg";
 import { useAuth } from "../../context/AuthContext";
-import api from "../../utils/api";
+import { dataService } from "../../utils/dataService";
 import useOtpTimer from "../../hooks/useOtpTimer";
 
 export default function LoginPage() {
@@ -66,8 +66,8 @@ export default function LoginPage() {
         setErrors({});
 
         try {
-            await api.post("/auth/check-email", { email: formData.email });
-            await api.post("/auth/signin", { email: formData.email });
+            await dataService.checkEmail(formData.email);
+            await dataService.signIn(formData.email);
             setShowOtpField(true);
             startTimer();
             toast.success("OTP sent to your email!");
@@ -86,7 +86,7 @@ export default function LoginPage() {
 
         setLoading(true);
         try {
-            const res = await api.post("/auth/signup", formData);
+            const res = await dataService.signUp(formData);
             setShowOtpField(true);
             startTimer();
             toast.success(res.data.msg);
@@ -112,10 +112,10 @@ export default function LoginPage() {
                 setIsRegistering(false);
                 resetForm();
             } else {
-                const res = await api.post("/auth/verify-signin-otp", {
-                    email: formData.email,
-                    otp,
-                });
+                const res = await dataService.verifySignInOtp(
+                    formData.email,
+                    otp
+                );
                 setAuthToken(res.data.token);
                 toast.success("Signed in successfully!");
                 navigate("/");
@@ -131,7 +131,7 @@ export default function LoginPage() {
     const handleResendOtp = async () => {
         try {
             if (!isRegistering) {
-                await api.post("/auth/signin", { email: formData.email });
+                await dataService.signIn(formData.email);
                 toast.success("OTP resent successfully!");
                 startTimer();
             } else {

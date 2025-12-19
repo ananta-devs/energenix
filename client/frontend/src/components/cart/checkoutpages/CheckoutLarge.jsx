@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../../hooks/useCart.js";
 import { useAuth } from "../../../hooks/useAuth.js";
+import { dataService } from "../../../utils/dataService";
 import api from "../../../utils/api";
-import ap from "../../../assets/logo.svg";
 import {
     MapPin,
     CreditCard,
@@ -44,7 +44,7 @@ function CouponModal({
     const fetchAvailableCoupons = async () => {
         setLoading(true);
         try {
-            const response = await api.get("/coupons/available");
+            const response = await dataService.getAvailableCoupons();
             setCoupons(response.data || []);
         } catch (error) {
             console.error("Error fetching coupons:", error);
@@ -981,7 +981,7 @@ export default function CheckoutLarge() {
 
     const fetchCityState = async (pin) => {
         try {
-            const res = await api.get(`/pincode/${pin}`);
+            const res = await dataService.getPinCodeInfo(pin);
             return { city: res.data.city || "", state: res.data.state || "" };
         } catch {
             return { city: "", state: "" };
@@ -1012,9 +1012,9 @@ export default function CheckoutLarge() {
             return;
         }
         try {
-            const { data } = await api.post("/coupons/apply", {
-                couponCode: code,
-                cartTotal,
+            const { data } = await api.post('/coupons/apply', { 
+                couponCode: code, 
+                cartTotal: cartTotal 
             });
 
             setCouponCode(data.coupon.code);
@@ -1075,17 +1075,16 @@ export default function CheckoutLarge() {
     };
 
     const handleOnlinePayment = async () => {
+        setIsProcessing(true);
         try {
-            const { data } = await api.post("/payment/create-order", {
-                amount: finalTotal,
-            });
+            const { data } = await dataService.createOrder(finalTotal);
 
             const options = {
                 key: data.key,
                 amount: finalTotal * 100,
                 currency: "INR",
                 name: "EnergeniX",
-                image: ap,
+                image: "https://ui-avatars.com/api/?name=EnergeniX&background=162556&color=fff&size=128",
                 order_id: data.orderId,
                 handler: async function (response) {
                     const {
@@ -1094,7 +1093,7 @@ export default function CheckoutLarge() {
                         razorpay_signature,
                     } = response;
                     try {
-                        const { data } = await api.post("/payment/verify", {
+                        const { data } = await dataService.verifyPayment({
                             razorpay_payment_id,
                             razorpay_order_id,
                             razorpay_signature,
@@ -1106,6 +1105,8 @@ export default function CheckoutLarge() {
                         }
                     } catch (error) {
                         alert("Payment verification failed");
+                    } finally {
+                        setIsProcessing(false);
                     }
                 },
                 prefill: {
@@ -1116,12 +1117,18 @@ export default function CheckoutLarge() {
                 theme: {
                     color: "#162556",
                 },
+                modal: {
+                    ondismiss: () => {
+                        setIsProcessing(false);
+                    },
+                },
             };
 
             const rzp = new window.Razorpay(options);
             rzp.open();
         } catch {
             alert("Error creating payment order");
+            setIsProcessing(false);
         }
     };
 
@@ -1193,7 +1200,7 @@ export default function CheckoutLarge() {
                 height_cm: maxTotalHeightCm,
             };
 
-            await api.post("/orders/create", orderPayload);
+            await dataService.createClientOrder(orderPayload);
             clearCart();
             navigate("/dashboard");
         } catch (error) {

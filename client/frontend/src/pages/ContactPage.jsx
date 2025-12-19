@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import api from '../utils/api'; // Import api
+import { dataService } from '../utils/dataService'; // Import dataService
 
 export default function ContactPage() {
   const { user } = useAuth();
@@ -33,7 +33,7 @@ export default function ContactPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post('/contact', formData); // Use api.post
+      const response = await dataService.sendContactMessage(formData); // Use dataService
 
       if (response.status === 200) { // Axios uses status
         if (user) {

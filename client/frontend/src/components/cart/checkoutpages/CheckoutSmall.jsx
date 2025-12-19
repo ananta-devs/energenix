@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../../hooks/useCart.js";
 import { useAuth } from "../../../hooks/useAuth.js";
+import { dataService } from "../../../utils/dataService";
 import api from "../../../utils/api";
-import ap from "../../../assets/logo.svg"; // Placeholder for Razorpay
 import {
     MapPin,
     CreditCard,
@@ -17,16 +17,13 @@ import {
     Percent,
     Calendar,
     DollarSign,
-    Users,
     Ticket,
-    Gift,
     ChevronUp, // Import ChevronUp
     ChevronDown, // Import ChevronDown
     Trash2, // Import Trash2
     Banknote,
 } from "lucide-react";
 
-// ============================ CouponModal Component ============================
 // ============================ CouponModal Component ============================
 function CouponModal({
     isOpen,
@@ -53,7 +50,7 @@ function CouponModal({
     const fetchAvailableCoupons = async () => {
         setLoading(true);
         try {
-            const response = await api.get("/coupons/available");
+            const response = await dataService.getAvailableCoupons();
             setCoupons(response.data || []);
         } catch (error) {
             console.error("Error fetching coupons:", error);
@@ -515,7 +512,7 @@ export default function CheckoutSmall() {
 
     const fetchCityState = async (pin) => {
         try {
-            const res = await api.get(`/pincode/${pin}`);
+            const res = await dataService.getPinCodeInfo(pin);
             return { city: res.data.city || "", state: res.data.state || "" };
         } catch {
             return { city: "", state: "" };
@@ -563,9 +560,9 @@ export default function CheckoutSmall() {
             return;
         }
         try {
-            const { data } = await api.post("/coupons/apply", {
-                couponCode: code, // Use the passed code
-                cartTotal: totalAmount, // Use totalAmount for cartTotal
+            const { data } = await api.post('/coupons/apply', { 
+                couponCode: code, 
+                cartTotal: totalAmount 
             });
 
             setCouponCode(data.coupon.code); // Update couponCode state with the successfully applied code
@@ -634,16 +631,14 @@ export default function CheckoutSmall() {
     const handleOnlinePayment = async () => {
         setIsProcessing(true);
         try {
-            const { data } = await api.post("/payment/create-order", {
-                amount: finalTotalAmount,
-            });
+            const { data } = await dataService.createOrder(finalTotalAmount);
 
             const options = {
                 key: data.key,
                 amount: data.amount,
                 currency: "INR",
                 name: "EnergeniX",
-                image: ap,
+                image: "https://ui-avatars.com/api/?name=EnergeniX&background=162556&color=fff&size=128",
                 description: "Order Payment",
                 order_id: data.orderId,
                 handler: (response) =>
@@ -653,7 +648,12 @@ export default function CheckoutSmall() {
                     email: user?.email,
                     contact: addressForm.phone,
                 },
-                theme: { color: "#6366F1" },
+                theme: { color: "#162556" },
+                modal: {
+                    ondismiss: () => {
+                        setIsProcessing(false);
+                    },
+                },
             };
 
             const rzp = new window.Razorpay(options);
@@ -739,7 +739,7 @@ export default function CheckoutSmall() {
                     : undefined, // Add applied coupon details
             };
 
-            const { data } = await api.post("/orders/create", orderPayload);
+            const { data } = await dataService.createClientOrder(orderPayload);
 
             if (data.order) {
                 clearCart();
@@ -1214,6 +1214,8 @@ export default function CheckoutSmall() {
                             ? "Save & Continue"
                             : step === 2
                             ? "Proceed to Payment"
+                            : paymentMethod === "cod"
+                            ? "Place Order"
                             : `Pay ₹${finalTotalAmount.toLocaleString()}`}
                     </button>
                 </div>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { decodeToken, saveToken, getToken, clearToken } from "./authService";
-import api, { setupInterceptors } from "../utils/api"; //
+import api, { setupInterceptors } from "../utils/api";
+import { dataService } from "../utils/dataService";
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext(null);
@@ -40,8 +41,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email) => {
     try {
-      // Use Axios for the login request (OTP sending)
-      const res = await api.post("/auth/signin", { email });
+      // Use dataService for the login request (OTP sending)
+      const res = await dataService.signIn(email);
 
       if (res.status === 200) { // Axios uses status, not res.ok
         showToast("OTP sent to your email!", "success");
