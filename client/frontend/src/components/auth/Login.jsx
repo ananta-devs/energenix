@@ -319,7 +319,7 @@ export default function LoginPage() {
                                         : handleGenerateOtp
                                 }
                                 disabled={loading}
-                                className="w-full bg-black text-white py-3 lg:py-4 rounded-full font-medium hover:bg-gray-800 transition disabled:bg-gray-400 cursor-pointer"
+                                className="w-full bg-blue-900 text-white py-3 lg:py-4 rounded-full font-medium hover:bg-blue-950 transition disabled:bg-gray-400 cursor-pointer"
                             >
                                 {loading
                                     ? "Processing..."

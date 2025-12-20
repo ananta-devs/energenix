@@ -92,9 +92,7 @@ const CartIcon = React.memo(({ itemCount, onClick }) => (
 
 const SearchSuggestions = React.memo(({ 
   suggestions, 
-  onSuggestionClick, 
-  searchQuery, 
-  onViewAllClick,
+  onSuggestionClick,
   isMobile = false
 }) => {
   const containerRef = useRef(null);
@@ -119,11 +117,16 @@ const SearchSuggestions = React.memo(({
       >
         <div className="py-2">
           {suggestions.map((product) => (
-            <button
+            <Link
               key={product._id}
-              onClick={() => onSuggestionClick(product)}
+              to={`/product/${slugify(product.p_name)}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSuggestionClick(product);
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               className="w-full text-left px-4 py-3 hover:bg-gray-100 text-gray-800 flex items-center gap-3 transition-colors focus:outline-none focus:bg-gray-100"
-              type="button"
             >
               {product.image_urls?.[0] ? (
                 <img 
@@ -141,18 +144,9 @@ const SearchSuggestions = React.memo(({
                 <span className="truncate font-medium">{product.p_name}</span>
                 <span className="text-xs text-gray-500">₹{product.p_price}</span>
               </div>
-            </button>
+            </Link>
           ))}
         </div>
-      </div>
-      <div className="border-t border-gray-200 px-4 py-2 bg-gray-50 sticky bottom-0">
-        <button
-          onClick={onViewAllClick}
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium focus:outline-none focus:underline"
-          type="button"
-        >
-          View all results for "{searchQuery}"
-        </button>
       </div>
     </div>
   );
@@ -225,11 +219,19 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close sidebar and search on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setShowSearch(false);
+    setShowSuggestions(false);
+    setSearchQuery('');
+  }, [location.pathname]);
+
   // Handle escape key for sidebar and search
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape') {
-        if (mobileMenuOpen) handleCloseSidebar();
+        if (mobileMenuOpen) setMobileMenuOpen(false); // Direct setter usage
         if (showSearch) {
           setShowSearch(false);
           setShowSuggestions(false);
@@ -317,12 +319,12 @@ const Header = () => {
   const handleLogout = useCallback(() => {
     logout();
     navigate('/login');
-    handleCloseSidebar();
+    // handleCloseSidebar handled by useEffect
   }, [logout, navigate]);
 
   const handleNavigation = useCallback(() => {
     navigate('/dashboard');
-    handleCloseSidebar();
+    // handleCloseSidebar handled by useEffect
   }, [navigate]);
 
   const handleCloseSidebar = useCallback(() => {
@@ -336,8 +338,8 @@ const Header = () => {
   }, []);
 
   const handleNavClick = useCallback(() => {
-    handleCloseSidebar();
-  }, [handleCloseSidebar]);
+    // handleCloseSidebar handled by useEffect
+  }, []);
 
   const handleSearchClick = useCallback(() => {
     setShowSearch(true);
@@ -353,23 +355,16 @@ const Header = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setShowSearch(false);
-      setShowSuggestions(false);
-      setSearchQuery('');
-      handleCloseSidebar();
+      // Closing handled by useEffect
     }
-  }, [searchQuery, navigate, handleCloseSidebar]);
+  }, [searchQuery, navigate]);
 
   const handleSuggestionClick = useCallback((product) => {
-    const slug = slugify(product.p_name);
-    navigate(`/product/${slug}`);
-    
+    // We only update the query here to reflect what was clicked.
+    // Navigation is handled by the Link component.
+    // Closing is handled by the useEffect on location change.
     setSearchQuery(product.p_name);
-    setSearchSuggestions([]);
-    setShowSuggestions(false);
-    setShowSearch(false);
-    handleCloseSidebar();
-  }, [navigate, handleCloseSidebar]);
+  }, []);
 
   const handleSearchInputChange = useCallback((e) => {
     setSearchQuery(e.target.value);
@@ -391,9 +386,7 @@ const Header = () => {
 
   const handleViewAllResults = useCallback(() => {
     navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    setShowSuggestions(false);
-    setShowSearch(false);
-    setSearchQuery('');
+    // Closing handled by useEffect
   }, [navigate, searchQuery]);
 
   // Memoized navigation items
@@ -446,7 +439,7 @@ const Header = () => {
                     <Search className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" aria-hidden="true" />
                     <input
                       type="text"
-                      placeholder="Search gems..."
+                      placeholder="Search products..."
                       className="bg-transparent outline-none text-sm w-full focus:ring-0"
                       onChange={handleSearchInputChange}
                       onFocus={handleSearchInputFocus}
@@ -477,8 +470,7 @@ const Header = () => {
                   className="hidden md:flex items-center gap-2 p-2 rounded-full transition group focus:outline-none focus:ring-2 focus:ring-amber-300"
                   aria-label="Sign in"
                 >
-                  <p className="text-white group-hover:text-amber-300">Sign In</p>
-                  <LogIn className="w-5 h-5 text-white group-hover:text-amber-300" aria-hidden="true" />
+                  <User className="w-5 h-5 text-white group-hover:text-amber-300" aria-hidden="true" />
                 </Link>
               ) : (
                 <button
@@ -520,7 +512,7 @@ const Header = () => {
                     value={searchQuery}
                     onChange={handleSearchInputChange}
                     onFocus={handleSearchInputFocus}
-                    placeholder="Search gems..."
+                    placeholder="Search products..."
                     className="bg-transparent outline-none text-sm w-full text-gray-800 focus:ring-0"
                     autoFocus
                     aria-label="Search products"

@@ -615,7 +615,7 @@ const CheckoutSmall = () => {
                 amount: data.amount,
                 currency: "INR",
                 name: "EnergeniX",
-                image: "https://ui-avatars.com/api/?name=EnergeniX&background=162556&color=fff&size=128",
+                image: "https://res.cloudinary.com/djva05hfi/image/upload/v1766247498/logo-razorp_sucina.jpg",
                 description: "Order Payment",
                 order_id: data.orderId,
                 handler: (response) => handlePlaceOrder(response.razorpay_payment_id),
@@ -702,7 +702,7 @@ const CheckoutSmall = () => {
                 setShowSuccess(true);
 
                 setTimeout(() => {
-                    navigate("/dashboard");
+                    window.location.replace("/dashboard");
                 }, 2000);
             } else {
                 throw new Error(data.error || "Order creation failed");

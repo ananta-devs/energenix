@@ -865,7 +865,7 @@ const CheckoutLarge = () => {
                 amount: finalTotal * 100,
                 currency: "INR",
                 name: "EnergeniX",
-                image: "https://ui-avatars.com/api/?name=EnergeniX&background=162556&color=fff&size=128",
+                image: "https://res.cloudinary.com/djva05hfi/image/upload/v1766247498/logo-razorp_sucina.jpg",
                 order_id: data.orderId,
                 handler: async function (response) {
                     const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
@@ -957,7 +957,9 @@ const CheckoutLarge = () => {
 
             await dataService.createClientOrder(orderPayload);
             clearCart();
-            navigate("/dashboard");
+            setTimeout(() => {
+                window.location.replace("/dashboard");
+            }, 2000);
         } catch (error) {
             alert("Order placement failed. Please try again.");
         } finally {
