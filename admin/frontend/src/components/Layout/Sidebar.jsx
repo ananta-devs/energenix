@@ -11,8 +11,7 @@ import {
   Mail,
   Settings,
   LogOut,
-  X,
-  Menu, 
+  X, 
   Archive,
   Ticket
 } from 'lucide-react';
@@ -33,7 +32,7 @@ const menuItems = [
 ];
 
 const Sidebar = () => {
-  const { sidebarOpen, setSidebarOpen } = useStore();
+  const { sidebarOpen, setSidebarOpen, logout } = useStore();
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,6 +57,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    logout();
     navigate('/login');
   };
 
@@ -104,7 +104,7 @@ const Sidebar = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white hidden lg:block">
+              <span className="text-xl font-bold text-gray-900 dark:text-white">
                 Energenix
               </span>
             </div>
@@ -115,7 +115,7 @@ const Sidebar = () => {
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
               >
-                {sidebarOpen ? <X size={20} className="text-gray-700 dark:text-gray-300"/> : <Menu size={20}/>}
+                <X size={20} className="text-gray-700 dark:text-white"/>
               </button>
             )}
           </div>

@@ -37,7 +37,7 @@ export default function AdminSignIn() {
       });
       // Decode the token and update the store with super admin status
       const decoded = jwtDecode(response.token);
-      loginUser(decoded.admin.isSuper); // Pass isSuper to login action
+      loginUser(decoded.admin.isSuper, decoded.admin.adm_name); // Pass isSuper and name to login action
       navigate('/dashboard');
     } catch (error) {
       if (error.response) {

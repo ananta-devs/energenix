@@ -1,7 +1,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const Admin = require('./models/Admin');
+const Admin = require('./admin/backend/models/Admin');
 
 const seedAdmin = async () => {
   try {

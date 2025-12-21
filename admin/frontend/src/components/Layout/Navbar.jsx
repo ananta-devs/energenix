@@ -1,9 +1,7 @@
 // Navbar.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { 
-  Search, 
-  Bell, 
+import {  
   Moon, 
   Sun,
   ChevronDown,
@@ -12,12 +10,13 @@ import {
 import { useStore } from '../../store/useStore';
 
 const Navbar = () => {
-  const { darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen } = useStore();
+  const { darkMode, toggleDarkMode, sidebarOpen, setSidebarOpen, adminName, logout } = useStore();
   const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    logout();
     navigate('/login');
   };
 
@@ -53,7 +52,7 @@ const Navbar = () => {
         <div className="flex items-center space-x-2 sm:space-x-4">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 lg:hidden"
+            className="p-2 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800 transition-colors duration-200 lg:hidden"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -82,13 +81,7 @@ const Navbar = () => {
             )}
 
           </button>
-
-          {/* Notifications */}
-          <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 relative transition-colors duration-200">
-            <Bell size={20} className="text-gray-700 dark:text-gray-300" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-gray-900" />
-          </button>
-
+          
           {/* Profile Dropdown */}
           <div className="relative">
             <button
@@ -99,7 +92,7 @@ const Navbar = () => {
                 <User size={14} className="text-white" />
               </div>
               <div className="text-left hidden sm:block">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">Admin User</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">{adminName || 'Admin User'}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
               </div>
               <ChevronDown size={16} className="text-gray-400 hidden sm:block" />

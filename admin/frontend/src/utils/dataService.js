@@ -192,12 +192,13 @@ export const dataService = {
     return response.data;
   },
 
-  // Message reply method (assuming an endpoint exists for this)
-  async replyToMessage(to, subject, content) {
-    const response = await api.post(`/api/messages/reply`, {
+  // Message reply method
+  async replyToMessage(to, subject, content, name) {
+    const response = await api.post(`/api/contacts/reply`, {
       to,
       subject,
       content,
+      name,
     });
     return response.data;
   },

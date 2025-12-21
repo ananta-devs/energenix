@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Trash2, Search, Reply, X, Send } from 'lucide-react';
 import { dataService } from '../utils/dataService';
+import { toast } from 'react-hot-toast';
 
 const Messages = () => {
   const [messages, setMessages] = useState([]);
@@ -72,13 +73,15 @@ const Messages = () => {
       await dataService.replyToMessage(
         selectedMessage.email,
         `Re: Message from ${selectedMessage.fullName}`,
-        replyContent
+        replyContent,
+        selectedMessage.fullName
       );
+      toast.success('Reply message sent');
       setShowReplyModal(false);
       setReplyContent('');
     } catch (error) {
       console.error('Error sending reply:', error);
-      alert('Error sending reply. Please try again.');
+      toast.error('Error sending reply. Please try again.');
     }
   };
 
@@ -132,7 +135,7 @@ const Messages = () => {
                 placeholder="Search messages..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
               />
             </div>
           </div>
@@ -176,13 +179,13 @@ const Messages = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <button 
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" 
+                    className="p-2 rounded-lg hover:bg-gray-100 text-red-500 dark:hover:bg-gray-700 cursor-pointer" 
                     onClick={() => handleDeleteClick(selectedMessage._id)}
                   >
                     <Trash2 size={18} />
                   </button>
                   <button 
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 cursor-pointer"
                     onClick={handleReplyClick}
                   >
                     <Reply size={18} />

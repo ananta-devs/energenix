@@ -24,6 +24,7 @@ const loginAdmin = async (req, res) => {
       admin: {
         id: admin.id,
         isSuper: admin.isSuper,
+        adm_name: admin.adm_name,
       },
     };
 

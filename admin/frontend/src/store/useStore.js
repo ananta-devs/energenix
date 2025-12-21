@@ -12,6 +12,7 @@ export const useStore = create(
       // Admin and Authentication
       isAuthenticated: false, // Default to false, updated on login
       isSuperAdmin: false, // Default to false, updated on login
+      adminName: '', // New state for admin name
 
       // Actions
       toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
@@ -19,8 +20,8 @@ export const useStore = create(
       toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
       setCurrentPage: (page) => set({ currentPage: page }),
       
-      login: (isSuper) => set({ isAuthenticated: true, isSuperAdmin: isSuper }),
-      logout: () => set({ isAuthenticated: false, isSuperAdmin: false }),
+      login: (isSuper, name) => set({ isAuthenticated: true, isSuperAdmin: isSuper, adminName: name }),
+      logout: () => set({ isAuthenticated: false, isSuperAdmin: false, adminName: '' }),
       setIsSuperAdmin: (status) => set({ isSuperAdmin: status }),
 
       // Toast notifications
@@ -37,6 +38,7 @@ export const useStore = create(
       partialize: (state) => ({ 
         isAuthenticated: state.isAuthenticated, 
         isSuperAdmin: state.isSuperAdmin,
+        adminName: state.adminName,
         darkMode: state.darkMode,
         sidebarOpen: state.sidebarOpen,
         currentPage: state.currentPage,

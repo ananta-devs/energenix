@@ -202,7 +202,7 @@ const PackTypesSection = ({
                                                             e.target.value
                                                         )
                                                     }
-                                                    className={`w-full px-3 py-2 text-sm border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                                    className={`w-full px-3 py-2 text-sm border dark:text-white rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                                                         formErrors[
                                                             `${label}_${field}`
                                                         ]
@@ -886,7 +886,7 @@ const ProductsData = () => {
                             placeholder="Search products..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                            className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 dark:text-white    rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
                         />
                     </div>
                     <button
@@ -1405,7 +1405,7 @@ const FormInput = ({
             type={type}
             value={value}
             onChange={onChange}
-            className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+            className={`w-full px-3 py-2 border rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                 error
                     ? "border-red-300 dark:border-red-600"
                     : "border-gray-300 dark:border-gray-600"
@@ -1428,7 +1428,7 @@ const FormSelect = ({ label, value, options, onChange, error }) => (
         <select
             value={value}
             onChange={onChange}
-            className={`w-full px-3 py-2 border rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+            className={`w-full px-3 py-2 border rounded-lg bg-transparent dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                 error
                     ? "border-red-300 dark:border-red-600"
                     : "border-gray-300 dark:border-gray-600"
@@ -1555,7 +1555,7 @@ const DescriptionSection = ({ formData, onFormChange }) => (
             value={formData.description}
             onChange={(e) => onFormChange("description", e.target.value)}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:text-white rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             placeholder="Enter product description"
         />
     </div>

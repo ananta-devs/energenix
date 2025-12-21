@@ -316,7 +316,7 @@ const CouponData = () => {
               placeholder="Search coupons..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
           </div>
           <button
@@ -443,7 +443,7 @@ const CouponData = () => {
                     </div>
                   </td>
                   <td className="py-3 px-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize">
+                    <span className="inline-flex items-center px-2.5 py-0.5 dark:text-white rounded-full text-xs font-medium capitalize">
                       {coupon.visibility}
                     </span>
                   </td>
@@ -541,14 +541,14 @@ const CouponData = () => {
                       name="code"
                       value={formData.code}
                       onChange={handleInputChange}
-                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
                       placeholder="COUPON-CODE"
                     />
                     {!editingCoupon && (
                       <button
                         type="button"
                         onClick={() => setFormData(prev => ({ ...prev, code: generateCouponCode() }))}
-                        className="px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 rounded-lg transition-colors cursor-pointer"
+                        className="px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-white bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 rounded-lg transition-colors cursor-pointer"
                       >
                         Generate
                       </button>
@@ -558,7 +558,7 @@ const CouponData = () => {
 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700  dark:text-gray-300 mb-2">
                     Description (Optional)
                   </label>
                   <textarea
@@ -566,7 +566,7 @@ const CouponData = () => {
                     value={formData.description}
                     onChange={handleInputChange}
                     rows="2"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
                     placeholder="Enter coupon description..."
                   />
                 </div>
@@ -613,7 +613,7 @@ const CouponData = () => {
                       name="discount_type"
                       value={formData.discount_type}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="percentage">Percentage (%)</option>
                       <option value="fixed">Fixed Amount (₹)</option>
@@ -639,7 +639,7 @@ const CouponData = () => {
                         min="0"
                         max={formData.discount_type === 'percentage' ? '100' : undefined}
                         step={formData.discount_type === 'percentage' ? '0.01' : '0.01'}
-                        className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder={formData.discount_type === 'percentage' ? '0-100' : '0.00'}
                       />
                     </div>
@@ -660,7 +660,7 @@ const CouponData = () => {
                       onChange={handleInputChange}
                       min="0"
                       step="0.01"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="0.00"
                     />
                   </div>
@@ -680,7 +680,7 @@ const CouponData = () => {
                         value={formData.usage_limit}
                         onChange={handleInputChange}
                         min="1"
-                        className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="∞"
                       />
                     </div>
@@ -699,7 +699,7 @@ const CouponData = () => {
                         value={formData.per_user_limit}
                         onChange={handleInputChange}
                         min="1"
-                        className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="∞"
                       />
                     </div>
@@ -717,7 +717,7 @@ const CouponData = () => {
                       name="valid_from"
                       value={formData.valid_from}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:scheme-dark"
                     />
                   </div>
 
@@ -731,7 +731,7 @@ const CouponData = () => {
                       name="valid_until"
                       value={formData.valid_until}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:scheme-dark"
                     />
                   </div>
                 </div>

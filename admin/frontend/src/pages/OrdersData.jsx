@@ -512,7 +512,7 @@ const OrdersData = () => {
                         placeholder="Search by Order ID, Customer..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     />
                 </div>
             </div>
@@ -664,13 +664,18 @@ const OrdersData = () => {
                                     {selectedOrder.status !== "cancelled" &&
                                         !selectedOrder.cancelled && (
                                             <>
-                                                <button
-                                                    onClick={openEditModal}
-                                                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer"
-                                                >
-                                                    <Edit size={16} />
-                                                    Edit Order
-                                                </button>
+                                                {(selectedOrder.status ===
+                                                    "CREATED" ||
+                                                    selectedOrder.status ===
+                                                        "created") && (
+                                                    <button
+                                                        onClick={openEditModal}
+                                                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer"
+                                                    >
+                                                        <Edit size={16} />
+                                                        Edit Order
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={
                                                         getShipmozoOrderDetail
@@ -680,19 +685,25 @@ const OrdersData = () => {
                                                     <FileText size={16} />
                                                     Get Details
                                                 </button>
-                                                {selectedOrder.awb_number && (
-                                                    <button
-                                                        onClick={() =>
-                                                            getShipmozoOrderLabel(
-                                                                selectedOrder.awb_number
-                                                            )
-                                                        }
-                                                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors cursor-pointer"
-                                                    >
-                                                        <Package size={16} />
-                                                        Get Label
-                                                    </button>
-                                                )}
+                                                {selectedOrder.awb_number &&
+                                                    (selectedOrder.status?.toLowerCase() ===
+                                                        "pickup pending" ||
+                                                        selectedOrder.status?.toLowerCase() ===
+                                                            "pickup-pending") && (
+                                                        <button
+                                                            onClick={() =>
+                                                                getShipmozoOrderLabel(
+                                                                    selectedOrder.awb_number
+                                                                )
+                                                            }
+                                                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors cursor-pointer"
+                                                        >
+                                                            <Package
+                                                                size={16}
+                                                            />
+                                                            Get Label
+                                                        </button>
+                                                    )}
                                             </>
                                         )}
                                     <button
@@ -902,9 +913,6 @@ const OrdersData = () => {
                                             selectedOrder.items
                                         );
                                         let shippingValue = 0;
-                                        const taxValue =
-                                            selectedOrder.tax_amount || 0;
-
                                         if (
                                             selectedOrder.payment_type === "COD"
                                         ) {
@@ -931,9 +939,7 @@ const OrdersData = () => {
                                         }
 
                                         const totalValue =
-                                            subtotalValue +
-                                            shippingValue +
-                                            taxValue;
+                                            subtotalValue + shippingValue;
 
                                         return (
                                             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
@@ -960,17 +966,6 @@ const OrdersData = () => {
                                                         <span className="font-medium text-gray-900 dark:text-white">
                                                             ₹
                                                             {shippingValue.toLocaleString(
-                                                                "en-IN"
-                                                            )}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="text-gray-600 dark:text-gray-400">
-                                                            Tax:
-                                                        </span>
-                                                        <span className="font-medium text-gray-900 dark:text-white">
-                                                            ₹
-                                                            {taxValue.toLocaleString(
                                                                 "en-IN"
                                                             )}
                                                         </span>
@@ -1122,12 +1117,12 @@ const OrdersData = () => {
                                                                     <div>
                                                                         <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
                                                                             {
-                                                                                scan.remark
+                                                                                scan.status
                                                                             }
                                                                         </p>
                                                                         <p className="text-xs text-gray-500 dark:text-gray-400">
                                                                             {new Date(
-                                                                                scan.scan_date_time
+                                                                                scan.date
                                                                             ).toLocaleString(
                                                                                 "en-IN"
                                                                             )}{" "}

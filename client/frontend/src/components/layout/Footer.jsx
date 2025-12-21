@@ -33,7 +33,7 @@ export default function Footer() {
         },
         {
             icon: Mail,
-            url: "mailto:example@email.com",
+            url: "mailto:energenix.0@gmail.com",
         },
     ];
 
