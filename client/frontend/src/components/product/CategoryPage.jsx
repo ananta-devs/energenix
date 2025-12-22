@@ -13,6 +13,26 @@ export default function CategoryPage() {
   const [currentCategory, setCurrentCategory] = useState(null);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showSortModal, setShowSortModal] = useState(false);
+  const [selectedPriceRanges, setSelectedPriceRanges] = useState([]);
+
+  const priceRanges = useMemo(() => [
+    { key: '<1000', label: 'Under 1,000' },
+    { key: '1000-3000', label: '1,000 - 3,000' },
+    { key: '3000-5000', label: '3,000 - 5,000' },
+    { key: '>5000', label: 'Over 5,000' },
+  ], []);
+
+  const handlePriceRangeChange = (rangeKey) => {
+    setSelectedPriceRanges(prev =>
+      prev.includes(rangeKey)
+        ? prev.filter(r => r !== rangeKey)
+        : [...prev, rangeKey]
+    );
+  };
+
+  const clearFilters = () => {
+    setSelectedPriceRanges([]);
+  };
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -75,6 +95,19 @@ export default function CategoryPage() {
     return categories;
   }, [products]);
 
+  const availablePriceRanges = useMemo(() => {
+    return priceRanges.filter(range => {
+      return products.some(p => {
+        const price = p.discount_price;
+        if (range.key === '<1000') return price < 1000;
+        if (range.key === '1000-3000') return price >= 1000 && price <= 3000;
+        if (range.key === '3000-5000') return price >= 3000 && price <= 5000;
+        if (range.key === '>5000') return price > 5000;
+        return false;
+      });
+    });
+  }, [products, priceRanges]);
+
   useEffect(() => {
     if (identifier === 'all') {
       setCurrentCategory({ _id: 'all', name: 'All Products' });
@@ -100,8 +133,25 @@ export default function CategoryPage() {
   
   const filteredProducts = products.filter(p => {
     if (!currentCategory) return false;
-    if (currentCategory._id === 'all') return true;
-    return p.p_category && p.p_category._id === currentCategory._id;
+    
+    // Category filter
+    const inCategory = currentCategory._id === 'all' || (p.p_category && p.p_category._id === currentCategory._id);
+    if (!inCategory) return false;
+
+    // Price range filter
+    if (selectedPriceRanges.length > 0) {
+      const price = p.discount_price;
+      const matchesPrice = selectedPriceRanges.some(range => {
+        if (range === '<1000') return price < 1000;
+        if (range === '1000-3000') return price >= 1000 && price <= 3000;
+        if (range === '3000-5000') return price >= 3000 && price <= 5000;
+        if (range === '>5000') return price > 5000;
+        return false;
+      });
+      if (!matchesPrice) return false;
+    }
+
+    return true;
   }).sort((a, b) => {
     if (sortBy === 'price-low') return a.discount_price - b.discount_price;
     if (sortBy === 'price-high') return b.discount_price - a.discount_price;
@@ -131,6 +181,14 @@ export default function CategoryPage() {
             <div className="bg-white p-6 rounded-xl shadow-sm sticky top-24">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-bold text-lg">Filters</h3>
+                {selectedPriceRanges.length > 0 && (
+                  <button 
+                    onClick={clearFilters}
+                    className="text-sm font-medium text-blue-800 hover:text-blue-950"
+                  >
+                    Clear
+                  </button>
+                )}
                 <Filter className="w-5 h-5 text-gray-400" />
               </div>
 
@@ -142,7 +200,7 @@ export default function CategoryPage() {
                     <input 
                       type="radio" 
                       name="category" 
-                      className="mr-2" 
+                      className="mr-2 accent-blue-800" 
                       checked={currentCategory?._id === 'all'}
                       onChange={() => navigate('/category/all')}
                     />
@@ -153,7 +211,7 @@ export default function CategoryPage() {
                       <input 
                         type="radio" 
                         name="category" 
-                        className="mr-2" 
+                        className="mr-2 accent-blue-800" 
                         checked={currentCategory?._id === cat._id}
                         onChange={() => navigate(`/category/${slugify(cat.name)}`)}
                       />
@@ -167,22 +225,17 @@ export default function CategoryPage() {
               <div className="mb-6">
                 <h4 className="font-semibold mb-3">Price Range</h4>
                 <div className="space-y-2">
-                  <label className="flex items-center cursor-pointer">
-                    <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">Under 1,000</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer">
-                    <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">1,000 - 3,000</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer">
-                    <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">3,000 - 5,000</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer">
-                    <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">Over 5,000</span>
-                  </label>
+                  {availablePriceRanges.map(range => (
+                    <label key={range.key} className="flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="mr-2 accent-blue-800"
+                        checked={selectedPriceRanges.includes(range.key)}
+                        onChange={() => handlePriceRangeChange(range.key)}
+                      />
+                      <span className="text-sm">{range.label}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
             </div>
@@ -200,11 +253,10 @@ export default function CategoryPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-4 py-2 border rounded-lg outline-none focus:border-purple-600"
+                  className="px-4 py-2 border rounded-lg outline-none focus:border-blue-800"
                 >
                   <option value="price-low">Price: Low to High</option>
                   <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Highest Rated</option>
                 </select>
               </div>
             </div>
@@ -261,6 +313,14 @@ export default function CategoryPage() {
               {/* Header */}
               <div className="flex items-center justify-between mb-6 pb-4 border-b">
                 <h3 className="text-xl font-bold">Filters</h3>
+                {selectedPriceRanges.length > 0 && (
+                  <button 
+                    onClick={clearFilters}
+                    className="text-sm font-medium text-blue-800 hover:text-blue-950"
+                  >
+                    Clear
+                  </button>
+                )}
                 <button 
                   onClick={closeModal}
                   className="p-2 rounded-full hover:bg-gray-100"
@@ -277,7 +337,7 @@ export default function CategoryPage() {
                     <input 
                       type="radio" 
                       name="modal-category" 
-                      className="mr-3 w-5 h-5" 
+                      className="mr-3 w-5 h-5 accent-blue-800" 
                       checked={currentCategory?._id === 'all'}
                       onChange={() => {
                         navigate('/category/all');
@@ -291,7 +351,7 @@ export default function CategoryPage() {
                       <input 
                         type="radio" 
                         name="modal-category" 
-                        className="mr-3 w-5 h-5" 
+                        className="mr-3 w-5 h-5 accent-blue-800" 
                         checked={currentCategory?._id === cat._id}
                         onChange={() => {
                           navigate(`/category/${slugify(cat.name)}`);
@@ -308,23 +368,28 @@ export default function CategoryPage() {
               <div className="mb-6">
                 <h4 className="font-semibold mb-3 text-lg">Price Range</h4>
                 <div className="space-y-3">
-                  <label className="flex items-center cursor-pointer p-2 rounded-lg hover:bg-gray-50">
-                    <input type="checkbox" className="mr-3 w-5 h-5" />
-                    <span className="text-base">Under 1,000</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer p-2 rounded-lg hover:bg-gray-50">
-                    <input type="checkbox" className="mr-3 w-5 h-5" />
-                    <span className="text-base">1,000 - 3,000</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer p-2 rounded-lg hover:bg-gray-50">
-                    <input type="checkbox" className="mr-3 w-5 h-5" />
-                    <span className="text-base">3,000 - 5,000</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer p-2 rounded-lg hover:bg-gray-50">
-                    <input type="checkbox" className="mr-3 w-5 h-5" />
-                    <span className="text-base">Over 5,000</span>
-                  </label>
+                  {availablePriceRanges.map(range => (
+                    <label key={range.key} className="flex items-center cursor-pointer p-2 rounded-lg hover:bg-gray-50">
+                      <input 
+                        type="checkbox" 
+                        className="mr-3 w-5 h-5 accent-blue-800" 
+                        checked={selectedPriceRanges.includes(range.key)}
+                        onChange={() => handlePriceRangeChange(range.key)}
+                      />
+                      <span className="text-base">{range.label}</span>
+                    </label>
+                  ))}
                 </div>
+              </div>
+
+              {/* Action Button */}
+              <div className="pt-4 border-t">
+                <button 
+                  onClick={closeModal}
+                  className="w-full bg-blue-950 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+                >
+                  Done
+                </button>
               </div>
             </div>
           </div>
@@ -355,12 +420,11 @@ export default function CategoryPage() {
               </div>
 
               {/* Sort Options */}
-              <div className="space-y-4">
                 <label className="flex items-center cursor-pointer p-3 rounded-lg hover:bg-gray-50">
                   <input 
                     type="radio" 
                     name="sort-option" 
-                    className="mr-3 w-5 h-5" 
+                    className="mr-3 w-5 h-5 accent-blue-800" 
                     value="price-low"
                     checked={sortBy === 'price-low'}
                     onChange={(e) => {
@@ -375,7 +439,7 @@ export default function CategoryPage() {
                   <input 
                     type="radio" 
                     name="sort-option" 
-                    className="mr-3 w-5 h-5" 
+                    className="mr-3 w-5 h-5 accent-blue-800" 
                     value="price-high"
                     checked={sortBy === 'price-high'}
                     onChange={(e) => {
@@ -385,24 +449,8 @@ export default function CategoryPage() {
                   />
                   <span className="text-base">Price: High to Low</span>
                 </label>
-                
-                <label className="flex items-center cursor-pointer p-3 rounded-lg hover:bg-gray-50">
-                  <input 
-                    type="radio" 
-                    name="sort-option" 
-                    className="mr-3 w-5 h-5" 
-                    value="rating"
-                    checked={sortBy === 'rating'}
-                    onChange={(e) => {
-                      setSortBy(e.target.value);
-                      closeModal();
-                    }}
-                  />
-                  <span className="text-base">Highest Rated</span>
-                </label>
               </div>
             </div>
-          </div>
         </>
       )}
     </div>

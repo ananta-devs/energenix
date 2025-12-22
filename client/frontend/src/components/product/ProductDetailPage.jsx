@@ -301,7 +301,7 @@ export default function ProductDetailPage() {
                                             }
                                             className={`px-4 py-2 rounded-lg border-2 transition ${
                                                 selectedPack === pack
-                                                    ? "border-purple-600 bg-purple-50 text-purple-700"
+                                                    ? "border-blue-600 bg-purple-50 text-blue-700"
                                                     : "border-gray-300 hover:border-gray-400 cursor-pointer"
                                             }`}
                                         >
@@ -351,7 +351,7 @@ export default function ProductDetailPage() {
 
                                 <button
                                     onClick={handleAddToCart}
-                                    className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition"
+                                    className="flex-1 bg-gradient-to-r from-blue-800 to-blue-950 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition"
                                 >
                                     Add to Cart
                                 </button>
@@ -452,7 +452,7 @@ export default function ProductDetailPage() {
                                             India.{" "}
                                             {product.p_name.split(" ")[0]} ...
                                         </p>
-                                        <p className="text-sm font-bold text-purple-700 mt-1">
+                                        <p className="text-sm font-bold text-blue-800 mt-1">
                                             ₨.{" "}
                                             {Math.round(
                                                 packPrices.discountedPrice
@@ -694,7 +694,7 @@ export default function ProductDetailPage() {
                                     <p className="text-sm text-gray-600 line-clamp-2">
                                         {product.p_subtitle}
                                     </p>
-                                    <p className="text-lg font-bold text-purple-700 mt-1">
+                                    <p className="text-lg font-bold text-blue-800 mt-1">
                                         ₨.{" "}
                                         {Math.round(
                                             packPrices.discountedPrice
@@ -715,7 +715,7 @@ export default function ProductDetailPage() {
                                     });
                                     setShowShareOptions(false);
                                 }}
-                                className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition"
+                                className="w-full py-4 bg-gradient-to-r from-blue-800 to-indigo-950 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition"
                             >
                                 Share via Device
                             </button>
@@ -729,7 +729,7 @@ export default function ProductDetailPage() {
                 <div className="flex gap-4">
                     <button
                         onClick={handleAddToCart}
-                        className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition"
+                        className="flex-1 bg-gradient-to-r from-blue-800 to-indigo-950 text-white py-3 rounded-lg font-semibold transition"
                     >
                         Add to Cart
                     </button>

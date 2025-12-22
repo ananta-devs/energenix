@@ -57,19 +57,12 @@ const getProgressSteps = (status) => {
         ],
         "out for delivery": [
             "Ordered",
-            "Processing",
-            "Pickup Pending",
             "Picked Up",
             "Shipped",
             "Out for Delivery",
         ],
-        delivered: [
+        "delivered": [
             "Ordered",
-            "Processing",
-            "Pickup Pending",
-            "Picked Up",
-            "Shipped",
-            "Out for Delivery",
             "Delivered",
         ],
         cancelled: ["Ordered", "Cancelled"],

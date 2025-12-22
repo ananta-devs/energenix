@@ -148,8 +148,7 @@ export default function ContactPage() {
                 <h3 className="font-bold text-lg">Email</h3>
               </div>
               <div className="ml-9 space-y-2">
-                <p className="text-gray-600 break-words">info@luxegems.com</p>
-                <p className="text-gray-600 break-words">support@luxegems.com</p>
+                <p className="text-gray-600 break-words">energenix.0@gmail.com</p>
               </div>
 
               <div className="flex items-center gap-3 mb-4 mt-6">
@@ -157,8 +156,8 @@ export default function ContactPage() {
                 <h3 className="font-bold text-lg">Phone</h3>
               </div>
               <div className="ml-9">
-                <p className="text-gray-600">+1 (555) 123-4567</p>
-                <p className="text-sm text-gray-500 mt-1">Mon-Fri: 9AM-6PM EST</p>
+                <p className="text-gray-600">+91 9476156308</p>
+                <p className="text-sm text-gray-500 mt-1">Mon-Fri: 9AM-6PM IST</p>
               </div>
             </div>
 
@@ -169,9 +168,9 @@ export default function ContactPage() {
               </div>
               <div className="ml-9">
                 <p className="text-gray-600">
-                  123 Diamond Street<br />
-                  New York, NY 10001<br />
-                  United States
+                  Bhita School Market<br />
+                  Burdwan, WB 713102<br />
+                  India
                 </p>
               </div>
             </div>

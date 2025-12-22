@@ -144,7 +144,7 @@ export default function HomePage() {
                                         "{t.text}"
                                     </p>
                                     <div className="flex items-center">
-                                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3 font-semibold text-purple-600">
+                                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3 font-semibold text-blue-600">
                                             {t.avatar}
                                         </div>
                                         <span className="font-semibold">

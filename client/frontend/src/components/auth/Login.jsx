@@ -108,9 +108,12 @@ export default function LoginPage() {
 
         try {
             if (isRegistering) {
-                toast.success("Account created successfully! Please sign in.");
+                const res = await dataService.verifyOtp(formData.email, otp);
+                setAuthToken(res.data.token);
+                toast.success("Account created and signed in successfully!");
                 setIsRegistering(false);
                 resetForm();
+                navigate("/");
             } else {
                 const res = await dataService.verifySignInOtp(
                     formData.email,
@@ -130,15 +133,10 @@ export default function LoginPage() {
 
     const handleResendOtp = async () => {
         try {
-            if (!isRegistering) {
-                await dataService.signIn(formData.email);
-                toast.success("OTP resent successfully!");
-                startTimer();
-            } else {
-                // For registration, the backend should handle resending if the user exists but is not verified
-                toast.success("OTP resent successfully!");
-                startTimer();
-            }
+            const type = isRegistering ? 'signup' : 'signin';
+            await dataService.resendOtp(formData.email, type);
+            toast.success("OTP resent successfully!");
+            startTimer();
         } catch (err) {
             const message = err.response?.data?.msg || "Something went wrong";
             toast.error(message);

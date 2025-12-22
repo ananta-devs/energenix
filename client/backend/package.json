@@ -23,8 +23,8 @@
     "mongo-sanitize": "^1.1.0",
     "mongoose": "^8.19.2",
     "node-cache": "^5.1.2",
-    "nodemailer": "^7.0.9",
     "razorpay": "^2.9.6",
+    "resend": "^6.6.0",
     "xss": "^1.0.15"
   }
 }

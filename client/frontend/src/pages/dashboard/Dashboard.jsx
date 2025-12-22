@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { dataService } from '../../utils/dataService.js';
@@ -9,35 +9,21 @@ import OrdersContent from './components/OrdersContent.jsx';
 import Profile from './components/Profile.jsx';
 import EditProfileModal from './components/EditProfileModal.jsx';
 import EmailVerificationModal from './components/EmailVerificationModal.jsx';
-import AddAddressModal from './components/AddAddressModal.jsx';
-import EditAddressModal from './components/EditAddressModal.jsx'; // New import
-import DeleteConfirmationModal from './components/DeleteConfirmationModal.jsx'; // New import
 import DashboardFooter from './components/DashboardFooter.jsx';
 
 const Dashboard = () => {
     const [currentPage, setCurrentPage] = useState('orders');
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-    const [showAddAddressModal, setShowAddAddressModal] = useState(false);
-    const [showEditAddressModal, setShowEditAddressModal] = useState(false); // New state
-    const [showDeleteModal, setShowDeleteModal] = useState(false); // New state
     const [showEmailVerificationModal, setShowEmailVerificationModal] = useState(false);
     const [userData, setUserData] = useState(null);
     const [verificationCode, setVerificationCode] = useState('');
     const [orders, setOrders] = useState([]);
-    const [addresses, setAddresses] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [isEditing, setIsEditing] = useState(false); // New state for edit loading
-    const [isDeleting, setIsDeleting] = useState(false); // New state for delete loading
     
     const { user, logout, showToast } = useAuth();
     const navigate = useNavigate();
     
-    // Refs for auto-focus
-    const pinRef = useRef(null);
-    const cityRef = useRef(null);
-    const stateRef = useRef(null);
-
     // Profile edit state
     const [formData, setFormData] = useState({
         fullName: '',
@@ -48,31 +34,13 @@ const Dashboard = () => {
     // Store original email for comparison
     const [originalEmail, setOriginalEmail] = useState('');
 
-    // Address form state
-    const [addressForm, setAddressForm] = useState({
-        isActive: false,
-        fullName: "",
-        phone: "",
-        altPhone: "",
-        addressLine1: "",
-        addressLine2: "",
-        city: "",
-        state: "",
-        pinCode: "",
-    });
-
-    // Store address to edit/delete
-    const [currentAddressId, setCurrentAddressId] = useState(null);
-    const [addressToDelete, setAddressToDelete] = useState(null);
-
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const [userRes, ordersRes, addressRes] = await Promise.all([
+                const [userRes, ordersRes] = await Promise.all([
                     dataService.getMe(),
-                    dataService.getOrders(),
-                    dataService.getAddresses()
+                    dataService.getOrders()
                 ]);
                 
                 setUserData(userRes.data);
@@ -83,7 +51,6 @@ const Dashboard = () => {
                 });
                 setOriginalEmail(userRes.data.email);
                 setOrders(ordersRes.data.orders);
-                setAddresses(addressRes.data.addresses);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -95,33 +62,6 @@ const Dashboard = () => {
             fetchData();
         }
     }, [user]);
-
-    // PIN debounce handler
-    let pinTimeout;
-
-    const handlePinChange = (pin) => {
-        setAddressForm(prev => ({ ...prev, pinCode: pin }));
-
-        if (pinTimeout) clearTimeout(pinTimeout);
-
-        if (pin.length !== 6) {
-            setAddressForm(prev => ({ ...prev, city: "", state: "" }));
-            return;
-        }
-
-        pinTimeout = setTimeout(async () => {
-            const { city, state } = await fetchCityState(pin);
-
-            if (!city) {
-                showToast("Invalid pincode", "error");
-                cityRef.current?.focus();
-                return;
-            }
-
-            setAddressForm(prev => ({ ...prev, city, state }));
-            cityRef.current?.focus();
-        }, 500);
-    };
 
     const handleNavigation = (page) => {
         setCurrentPage(page);
@@ -191,132 +131,8 @@ const Dashboard = () => {
         }
     };
 
-    const fetchAddresses = async () => {
-        try {
-            const res = await dataService.getAddresses();
-            setAddresses(res.data.addresses);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const handleSaveAddress = async () => {
-        try {
-            await dataService.addAddress(addressForm);
-            showToast('Address saved successfully!', 'success');
-            setShowAddAddressModal(false);
-            resetAddressForm();
-            fetchAddresses();
-        } catch (err) {
-            console.error(err);
-            showToast('Failed to save address.', 'error');
-        }
-    };
-
-    // Edit Address Handler
-    const handleEditAddress = (address) => {
-        setAddressForm({
-            isActive: address.isActive || false,
-            fullName: address.fullName || "",
-            phone: address.phone || "",
-            altPhone: address.altPhone || "",
-            addressLine1: address.addressLine1 || "",
-            addressLine2: address.addressLine2 || "",
-            city: address.city || "",
-            state: address.state || "",
-            pinCode: address.pinCode || "",
-        });
-        setCurrentAddressId(address._id);
-        setShowEditAddressModal(true);
-    };
-
-    // Update Address Handler
-    const handleUpdateAddress = async () => {
-        if (!currentAddressId) return;
-        
-        setIsEditing(true);
-        try {
-            await dataService.updateAddress(currentAddressId, addressForm);
-            showToast('Address updated successfully!', 'success');
-            setShowEditAddressModal(false);
-            resetAddressForm();
-            fetchAddresses();
-        } catch (err) {
-            console.error(err);
-            showToast('Failed to update address.', 'error');
-        } finally {
-            setIsEditing(false);
-            setCurrentAddressId(null);
-        }
-    };
-
-    // Delete Address Handler
-    const handleDeleteAddress = (address) => {
-        setAddressToDelete(address);
-        setShowDeleteModal(true);
-    };
-
-    // Confirm Delete Address Handler
-    const handleConfirmDelete = async () => {
-        if (!addressToDelete?._id) return;
-        
-        setIsDeleting(true);
-        try {
-            await dataService.deleteAddress(addressToDelete._id);
-            showToast('Address deleted successfully!', 'success');
-            setShowDeleteModal(false);
-            fetchAddresses();
-        } catch (err) {
-            console.error(err);
-            showToast('Failed to delete address.', 'error');
-        } finally {
-            setIsDeleting(false);
-            setAddressToDelete(null);
-        }
-    };
-
-    const handleSetActiveAddress = async (addressId) => {
-        try {
-            const res = await dataService.setActiveAddress(addressId);
-            setAddresses(res.data.addresses);
-            showToast("Address set as active!", "success");
-        } catch (err) {
-            console.error(err);
-            showToast("Failed to set active address.", "error");
-        }
-    };
-
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    // Reset address form
-    const resetAddressForm = () => {
-        setAddressForm({
-            isActive: false,
-            fullName: "",
-            phone: "",
-            altPhone: "",
-            addressLine1: "",
-            addressLine2: "",
-            city: "",
-            state: "",
-            pinCode: "",
-        });
-    };
-
-    // Fetch city/state from backend
-    const fetchCityState = async (pin) => {
-        try {
-            const res = await dataService.getPinCodeInfo(pin);
-            return {
-                city: res.data.city || "",
-                state: res.data.state || ""
-            };
-        } catch (err) {
-            console.error("Invalid PIN:", err);
-            return { city: "", state: "" };
-        }
     };
 
     return (
@@ -337,11 +153,6 @@ const Dashboard = () => {
                     <Profile
                         userData={userData}
                         setShowEditProfileModal={setShowEditProfileModal}
-                        setShowAddAddressModal={setShowAddAddressModal}
-                        addresses={addresses}
-                        handleEditAddress={handleEditAddress}
-                        handleDeleteAddress={handleDeleteAddress}
-                        handleSetActiveAddress={handleSetActiveAddress}
                     />
                 )}
             </main>
@@ -362,41 +173,6 @@ const Dashboard = () => {
                 setVerificationCode={setVerificationCode}
                 handleVerifyEmail={handleVerifyEmail}
                 handleResendCode={handleResendCode}
-            />
-
-            <AddAddressModal
-                showAddAddressModal={showAddAddressModal}
-                setShowAddAddressModal={setShowAddAddressModal}
-                addressForm={addressForm}
-                setAddressForm={setAddressForm}
-                handlePinChange={handlePinChange}
-                cityRef={cityRef}
-                stateRef={stateRef}
-                pinRef={pinRef}
-                handleSaveAddress={handleSaveAddress}
-            />
-
-            {/* New Edit Address Modal */}
-            <EditAddressModal
-                showEditAddressModal={showEditAddressModal}
-                setShowEditAddressModal={setShowEditAddressModal}
-                addressForm={addressForm}
-                setAddressForm={setAddressForm}
-                handlePinChange={handlePinChange}
-                cityRef={cityRef}
-                stateRef={stateRef}
-                pinRef={pinRef}
-                handleUpdateAddress={handleUpdateAddress}
-                isEditing={isEditing}
-            />
-
-            {/* New Delete Confirmation Modal */}
-            <DeleteConfirmationModal
-                showDeleteModal={showDeleteModal}
-                setShowDeleteModal={setShowDeleteModal}
-                addressToDelete={addressToDelete}
-                handleDeleteAddress={handleConfirmDelete}
-                isDeleting={isDeleting}
             />
 
             <DashboardFooter />

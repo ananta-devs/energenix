@@ -1,19 +1,11 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
 
 class EmailService {
     constructor() {
-        this.transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
-            secure: true,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
-            }
-        });
+        this.resend = new Resend(process.env.RESEND_API_KEY);
     }
     
     async sendOrderConfirmation(order, items, token) {
@@ -34,7 +26,7 @@ class EmailService {
         });
         
         const mailOptions = {
-            from: `"${process.env.COMPANY_NAME}" <${process.env.SENDER_EMAIL}>`,
+            from: `"EnergeniX" <${process.env.SENDER_EMAIL}>` ,
             to: order.customer_details.email,
             subject: `Order Confirmation #${order.order_id}`,
             html,
@@ -45,7 +37,17 @@ class EmailService {
         };
         
         try {
-            const info = await this.transporter.sendMail(mailOptions);
+            const { data, error } = await this.resend.emails.send({
+                from: mailOptions.from,
+                to: [order.customer_details.email],
+                subject: mailOptions.subject,
+                html: mailOptions.html,
+                headers: mailOptions.headers,
+            });
+
+            if (error) {
+                throw new Error(error.message);
+            }
             
             // Store email record with token
             await this.storeEmailRecord({
@@ -54,10 +56,10 @@ class EmailService {
                 recipient: order.customer_details.email,
                 secureToken,
                 expiry: expiryTime,
-                messageId: info.messageId
+                messageId: data.id // Resend returns an 'id' for the message
             });
             
-            return info;
+            return data;
         } catch (error) {
             console.error('Email send error:', error);
             throw error;
@@ -102,13 +104,47 @@ class EmailService {
         });
         
         const mailOptions = {
-            from: `"${process.env.COMPANY_NAME}" <${process.env.SENDER_EMAIL}>`,
-            to: order.customer_details.email,
+            from: `"EnergeniX" <${process.env.SENDER_EMAIL}>`,
+            to: [order.customer_details.email],
             subject: `Payment Failed for Order #${order.order_id}`,
             html
         };
         
-        return this.transporter.sendMail(mailOptions);
+        const { data, error } = await this.resend.emails.send(mailOptions);
+
+        if (error) {
+            console.error('Email send error:', error);
+            throw new Error(error.message);
+        }
+        return data;
+    }
+
+    async sendAuthOtp(email, otp, type) {
+        const templates = {
+            signup: { name: 'registration', subject: 'OTP for Registration' },
+            signin: { name: 'login', subject: 'OTP for Sign In' },
+            update: { name: 'emailupdate', subject: 'OTP for Email Update' },
+            resend: { name: 'resendEmail', subject: 'Your Resent OTP' }
+        };
+        
+        const config = templates[type];
+        if (!config) throw new Error('Invalid OTP type');
+        
+        const html = await this.renderEmailTemplate(config.name, { otp });
+        
+        const { data, error } = await this.resend.emails.send({
+            from: `"EnergeniX" <${process.env.SENDER_EMAIL}>` ,
+            to: [email],
+            subject: config.subject,
+            html: html,
+        });
+
+        if (error) {
+            console.error('Auth OTP email send error:', error);
+            throw new Error(error.message);
+        }
+        
+        return data;
     }
 }
 

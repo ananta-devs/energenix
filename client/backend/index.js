@@ -16,7 +16,6 @@ const pincodeRoutes = require('./routes/pincode');
 const paymentRoutes = require('./routes/paymentRoutes');
 const shipmozoRoutes = require('./routes/shipmozo.routes');
 const orderRoutes = require('./routes/order.routes.js');
-const addressRoutes = require('./routes/address.js');
 const couponRoutes = require('./routes/coupon.routes.js'); // Import coupon routes
 const heroSliderRoutes = require('./routes/heroSlider.routes.js');
 const errorHandler = require('./middleware/errorMiddleware');
@@ -68,7 +67,6 @@ app.use('/api/pincode', pincodeRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/shipmozo', shipmozoRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/address', addressRoutes);
 app.use('/api/coupons', couponRoutes); // Mount coupon routes
 app.use('/api/heroslider', heroSliderRoutes);
 

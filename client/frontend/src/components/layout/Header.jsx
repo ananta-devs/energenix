@@ -142,7 +142,7 @@ const SearchSuggestions = React.memo(({
               )}
               <div className="flex flex-col overflow-hidden min-w-0">
                 <span className="truncate font-medium">{product.p_name}</span>
-                <span className="text-xs text-gray-500">₹{product.p_price}</span>
+                <span className="text-xs text-gray-500">₹{product.discount_price}</span>
               </div>
             </Link>
           ))}
