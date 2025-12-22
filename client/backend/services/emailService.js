@@ -123,7 +123,6 @@ class EmailService {
         const templates = {
             signup: { name: 'registration', subject: 'OTP for Registration' },
             signin: { name: 'login', subject: 'OTP for Sign In' },
-            update: { name: 'emailupdate', subject: 'OTP for Email Update' },
             resend: { name: 'resendEmail', subject: 'Your Resent OTP' }
         };
         
