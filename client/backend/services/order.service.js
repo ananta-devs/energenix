@@ -48,21 +48,29 @@ module.exports = {
    * Update tracking
    */
   async updateTracking(orderId, trackingResponse) {
-    const lastEvent =
-      trackingResponse?.data?.track_data?.length
-        ? trackingResponse.data.track_data[trackingResponse.data.track_data.length - 1]
-        : {};
+    const data = trackingResponse?.data || {};
+    
+    // Extract status from top-level current_status (preferred) or fallback to last event
+    let status = data.current_status;
+    
+    // Handle scan details (prompt says scan_detail, some docs say track_data)
+    const scans = data.scan_detail || data.track_data || [];
+    const lastEvent = scans.length ? scans[scans.length - 1] : {};
+
+    if (!status) {
+        status = lastEvent.status || "UNKNOWN";
+    }
 
     return await Order.findOneAndUpdate(
       { order_id: orderId },
       {
         $set: {
           shipmozo_tracking_response: trackingResponse,
-          status: lastEvent.status || "UNKNOWN",
+          status: status,
           last_tracking_event: {
-            status: lastEvent.status || "",
+            status: lastEvent.status || status || "",
             location: lastEvent.location || "",
-            date: lastEvent.date || "",
+            date: lastEvent.date || data.status_time || "",
             remark: lastEvent.remark || ""
           }
         }

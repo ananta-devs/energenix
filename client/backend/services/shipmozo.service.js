@@ -175,10 +175,21 @@ async function getWarehouse() {
   return fetchAndCacheWarehouse();
 }
 
+/**
+ * Track an order by AWB number.
+ */
+async function trackOrder(awb) {
+  if (!awb) throw new Error("AWB number is required for tracking");
+  const axiosInstance = await getAxios();
+  const res = await axiosInstance.get(`/track-order?awb_number=${awb}`);
+  return res.data;
+}
+
 module.exports = {
   getAxios,
   ensureKeys,
   getWarehouse,
+  trackOrder,
   // exported for tests or manual refresh if needed
   _internal: {
     _cachedKeys: cachedKeys,

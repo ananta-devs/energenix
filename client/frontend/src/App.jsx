@@ -14,7 +14,6 @@ import { Toaster } from 'react-hot-toast';
 import ScrollToTop from './components/layout/ScrollToTop.jsx';
 import PrivacyPolicy from './pages/Privacy.jsx';
 import TermsOfService from './pages/Terms.jsx';
-import CookiePolicy from './pages/Cookie.jsx';
 
 function App() {
   return (
@@ -51,7 +50,6 @@ function App() {
         <Route path="/signup" element={<LoginPage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
-        <Route path="/cookie" element={<CookiePolicy />} />
       </Routes>
 
     </>

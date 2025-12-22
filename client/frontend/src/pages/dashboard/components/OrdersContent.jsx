@@ -1,4 +1,4 @@
-import { XCircle } from "lucide-react";
+import { XCircle, Download } from "lucide-react";
 import OrderSkeleton from "./OrderSkeleton";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -295,18 +295,30 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
                                                 </h3>
 
                                                 {/* mobile cancel button */}
-                                                {(order.status === "CREATED" || order.status === "created") ? (
-                                                    <button
-                                                        onClick={() => handleCancelClick(order._id)}
-                                                        className="px-3 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 text-xs sm:hidden"
-                                                    >
-                                                        Cancel Order
-                                                    </button>
-                                                ) : (
-                                                    <span className={`px-3 py-2 rounded-lg text-xs font-medium border sm:hidden ${getStatusStyles(order.status)}`}>
-                                                        {formatStatus(order.status)}
-                                                    </span>
-                                                )}
+                                                <div className="flex flex-col items-end gap-2 sm:hidden">
+                                                    {(order.status === "CREATED" || order.status === "created") ? (
+                                                        <button
+                                                            onClick={() => handleCancelClick(order._id)}
+                                                            className="px-3 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 text-xs"
+                                                        >
+                                                            Cancel Order
+                                                        </button>
+                                                    ) : (
+                                                        <span className={`px-3 py-2 rounded-lg text-xs font-medium border ${getStatusStyles(order.status)}`}>
+                                                            {formatStatus(order.status)}
+                                                        </span>
+                                                    )}
+
+                                                    {order.status?.toLowerCase() === 'delivered' && (
+                                                        <button
+                                                            onClick={() => console.log("Download invoice")}
+                                                            className="flex items-center gap-1 text-xs text-gray-600 hover:text-blue-600 bg-gray-50 px-2 py-1 rounded border border-gray-200"
+                                                        >
+                                                            <Download size={14} />
+                                                            <span>Invoice</span>
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
 
                                             <p className="text-xs sm:text-sm text-gray-600">
@@ -320,7 +332,7 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
                                         </div>
 
                                         {/* Large Screen Cancel/Status */}
-                                        <div className="hidden lg:block mt-1">
+                                        <div className="hidden lg:flex items-center gap-3 mt-1">
                                             {(order.status === "CREATED" || order.status === "created") ? (
                                                 <button
                                                     onClick={() => handleCancelClick(order._id)}
@@ -332,6 +344,36 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
                                                 <span className={`px-3 py-1 rounded-lg text-sm font-medium border ${getStatusStyles(order.status)}`}>
                                                     {formatStatus(order.status)}
                                                 </span>
+                                            )}
+
+                                            {order.status?.toLowerCase() === 'delivered' && (
+                                                <button
+                                                    onClick={() => console.log("Download invoice")}
+                                                    className="group relative flex items-center gap-2 overflow-hidden
+                                                                rounded-full bg-transparent p-2
+                                                                text-gray-500 transition-all duration-300
+                                                                hover:bg-blue-50 hover:text-blue-600"
+                                                    title="Download Invoice"
+                                                    >
+                                                    {/* Icon */}
+                                                    <Download size={20} className="shrink-0" />
+
+                                                    {/* Animated Text */}
+                                                    <span
+                                                        className="
+                                                        max-w-0 overflow-hidden whitespace-nowrap
+                                                        text-sm font-medium
+                                                        transition-all duration-300 ease-out
+                                                        group-hover:max-w-[140px]
+                                                        group-hover:translate-y-0
+                                                        translate-y-2
+                                                        opacity-0 group-hover:opacity-100
+                                                        "
+                                                    >
+                                                        Download Invoice
+                                                    </span>
+                                                    </button>
+
                                             )}
                                         </div>
                                     </div>

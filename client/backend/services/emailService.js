@@ -8,61 +8,71 @@ class EmailService {
         this.resend = new Resend(process.env.RESEND_API_KEY);
     }
     
-    async sendOrderConfirmation(order, items, token) {
-        // Generate secure link with expiry
-        const secureToken = this.generateSecureToken(order.order_id);
-        const expiryTime = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
-        
-        const confirmationLink = `${process.env.FRONTEND_URL}/order/confirm/${order.order_id}?token=${secureToken}&expiry=${expiryTime}`;
-        
-        const html = await this.renderEmailTemplate('order-confirmation', {
-            order,
-            items,
-            confirmationLink,
-            secureToken,
-            expiry: new Date(expiryTime).toLocaleString(),
-            supportEmail: process.env.SUPPORT_EMAIL,
-            contactPhone: process.env.CONTACT_PHONE
-        });
-        
-        const mailOptions = {
-            from: `"EnergeniX" <${process.env.SENDER_EMAIL}>` ,
-            to: order.customer_details.email,
-            subject: `Order Confirmation #${order.order_id}`,
-            html,
-            headers: {
-                'X-Order-ID': order.order_id,
-                'X-Secure-Token': secureToken
-            }
-        };
-        
+    async sendOrderConfirmation(order) {
         try {
-            const { data, error } = await this.resend.emails.send({
-                from: mailOptions.from,
-                to: [order.customer_details.email],
-                subject: mailOptions.subject,
-                html: mailOptions.html,
-                headers: mailOptions.headers,
-            });
-
-            if (error) {
-                throw new Error(error.message);
+            // Calculate subtotal
+            const subtotal = order.items.reduce((acc, item) => acc + (item.unit_price * item.quantity), 0);
+            
+            // Calculate shipping
+            let shippingCostDisplay = 'FREE';
+            let shippingCostValue = 0;
+            
+            if (order.payment_type === 'COD') {
+                shippingCostValue = 100;
+                shippingCostDisplay = '₹100';
             }
             
-            // Store email record with token
-            await this.storeEmailRecord({
-                orderId: order.order_id,
-                emailType: 'confirmation',
-                recipient: order.customer_details.email,
-                secureToken,
-                expiry: expiryTime,
-                messageId: data.id // Resend returns an 'id' for the message
+            const totalAmount = subtotal + shippingCostValue;
+
+            // Generate Items HTML
+            const itemsHtml = order.items.map(item => `
+                <tr>
+                    <td style="padding: 12px 0; border-bottom: 1px solid #e0e0e0;">
+                        <table width="100%">
+                            <tr>
+                                <td>
+                                    <strong>${item.name}</strong><br />
+                                    <span style="font-size: 13px; color: #666;">Qty: ${item.quantity}</span>
+                                </td>
+                                <td align="right">
+                                    <strong>₹${item.unit_price}</strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            `).join('');
+
+            const html = await this.renderEmailTemplate('order-confirmation', {
+                order_id: order.order_id,
+                order_date: new Date(order.order_date).toLocaleDateString("en-IN", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                }),
+                items_html: itemsHtml,
+                subtotal: subtotal,
+                shipping_cost: shippingCostDisplay,
+                total_amount: totalAmount
             });
+            
+            const mailOptions = {
+                from: `"EnergeniX" <order-confirmation@energenix.store>` ,
+                to: [order.customer.email],
+                subject: `Order Confirmation #${order.order_id}`,
+                html,
+            };
+            
+            const { data, error } = await this.resend.emails.send(mailOptions);
+
+            if (error) {
+                console.error('Email send error:', error);
+                // We log but don't throw to avoid crashing the order process
+            }
             
             return data;
         } catch (error) {
             console.error('Email send error:', error);
-            throw error;
         }
     }
     

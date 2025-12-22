@@ -1,164 +1,306 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EnergeniX Order Confirmation</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
-    <table role="presentation" style="width: 100%; border-collapse: collapse;">
-        <tr>
-            <td style="padding: 40px 0; text-align: center;">
-                <table role="presentation" style="width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <!-- Header -->
-                    <tr>
-                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center; border-radius: 8px 8px 0 0;">
-                            <!-- Logo -->
-                            <img src="https://via.placeholder.com/150x50/667eea/ffffff?text=EnergeniX" alt="EnergeniX Logo" style="max-width: 150px; height: auto; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;">
-                            <!-- Replace the src above with your actual logo URL -->
-                            
-                            <h1 style="margin: 10px 0 0 0; color: #ffffff; font-size: 28px; font-weight: bold;">EnergeniX</h1>
-                        </td>
-                    </tr>
-                    
-                    <!-- Success Icon & Message -->
-                    <tr>
-                        <td style="padding: 40px 30px 20px 30px; text-align: center;">
-                            <div style="width: 60px; height: 60px; background-color: #28a745; border-radius: 50%; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center;">
-                                <span style="color: #ffffff; font-size: 36px; line-height: 60px;">✓</span>
-                            </div>
-                            <h2 style="margin: 0 0 10px 0; color: #333333; font-size: 24px; font-weight: 600;">Order Confirmed!</h2>
-                            <p style="margin: 0 0 20px 0; color: #666666; font-size: 16px; line-height: 1.5;">
-                                Thank you for your purchase. Your order has been confirmed and will be processed shortly.
-                            </p>
-                        </td>
-                    </tr>
-                    
-                    <!-- Order Details -->
-                    <tr>
-                        <td style="padding: 0 30px 30px 30px;">
-                            <!-- Order Info Box -->
-                            <table role="presentation" style="width: 100%; background-color: #f8f9fa; border-radius: 8px; padding: 20px; border-collapse: collapse;">
-                                <tr>
-                                    <td style="padding: 10px 0;">
-                                        <table role="presentation" style="width: 100%;">
-                                            <tr>
-                                                <td style="padding: 8px 0; color: #666666; font-size: 14px; width: 40%;">Order Number:</td>
-                                                <td style="padding: 8px 0; color: #333333; font-size: 14px; font-weight: 600; text-align: right;">#ORD-123456</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px 0; color: #666666; font-size: 14px;">Order Date:</td>
-                                                <td style="padding: 8px 0; color: #333333; font-size: 14px; font-weight: 600; text-align: right;">December 19, 2024</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px 0; color: #666666; font-size: 14px;">Estimated Delivery:</td>
-                                                <td style="padding: 8px 0; color: #333333; font-size: 14px; font-weight: 600; text-align: right;">December 24-26, 2024</td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <!-- Order Items -->
-                            <h3 style="margin: 30px 0 15px 0; color: #333333; font-size: 18px; font-weight: 600;">Order Summary</h3>
-                            
-                            <table role="presentation" style="width: 100%; border-collapse: collapse; border-top: 2px solid #e0e0e0;">
-                                <!-- Item 1 -->
-                                <tr>
-                                    <td style="padding: 15px 0; border-bottom: 1px solid #e0e0e0;">
-                                        <table role="presentation" style="width: 100%;">
-                                            <tr>
-                                                <td style="width: 70%;">
-                                                    <p style="margin: 0 0 5px 0; color: #333333; font-size: 15px; font-weight: 600;">Product Name 1</p>
-                                                    <p style="margin: 0; color: #666666; font-size: 13px;">Quantity: 2</p>
-                                                </td>
-                                                <td style="width: 30%; text-align: right; color: #333333; font-size: 15px; font-weight: 600;">$199.99</td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>EnergeniX Order Confirmation</title>
+    </head>
+
+    <body
+        style="
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            font-family: Arial, Helvetica, sans-serif;
+        "
+    >
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+            <tr>
+                <td align="center" style="padding: 40px 0">
+                    <!-- MAIN CONTAINER -->
+                    <table
+                        width="600"
+                        cellpadding="0"
+                        cellspacing="0"
+                        role="presentation"
+                        style="background: #ffffff; border-radius: 8px"
+                    >
+                        <!-- HEADER -->
+                        <tr>
+                            <td
+                                align="center"
+                                style="
+                                    padding: 40px 30px;
+                                    background: #162556;
+                                    border-radius: 8px 8px 0 0;
+                                "
+                            >
                                 
-                                <!-- Item 2 -->
-                                <tr>
-                                    <td style="padding: 15px 0; border-bottom: 1px solid #e0e0e0;">
-                                        <table role="presentation" style="width: 100%;">
-                                            <tr>
-                                                <td style="width: 70%;">
-                                                    <p style="margin: 0 0 5px 0; color: #333333; font-size: 15px; font-weight: 600;">Product Name 2</p>
-                                                    <p style="margin: 0; color: #666666; font-size: 13px;">Quantity: 1</p>
-                                                </td>
-                                                <td style="width: 30%; text-align: right; color: #333333; font-size: 15px; font-weight: 600;">$79.99</td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                                
-                                <!-- Subtotal -->
-                                <tr>
-                                    <td style="padding: 15px 0;">
-                                        <table role="presentation" style="width: 100%;">
-                                            <tr>
-                                                <td style="padding: 5px 0; color: #666666; font-size: 14px;">Subtotal:</td>
-                                                <td style="padding: 5px 0; text-align: right; color: #333333; font-size: 14px;">$279.98</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 5px 0; color: #666666; font-size: 14px;">Shipping:</td>
-                                                <td style="padding: 5px 0; text-align: right; color: #333333; font-size: 14px;">$10.00</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 5px 0; color: #666666; font-size: 14px;">Tax:</td>
-                                                <td style="padding: 5px 0; text-align: right; color: #333333; font-size: 14px;">$23.00</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 10px 0 0 0; color: #333333; font-size: 16px; font-weight: 700; border-top: 2px solid #333333;">Total:</td>
-                                                <td style="padding: 10px 0 0 0; text-align: right; color: #667eea; font-size: 18px; font-weight: 700; border-top: 2px solid #333333;">$312.98</td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <!-- Shipping Address -->
-                            <h3 style="margin: 30px 0 15px 0; color: #333333; font-size: 18px; font-weight: 600;">Shipping Address</h3>
-                            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
-                                <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.6;">
-                                    John Doe<br>
-                                    123 Main Street, Apt 4B<br>
-                                    New York, NY 10001<br>
-                                    United States<br>
-                                    Phone: +1 (555) 123-4567
+                                <h1
+                                    style="
+                                        margin: 0;
+                                        color: #ffffff;
+                                        font-size: 26px;
+                                        font-weight: bold;
+                                    "
+                                >
+                                    EnergeniX
+                                </h1>
+                            </td>
+                        </tr>
+
+                        <!-- SUCCESS -->
+                        <tr>
+                            <td align="center" style="padding: 40px 30px 20px">
+                                <table
+                                    width="60"
+                                    height="60"
+                                    role="presentation"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    style="
+                                        background: #28a745;
+                                        border-radius: 50%;
+                                    "
+                                >
+                                    <tr>
+                                        <td
+                                            align="center"
+                                            valign="middle"
+                                            style="
+                                                color: #ffffff;
+                                                font-size: 32px;
+                                                font-weight: bold;
+                                                rotate: 20deg;
+                                            "
+                                        >
+                                            ✓
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <h2
+                                    style="
+                                        margin: 20px 0 10px;
+                                        color: #333;
+                                        font-size: 22px;
+                                    "
+                                >
+                                    Order Confirmed!
+                                </h2>
+                                <p
+                                    style="
+                                        margin: 0;
+                                        color: #666;
+                                        font-size: 15px;
+                                        line-height: 1.6;
+                                    "
+                                >
+                                    Thank you for your purchase. Your order has
+                                    been confirmed.
                                 </p>
-                            </div>
-                            
-                            <!-- Track Order Button -->
-                            <table role="presentation" style="width: 100%; margin: 30px 0;">
-                                <tr>
-                                    <td style="text-align: center;">
-                                        <a href="#" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 6px; font-size: 16px; font-weight: 600;">Track Your Order</a>
-                                    </td>
-                                </tr>
-                            </table>
-                            
-                            <p style="margin: 20px 0 0 0; color: #666666; font-size: 14px; line-height: 1.5; text-align: center;">
-                                Questions about your order? Contact us at support@energenix.com
-                            </p>
-                        </td>
-                    </tr>
-                    
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-radius: 0 0 8px 8px;">
-                            <p style="margin: 0 0 10px 0; color: #999999; font-size: 12px;">
-                                &copy; 2024 EnergeniX. All rights reserved.
-                            </p>
-                            <p style="margin: 0; color: #999999; font-size: 12px;">
-                                This is an automated message, please do not reply to this email.
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
+                            </td>
+                        </tr>
+
+                        <!-- ORDER INFO -->
+                        <tr>
+                            <td style="padding: 0 30px 30px">
+                                <table
+                                    width="100%"
+                                    role="presentation"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    style="
+                                        background: #f8f9fa;
+                                        border-radius: 8px;
+                                    "
+                                >
+                                    <tr>
+                                        <td style="padding: 20px">
+                                            <table
+                                                width="100%"
+                                                role="presentation"
+                                            >
+                                                <tr>
+                                                    <td
+                                                        style="
+                                                            font-size: 14px;
+                                                            color: #666;
+                                                        "
+                                                    >
+                                                        Order Number
+                                                    </td>
+                                                    <td
+                                                        align="right"
+                                                        style="
+                                                            font-size: 14px;
+                                                            font-weight: bold;
+                                                        "
+                                                    >
+                                                        #{{order_id}}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td
+                                                        style="
+                                                            padding-top: 8px;
+                                                            font-size: 14px;
+                                                            color: #666;
+                                                        "
+                                                    >
+                                                        Order Date
+                                                    </td>
+                                                    <td
+                                                        align="right"
+                                                        style="
+                                                            padding-top: 8px;
+                                                            font-size: 14px;
+                                                            font-weight: bold;
+                                                        "
+                                                    >
+                                                        {{order_date}}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td
+                                                        style="
+                                                            padding-top: 8px;
+                                                            font-size: 14px;
+                                                            color: #666;
+                                                        "
+                                                    >
+                                                        Estimated Delivery
+                                                    </td>
+                                                    <td
+                                                        align="right"
+                                                        style="
+                                                            padding-top: 8px;
+                                                            font-size: 14px;
+                                                            font-weight: bold;
+                                                        "
+                                                    >
+                                                        5-7 Days
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- ORDER SUMMARY -->
+                                <h3
+                                    style="
+                                        margin: 30px 0 15px;
+                                        text-align: center;
+                                        font-size: 18px;
+                                        color: #333;
+                                    "
+                                >
+                                    Order Summary
+                                </h3>
+
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    role="presentation"
+                                >
+                                    {{items_html}}
+
+                                    <tr>
+                                        <td style="padding-top: 15px">
+                                            <table width="100%">
+                                                <tr>
+                                                    <td>Subtotal</td>
+                                                    <td align="right">
+                                                        ₹{{subtotal}}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Shipping</td>
+                                                    <td align="right">
+                                                        {{shipping_cost}}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td
+                                                        style="
+                                                            padding-top: 10px;
+                                                            font-size: 16px;
+                                                            font-weight: bold;
+                                                        "
+                                                    >
+                                                        Total
+                                                    </td>
+                                                    <td
+                                                        align="right"
+                                                        style="
+                                                            padding-top: 10px;
+                                                            font-size: 18px;
+                                                            font-weight: bold;
+                                                            color: #667eea;
+                                                        "
+                                                    >
+                                                        ₹{{total_amount}}
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- FOOTER -->
+                        <tr>
+                            <td
+                                align="center"
+                                style="
+                                    padding: 25px;
+                                    background: #f8f9fa;
+                                    border-radius: 0 0 8px 8px;
+                                "
+                            >
+                                <a href="https://www.energenix.store/"
+                                    >Website</a
+                                >
+                                |
+                                <a
+                                    href="https://www.facebook.com/share/172iW9tyXi/"
+                                    >Facebook</a
+                                >
+                                |
+                                <a
+                                    href="https://www.instagram.com/official_energenix?igsh=MWd2bWE2eXRkajJyOQ=="
+                                    >Instagram</a
+                                >
+                                |
+                                <a href="mailto:energenix.0@gmail.com"
+                                    >Support</a
+                                >
+                                <p
+                                    style="
+                                        margin: 10px 0 0;
+                                        font-size: 12px;
+                                        color: #999;
+                                    "
+                                >
+                                    © 2025 EnergeniX
+                                </p>
+                                <p
+                                    style="
+                                        margin: 5px 0 0;
+                                        font-size: 12px;
+                                        color: #999;
+                                    "
+                                >
+                                    Automated email — do not reply
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
 </html>

@@ -1,5 +1,6 @@
 const orderService = require("../services/order.service");
-const { getAxios, getWarehouse } = require("../services/shipmozo.service");
+const emailService = require("../services/emailService");
+const { getAxios, getWarehouse, trackOrder } = require("../services/shipmozo.service");
 const Product = require("../models/Product");
 const Category = require("../models/Category"); // Import Category model
 const Coupon = require("../models/Coupon"); // Import Coupon model
@@ -21,7 +22,35 @@ function getUnitPriceForPack(product, pack_type) {
 module.exports = {
   async getOrders(req, res) {
     try {
-      const orders = await orderService.findAll(req.user.email);
+      let orders = await orderService.findAll(req.user.email);
+
+      // Identify orders to track
+      // Statuses that do NOT require tracking: delivered, cancelled, reqForCancel
+      const finalStatuses = ["delivered", "cancelled", "reqforcancel", "rerqforcancel"];
+      
+      const ordersToTrack = orders.filter(order => {
+        const status = (order.status || "").toLowerCase();
+        return order.awb_number && !finalStatuses.includes(status);
+      });
+
+      if (ordersToTrack.length > 0) {
+        await Promise.all(ordersToTrack.map(async (order) => {
+          try {
+            const trackRes = await trackOrder(order.awb_number);
+            if (trackRes && trackRes.result === "1") {
+               // Update the order with new tracking info
+               await orderService.updateTracking(order.order_id, trackRes);
+            }
+          } catch (err) {
+            // Log but don't fail the whole request
+            console.error(`Auto-tracking failed for order ${order.order_id}:`, err.message);
+          }
+        }));
+
+        // Refetch to get updated data
+        orders = await orderService.findAll(req.user.email);
+      }
+
       return res.json({ orders });
     } catch (err) {
       console.error("getOrders error:", err);
@@ -184,6 +213,9 @@ module.exports = {
         coupon_code: appliedCouponFromFrontend?.code, // Store applied coupon code
       });
       console.log("8. Order saved to database:", createdOrder._id);
+
+      // Send confirmation email
+      emailService.sendOrderConfirmation(createdOrder);
 
       // 9. Update coupon usage if a coupon was applied
       if (appliedCouponFromFrontend?._id) {
