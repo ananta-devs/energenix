@@ -11,6 +11,7 @@ import MainLayout from './components/layout/MainLayout.jsx';
 import Dashboard from './pages/dashboard/Dashboard.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
+import ScrollToTop from './components/layout/ScrollToTop.jsx';
 import PrivacyPolicy from './pages/Privacy.jsx';
 import TermsOfService from './pages/Terms.jsx';
 import CookiePolicy from './pages/Cookie.jsx';
@@ -18,6 +19,7 @@ import CookiePolicy from './pages/Cookie.jsx';
 function App() {
   return (
     <>
+      <ScrollToTop />
       <CartDrawer />
       <Toaster />
 

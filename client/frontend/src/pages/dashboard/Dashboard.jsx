@@ -131,6 +131,29 @@ const Dashboard = () => {
         }
     };
 
+    const handleCancelOrder = async (orderId) => {
+        try {
+            // Find the order to get its order_id (not _id)
+            const order = orders.find(o => o._id === orderId);
+            if (!order) throw new Error("Order not found");
+
+            await dataService.cancelOrder(order.order_id);
+            
+            // Update local state
+            setOrders(prevOrders => 
+                prevOrders.map(o => 
+                    o._id === orderId ? { ...o, status: 'reqForCancel' } : o
+                )
+            );
+            
+            showToast('Order cancelled successfully', 'success');
+        } catch (err) {
+            console.error(err);
+            showToast(err.response?.data?.error || 'Failed to cancel order', 'error');
+            throw err; // Re-throw to handle in the modal
+        }
+    };
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -148,7 +171,13 @@ const Dashboard = () => {
 
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-10 lg:pb-0">
-                {currentPage === 'orders' && <OrdersContent orders={orders} loading={loading} />}
+                {currentPage === 'orders' && (
+                    <OrdersContent 
+                        orders={orders} 
+                        loading={loading} 
+                        onCancel={handleCancelOrder} 
+                    />
+                )}
                 {currentPage === 'profile' && userData && (
                     <Profile
                         userData={userData}

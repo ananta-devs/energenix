@@ -81,7 +81,7 @@ module.exports = {
         $set: {
           cancelled: true,
           cancelled_at: new Date(),
-          status: "CANCELLED"
+          status: "reqForCancel"
         }
       },
       { new: true }

@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { dataService } from '../utils/dataService'; // Import dataService
 
 export default function ContactPage() {
-  const { user } = useAuth();
+  const { user, showToast } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -35,7 +35,8 @@ export default function ContactPage() {
     try {
       const response = await dataService.sendContactMessage(formData); // Use dataService
 
-      if (response.status === 200) { // Axios uses status
+      if (response.status === 201 || response.status === 200) { // Axios uses status
+        showToast('Message sent successfully!', 'success');
         if (user) {
           const nameParts = user.fullName.split(' ');
           setFormData({
@@ -57,6 +58,7 @@ export default function ContactPage() {
       }
     } catch (error) {
       console.error('Error submitting contact form:', error.response?.data?.message || error.message);
+      showToast(error.response?.data?.message || 'Failed to send message.', 'error');
     }
   };
 
@@ -80,6 +82,7 @@ export default function ContactPage() {
                       value={formData.firstName}
                       onChange={handleChange}
                       disabled={isUserLoggedIn}
+                      required
                       className={`px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-950 focus:ring-2 focus:ring-blue-950 focus:ring-opacity-20 transition-colors duration-200 ${isUserLoggedIn ? 'bg-gray-100' : ''}`}
                     />
                   </div>
@@ -91,6 +94,7 @@ export default function ContactPage() {
                       value={formData.lastName}
                       onChange={handleChange}
                       disabled={isUserLoggedIn}
+                      required
                       className={`px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-950 focus:ring-2 focus:ring-blue-950 focus:ring-opacity-20 transition-colors duration-200 ${isUserLoggedIn ? 'bg-gray-100' : ''}`}
                     />
                   </div>
@@ -104,6 +108,7 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={handleChange}
                       disabled={isUserLoggedIn}
+                      required
                       className={`px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-950 focus:ring-2 focus:ring-blue-950 focus:ring-opacity-20 transition-colors duration-200 ${isUserLoggedIn ? 'bg-gray-100' : ''}`}
                     />
                   </div>
@@ -115,6 +120,7 @@ export default function ContactPage() {
                       value={formData.phone}
                       onChange={handleChange}
                       disabled={isUserLoggedIn}
+                      required
                       className={`px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-950 focus:ring-2 focus:ring-blue-950 focus:ring-opacity-20 transition-colors duration-200 ${isUserLoggedIn ? 'bg-gray-100' : ''}`}
                     />
                   </div>
@@ -127,6 +133,7 @@ export default function ContactPage() {
                     rows="5"
                     value={formData.message}
                     onChange={handleChange}
+                    required
                     className="px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-blue-950 focus:ring-2 focus:ring-blue-950 focus:ring-opacity-20 resize-none transition-colors duration-200"
                   ></textarea>
                 </div>

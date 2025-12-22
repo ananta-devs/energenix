@@ -192,12 +192,6 @@ export default function Footer() {
                         >
                             Terms of Service
                         </Link>
-                        <Link
-                            to="/cookie"
-                            className="hover:text-white transition"
-                        >
-                            Cookie Policy
-                        </Link>
                     </div>
                 </div>
             </div>

@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { submitContactForm } = require("../controllers/contact");
-const { auth } = require("../middleware/auth"); // Assuming you have an auth middleware
+const { optionalAuth } = require("../middleware/auth"); 
 
-router.post("/contact", auth, submitContactForm);
+router.post("/", optionalAuth, submitContactForm);
 
 module.exports = router;

@@ -30,4 +30,5 @@ export const dataService = {
   // Orders
   createClientOrder: (orderPayload) => api.post('/orders/create', orderPayload),
   getOrders: () => api.get('/orders'),
+  cancelOrder: (order_id) => api.post('/orders/cancel', { order_id }),
 };

@@ -272,30 +272,22 @@ module.exports = {
 
   /**
    * CANCEL ORDER
-   * 1. Call Shipmozo /cancel-order
-   * 2. Update DB
+   * 1. Update DB (Shipmozo cancellation handled manually by admin)
    */
   async cancelOrder(req, res) {
     try {
-      const { order_id, awb_number } = req.body;
+      const { order_id } = req.body;
 
-      if (!order_id || !awb_number) {
+      if (!order_id) {
         return res
           .status(400)
-          .json({ error: "order_id and awb_number required" });
+          .json({ error: "order_id required" });
       }
-
-      const axiosInstance = await getAxios();
-      const shipmozoResponse = await axiosInstance.post("/cancel-order", {
-        order_id,
-        awb_number,
-      });
 
       const updated = await orderService.cancel(order_id);
 
       return res.json({
         message: "Order cancelled successfully",
-        shipmozo: shipmozoResponse.data,
         order: updated,
       });
     } catch (err) {

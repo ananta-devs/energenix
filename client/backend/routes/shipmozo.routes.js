@@ -155,22 +155,4 @@ router.get("/track", async (req, res) => {
   }
 });
 
-/**
- * POST /cancel-order
- * Body: { order_id, awb_number }
- */
-router.post("/cancel-order", async (req, res) => {
-  try {
-    const { order_id, awb_number } = req.body;
-    if (!order_id || !awb_number) return res.status(400).json({ error: "order_id and awb_number required" });
-
-    const axiosInstance = await getAxios();
-    const response = await axiosInstance.post("/cancel-order", { order_id: String(order_id), awb_number });
-    return res.json(response.data);
-  } catch (err) {
-    console.error("cancel-order error:", err?.response?.data || err.message);
-    return res.status(500).json({ error: "Cancel failed", details: err?.response?.data || err.message });
-  }
-});
-
 module.exports = router;
