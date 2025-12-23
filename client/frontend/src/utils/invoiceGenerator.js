@@ -71,9 +71,8 @@ export const downloadInvoice = (order) => {
         <html lang="en">
         <head>
             <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: white; color: #1a1a1a; }
-                .invoice-container { width: 100%; max-width: 210mm; margin: 0 auto; background: white; padding: 20px; }
+                .invoice-container * { margin: 0; padding: 0; box-sizing: border-box; }
+                .invoice-container { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: white; color: #1a1a1a; width: 100%; max-width: 210mm; margin: 0 auto; padding: 20px; }
                 .invoice-header { padding: 5mm; border-bottom: 1px solid #e5e5e5; }
                 .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10mm; }
                 .logo-section { display: flex; align-items: center; gap: 15px; }
