@@ -1,8 +1,23 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { User, ChevronDown } from 'lucide-react';
 import logo from '../../../assets/logo.svg';
 
 const DashboardHeader = ({ userData, dropdownOpen, setDropdownOpen, handleNavigation, setPage, handleSignOut }) => {
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [setDropdownOpen]);
+
   return (
     <header className="sticky top-0 left-0 right-0 bg-white border-b border-gray-200 z-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,7 +53,7 @@ const DashboardHeader = ({ userData, dropdownOpen, setDropdownOpen, handleNaviga
           </nav>
 
           {/* User Menu */}
-          <div className="relative">
+          <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 cursor-pointer"
