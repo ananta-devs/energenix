@@ -26,7 +26,7 @@ module.exports = {
 
       // Identify orders to track
       // Statuses that do NOT require tracking: delivered, cancelled, reqForCancel
-      const finalStatuses = ["delivered", "cancelled", "reqforcancel", "rerqforcancel"];
+      const finalStatuses = ["delivered", "cancelled", "reqforcancel"];
       
       const ordersToTrack = orders.filter(order => {
         const status = (order.status || "").toLowerCase();
@@ -203,6 +203,7 @@ module.exports = {
         items: enrichedItems,
         payment_type: body.payment_type.toUpperCase(),
         cod_amount: Number(body.cod_amount) || 0,
+        prepaid_amount: Number(body.prepaid_amount) || 0,
         weight_grams: payload.weight, // This will be undefined for MPS
         length_cm: payload.length,   // This will be undefined for MPS
         width_cm: payload.width,     // This will be undefined for MPS

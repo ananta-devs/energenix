@@ -184,6 +184,12 @@
                 font-weight: 300;
             }
 
+            .gst-per {
+                font-size: 11px;
+                color: #999;
+                font-weight: 300;
+            }
+
             .totals-section {
                 display: flex;
                 justify-content: flex-end;
@@ -338,6 +344,7 @@
                             <th>Description</th>
                             <th>Qty</th>
                             <th>Unit Price</th>
+                            <th>IGST</th>
                             <th>Amount</th>
                         </tr>
                     </thead>
@@ -352,6 +359,10 @@
                             </td>
                             <td>2</td>
                             <td>₹1,299.00</td>
+                            <td>
+                                ₹299
+                                <div class="gst-per">3%</div>
+                            </td>
                             <td>₹2,598.00</td>
                         </tr>
                         <tr>
@@ -364,6 +375,10 @@
                             </td>
                             <td>5</td>
                             <td>₹149.00</td>
+                            <td>
+                                ₹299
+                                <div class="gst-per">3%</div>
+                            </td>
                             <td>₹745.00</td>
                         </tr>
                         <tr>
@@ -374,6 +389,10 @@
                             </td>
                             <td>10</td>
                             <td>₹79.99</td>
+                            <td>
+                                ₹299
+                                <div class="gst-per">3%</div>
+                            </td>
                             <td>₹799.90</td>
                         </tr>
                     </tbody>
@@ -383,19 +402,19 @@
                     <div class="totals-box">
                         <div class="total-row subtotal">
                             <span>Subtotal</span>
-                            <span>₹4,642.90</span>
+                            <span>₹4,642.00</span>
                         </div>
                         <div class="total-row">
-                            <span>Tax (8.5%)</span>
-                            <span>₹394.65</span>
+                            <span>Discount</span>
+                            <span>- ₹394.00</span>
                         </div>
                         <div class="total-row">
                             <span>Shipping</span>
-                            <span>₹50.00</span>
+                            <span>+ ₹50.00</span>
                         </div>
                         <div class="total-row final">
                             <span>Total Due</span>
-                            <span>₹5,087.55</span>
+                            <span>₹5,087.00</span>
                         </div>
                     </div>
                 </div>
@@ -415,7 +434,7 @@
             </div>
 
             <div class="invoice-footer">
-                <div class="thank-you">Thank you for your business</div>
+                <div class="thank-you">Thank you</div>
             </div>
         </div>
     </body>

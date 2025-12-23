@@ -57,6 +57,7 @@ const OrderSchema = new mongoose.Schema({
   },
 
   cod_amount: { type: Number, default: 0 },
+  prepaid_amount: { type: Number, default: 0 },
 
   // Dimensions
   weight_grams: { type: Number, required: true }, // stored in grams (Shipmozo format)

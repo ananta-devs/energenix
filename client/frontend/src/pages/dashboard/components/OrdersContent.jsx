@@ -2,6 +2,7 @@ import { XCircle, Download } from "lucide-react";
 import OrderSkeleton from "./OrderSkeleton";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { downloadInvoice } from "../../../utils/invoiceGenerator";
 
 const formatStatus = (status) => {
     if (!status) return "";
@@ -311,7 +312,7 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
 
                                                     {order.status?.toLowerCase() === 'delivered' && (
                                                         <button
-                                                            onClick={() => console.log("Download invoice")}
+                                                            onClick={() => downloadInvoice(order)}
                                                             className="flex items-center gap-1 text-xs text-gray-600 hover:text-blue-600 bg-gray-50 px-2 py-1 rounded border border-gray-200"
                                                         >
                                                             <Download size={14} />
@@ -348,7 +349,7 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
 
                                             {order.status?.toLowerCase() === 'delivered' && (
                                                 <button
-                                                    onClick={() => console.log("Download invoice")}
+                                                    onClick={() => downloadInvoice(order)}
                                                     className="group relative flex items-center gap-2 overflow-hidden
                                                                 rounded-full bg-transparent p-2
                                                                 text-gray-500 transition-all duration-300
@@ -367,7 +368,7 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
                                                         group-hover:max-w-[140px]
                                                         group-hover:translate-y-0
                                                         translate-y-2
-                                                        opacity-0 group-hover:opacity-100
+                                                        opacity-0 group-hover:opacity-100 cursor-pointer
                                                         "
                                                     >
                                                         Download Invoice

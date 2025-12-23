@@ -949,6 +949,7 @@ const CheckoutLarge = () => {
                 })),
                 payment_type: paymentMethod === "cod" ? "COD" : "PREPAID",
                 cod_amount: paymentMethod === "cod" ? String(finalTotal) : "0",
+                prepaid_amount: paymentMethod === "online" ? String(finalTotal) : "0",
                 weight: totalWeightGrams,
                 length_cm: maxTotalLengthCm,
                 width_cm: maxTotalWidthCm,
