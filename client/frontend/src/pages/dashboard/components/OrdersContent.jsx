@@ -1,6 +1,5 @@
 import { XCircle, Download } from "lucide-react";
 import OrderSkeleton from "./OrderSkeleton";
-import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { downloadInvoice } from "../../../utils/invoiceGenerator";
 
@@ -280,6 +279,23 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
                             if (isCOD) {
                                 total += 100;
                             }
+                            
+                            // Calculate Discount
+                            let discount = 0;
+                            const totalProductAmount = order.items.reduce(
+                                (acc, item) => acc + item.unit_price * item.quantity,
+                                0
+                            );
+
+                            if (order.payment_type === "PREPAID") {
+                                discount = totalProductAmount - (Number(order.prepaid_amount) || 0);
+                            } else if (isCOD) {
+                                discount = totalProductAmount - (Number(order.cod_amount) || 0);
+                            }
+
+                            if (discount > 0) {
+                                total -= discount;
+                            }
 
                             return (
                                 <div
@@ -416,6 +432,18 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
                                                 </div>
                                             </div>
                                         ))}
+                                        {discount > 0 && (
+                                            <div className="flex items-center space-x-3 sm:space-x-4 mb-1 pt-1 border-t border-gray-100">
+                                                <div className="flex-1 min-w-0">
+                                                    <h5 className="text-xs font-medium pl-15 lg:pl-20 text-green-600 truncate">
+                                                        Discount
+                                                    </h5>
+                                                </div>
+                                                <div className="text-xs sm:text-sm font-medium text-green-600 flex-shrink-0">
+                                                    - ₹{discount.toLocaleString("en-IN")}
+                                                </div>
+                                            </div>
+                                        )}
                                         {isCOD && (
                                             <div className="flex items-center space-x-3 sm:space-x-4 mb-1 pt-1 border-t border-gray-100">
                                                 <div className="flex-1 min-w-0">

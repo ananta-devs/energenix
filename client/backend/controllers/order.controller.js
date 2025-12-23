@@ -4,6 +4,7 @@ const { getAxios, getWarehouse, trackOrder } = require("../services/shipmozo.ser
 const Product = require("../models/Product");
 const Category = require("../models/Category"); // Import Category model
 const Coupon = require("../models/Coupon"); // Import Coupon model
+const HsnGst = require("../models/HsnGst"); // Import HsnGst model
 
 function getUnitPriceForPack(product, pack_type) {
   const basePrice = product.discount_price || product.p_price;
@@ -51,7 +52,44 @@ module.exports = {
         orders = await orderService.findAll(req.user.email);
       }
 
-      return res.json({ orders });
+      // --- GST Population Logic ---
+      // Convert to plain objects to allow adding new properties
+      const plainOrders = orders.map(o => o.toObject ? o.toObject() : o);
+
+      // Collect all unique HSNs
+      const hsnSet = new Set();
+      plainOrders.forEach(order => {
+        if (order.items) {
+          order.items.forEach(item => {
+            if (item.hsn) {
+              hsnSet.add(item.hsn.trim());
+            }
+          });
+        }
+      });
+
+      // Fetch GST details for these HSNs
+      const hsnList = Array.from(hsnSet);
+      let hsnGstMap = {};
+      if (hsnList.length > 0) {
+        const hsnGstRecords = await HsnGst.find({ hsn_number: { $in: hsnList } });
+        hsnGstRecords.forEach(record => {
+          hsnGstMap[record.hsn_number] = record.gst_percentage;
+        });
+      }
+
+      // Attach GST percentage to items
+      plainOrders.forEach(order => {
+        if (order.items) {
+          order.items.forEach(item => {
+            const hsn = item.hsn ? item.hsn.trim() : "";
+            // Default to 0 if not found
+            item.gst_percentage = hsnGstMap[hsn] || 0; 
+          });
+        }
+      });
+
+      return res.json({ orders: plainOrders });
     } catch (err) {
       console.error("getOrders error:", err);
       return res.status(500).json({ error: "Internal server error" });

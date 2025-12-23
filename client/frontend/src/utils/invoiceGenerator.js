@@ -10,7 +10,16 @@ export const downloadInvoice = (order) => {
         return acc + (item.unit_price * item.quantity);
     }, 0);
 
-    const total = subtotal + shippingCost;
+    // Calculate Discount
+    let discount = 0;
+    if (order.payment_type === "PREPAID") {
+        discount = subtotal - (Number(order.prepaid_amount) || 0);
+    } else if (order.payment_type === "COD") {
+        discount = subtotal - (Number(order.cod_amount) || 0);
+    }
+    if (discount < 0) discount = 0;
+
+    const total = subtotal + shippingCost - discount;
 
     // Date formatting
     const orderDate = new Date(order.order_date).toLocaleDateString("en-IN", {
@@ -19,21 +28,37 @@ export const downloadInvoice = (order) => {
         day: "numeric",
     });
 
+    const downloadDateTime = new Date().toLocaleString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+    });
+
     // Generate Items HTML
     const itemsHtml = order.items.map((item, index) => {
-        const amount = item.unit_price * item.quantity;
+        const gstPercent = item.gst_percentage || 0;
+        const amount = item.unit_price * item.quantity; // Total inclusive amount
+        
+        // Assuming item.unit_price is inclusive of tax
+        const baseUnitPrice = item.unit_price / (1 + (gstPercent / 100));
+        const taxAmount = amount - (baseUnitPrice * item.quantity);
+        
         return `
             <tr>
                 <td>${index + 1}</td>
                 <td>
                     <div class="item-name">${item.name}</div>
                     <div class="pack-type">${item.pack_type || 'Pack of 1'}</div>
+                    <div class="pack-type">HSN: ${item.hsn || 'N/A'}</div>
                 </td>
                 <td>${item.quantity}</td>
-                <td>₹${item.unit_price.toLocaleString('en-IN')}</td>
+                <td>₹${baseUnitPrice.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td>
                 <td>
-                    -
-                    <div class="gst-per">0%</div>
+                    ₹${taxAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                    <div class="gst-per">(${gstPercent}%)</div>
                 </td>
                 <td>₹${amount.toLocaleString('en-IN')}</td>
             </tr>
@@ -88,6 +113,9 @@ export const downloadInvoice = (order) => {
         </head>
         <body>
             <div class="invoice-container">
+                <div style="font-size: 8px; color: #999; margin-bottom: 2px; text-align: left;">
+                    Generated on: ${downloadDateTime}
+                </div>
                 <div class="invoice-header">
                     <div class="header-top">
                         <div class="logo-section">
@@ -154,11 +182,12 @@ export const downloadInvoice = (order) => {
                                 <span>Subtotal</span>
                                 <span>₹${subtotal.toLocaleString('en-IN')}</span>
                             </div>
-                            <!-- Assuming no explicit discount data, setting to 0 for now -->
+                            ${discount > 0 ? `
                             <div class="total-row">
                                 <span>Discount</span>
-                                <span>- ₹0.00</span>
+                                <span style="color: #10b981;">- ₹${discount.toLocaleString('en-IN')}</span>
                             </div>
+                            ` : ''}
                             <div class="total-row">
                                 <span>Shipping</span>
                                 <span>+ ₹${shippingCost.toLocaleString('en-IN')}</span>
