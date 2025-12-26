@@ -661,48 +661,44 @@ const OrdersData = () => {
                                     Order Details
                                 </h3>
                                 <div className="flex items-center gap-2">
-                                    {selectedOrder.status !== "cancelled" &&
-                                        !selectedOrder.cancelled && (
-                                            <>
-                                                {(selectedOrder.status ===
-                                                    "reqForCancel") && (
-                                                    <button
-                                                        onClick={openEditModal}
-                                                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer"
-                                                    >
-                                                        <Edit size={16} />
-                                                        Edit Order
-                                                    </button>
-                                                )}
-                                                <button
-                                                    onClick={
-                                                        getShipmozoOrderDetail
-                                                    }
-                                                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors cursor-pointer"
-                                                >
-                                                    <FileText size={16} />
-                                                    Get Details
-                                                </button>
-                                                {selectedOrder.awb_number &&
-                                                    (selectedOrder.status?.toLowerCase() ===
-                                                        "pickup pending" ||
-                                                        selectedOrder.status?.toLowerCase() ===
-                                                            "pickup-pending") && (
-                                                        <button
-                                                            onClick={() =>
-                                                                getShipmozoOrderLabel(
-                                                                    selectedOrder.awb_number
-                                                                )
-                                                            }
-                                                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors cursor-pointer"
-                                                        >
-                                                            <Package
-                                                                size={16}
-                                                            />
-                                                            Get Label
-                                                        </button>
-                                                    )}
-                                            </>
+                                    {selectedOrder.status?.toLowerCase() === "reqforcancel" && (
+                                        <button
+                                            onClick={openEditModal}
+                                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer"
+                                        >
+                                            <Edit size={16} />
+                                            Edit Order
+                                        </button>
+                                    )}
+                                    {!["cancelled", "delivered", "reqforcancel"].includes(selectedOrder.status?.toLowerCase()) && (
+                                        <button
+                                            onClick={
+                                                getShipmozoOrderDetail
+                                            }
+                                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors cursor-pointer"
+                                        >
+                                            <FileText size={16} />
+                                            Get Details
+                                        </button>
+                                    )}
+                                    {selectedOrder.awb_number &&
+                                        (selectedOrder.status?.toLowerCase() ===
+                                            "pickup pending" ||
+                                            selectedOrder.status?.toLowerCase() ===
+                                                "pickup-pending") && (
+                                            <button
+                                                onClick={() =>
+                                                    getShipmozoOrderLabel(
+                                                        selectedOrder.awb_number
+                                                    )
+                                                }
+                                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors cursor-pointer"
+                                            >
+                                                <Package
+                                                    size={16}
+                                                />
+                                                Get Label
+                                            </button>
                                         )}
                                     <button
                                         onClick={closeViewModal}
@@ -748,7 +744,17 @@ const OrdersData = () => {
                                                     Order Date:
                                                 </span>
                                                 <span className="font-medium text-gray-900 dark:text-white">
-                                                    {selectedOrder.order_date
+                                                    {selectedOrder.createdAt
+                                                        ? new Date(
+                                                              selectedOrder.createdAt
+                                                          ).toLocaleString(
+                                                              "en-IN",
+                                                              {
+                                                                  timeZone:
+                                                                      "Asia/Kolkata",
+                                                              }
+                                                          )
+                                                        : selectedOrder.order_date
                                                         ? new Date(
                                                               selectedOrder.order_date
                                                           ).toLocaleString(
