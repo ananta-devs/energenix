@@ -1,10 +1,11 @@
 // components/DataDisplay/CollectionData.jsx
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Search, X, Edit, Trash2, AlertTriangle, ImageIcon, Upload } from 'lucide-react';
+import { FileText, Plus, Search, X, Edit, Trash2, AlertTriangle, ImageIcon, Upload, ChevronDown } from 'lucide-react';
 import { dataService } from '../utils/dataService';
 
 const CollectionData = () => {
   const [collections, setCollections] = useState([]);
+  const [hsnList, setHsnList] = useState([]); // State for HSN list
   const [filteredCollections, setFilteredCollections] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,7 @@ const CollectionData = () => {
 
   useEffect(() => {
     loadCollections();
+    loadHsnList(); // Load HSN list
   }, []);
 
   useEffect(() => {
@@ -43,10 +45,19 @@ const CollectionData = () => {
       const data = await dataService.getCollections();
       setCollections(data);
       setFilteredCollections(data);
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to load collections data' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadHsnList = async () => {
+    try {
+      const data = await dataService.getHsnGstItems();
+      setHsnList(data);
+    } catch (error) {
+      console.error("Failed to load HSN list", error);
     }
   };
 
@@ -229,7 +240,7 @@ const CollectionData = () => {
         closeModal();
       }, 2000);
 
-    } catch (error) {
+    } catch {
       setMessage({
         type: 'error',
         text: `Failed to ${editingCollection ? 'update' : 'add'} collection. Please try again.`
@@ -258,7 +269,7 @@ const CollectionData = () => {
       setTimeout(() => {
         setMessage({ type: '', text: '' });
       }, 3000);
-    } catch (error) {
+    } catch {
       setMessage({
         type: 'error',
         text: 'Failed to delete collection. Please try again.'
@@ -512,14 +523,24 @@ const CollectionData = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   HSN Number *
                 </label>
-                <input
-                  type="text"
-                  name="hsn_number"
-                  value={formData.hsn_number}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter HSN number"
-                />
+                <div className="relative">
+                  <select
+                    name="hsn_number"
+                    value={formData.hsn_number}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 dark:text-white dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                  >
+                    <option value="" className="text-gray-500 dark:text-gray-400">Select HSN Number</option>
+                    {hsnList.map((item) => (
+                      <option key={item._id} value={item.hsn_number} className="dark:bg-gray-800 text-gray-900 dark:text-white">
+                        {item.hsn_number} (GST: {item.gst_percentage}%)
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <ChevronDown size={16} className="text-gray-500 dark:text-gray-400" />
+                  </div>
+                </div>
               </div>
 
               <div>

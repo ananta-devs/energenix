@@ -202,4 +202,25 @@ export const dataService = {
     });
     return response.data;
   },
+
+  // HSN/GST methods
+  async getHsnGstItems() {
+    const response = await api.get('/api/hsn-gst');
+    return response.data;
+  },
+
+  async createHsnGstItem(itemData) {
+    const response = await api.post('/api/hsn-gst', itemData);
+    return response.data;
+  },
+
+  async updateHsnGstItem(id, itemData) {
+    const response = await api.put(`/api/hsn-gst/${id}`, itemData);
+    return response.data;
+  },
+
+  async deleteHsnGstItem(id) {
+    const response = await api.delete(`/api/hsn-gst/${id}`);
+    return response.data;
+  },
 };

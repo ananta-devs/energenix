@@ -2,6 +2,7 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, IndianRupee, ShoppingCart, Users, Archive } from 'lucide-react';
 
+// eslint-disable-next-line no-unused-vars
 const StatsCard = ({ title, value, change, icon: Icon, color }) => {
   const isPositive = change >= 0;
 

@@ -181,7 +181,7 @@ const Settings = () => {
         try {
             const data = await dataService.getAdmins();
             setAdmins(data);
-        } catch (_) {
+        } catch {
             toast.error("Failed to fetch admins");
         }
     }, []);
@@ -273,7 +273,7 @@ const Settings = () => {
             toast.success("Password changed successfully!");
             setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
             setShowChangePasswordModal(false);
-        } catch (_) {
+        } catch {
             toast.error("Failed to change password. Check current password.");
         }
     }, [passwordData]);

@@ -37,7 +37,7 @@ const InventoryData = () => {
       const data = await dataService.getInventory();
       setInventory(data);
       setFilteredInventory(data);
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Failed to load inventory data' });
     } finally {
       setLoading(false);
@@ -118,7 +118,7 @@ const InventoryData = () => {
         closeRestockModal();
       }, 2000);
 
-    } catch (error) {
+    } catch {
       setMessage({ 
         type: 'error', 
         text: 'Failed to restock product. Please try again.' 
@@ -172,7 +172,7 @@ const InventoryData = () => {
         closeDepleteModal();
       }, 2000);
 
-    } catch (error) {
+    } catch {
       setDepleteMessage({ 
         type: 'error', 
         text: 'Failed to deplete inventory. Please try again.' 
@@ -624,7 +624,7 @@ const InventoryData = () => {
                   </>
                 ) : (
                   <>
-                    Update Order
+                    Update Stock
                   </>
                 )}
               </button>

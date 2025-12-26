@@ -6,6 +6,7 @@ import Navbar from './components/Layout/Navbar';
 import Dashboard from './pages/Dashboard';
 import ProductsData from './pages/ProductsData';
 import CollectionData from './pages/CollectionData';
+import HsnGstData from './pages/HsnGstData';
 import CouponData from './pages/CouponsData';
 import OrdersData from './pages/OrdersData';
 import CustomersData from './pages/CustomersData';
@@ -47,6 +48,7 @@ const AppContent = () => {
               <Route path="/products" element={<ProductsData />} />
               <Route path="/coupons" element={<CouponData />} />
               <Route path="/collections" element={<CollectionData />} />
+              <Route path="/hsn-gst" element={<HsnGstData />} />
               <Route path="/orders" element={<OrdersData />} />
               <Route path="/customers" element={<CustomersData />} />
               <Route path="/inventory" element={<InventoryData />} />

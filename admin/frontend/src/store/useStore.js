@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 
 export const useStore = create(
   persist(
-    (set, get) => ({
+    (set) => ({
       // UI State
       sidebarOpen: true,
       darkMode: false,

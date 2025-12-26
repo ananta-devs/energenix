@@ -66,10 +66,6 @@ const Messages = () => {
 
     try {
       // Here you would typically send the reply via your API
-      console.log('Sending reply to:', selectedMessage.email);
-      console.log('Reply content:', replyContent);
-      
-      // Simulate API call
       await dataService.replyToMessage(
         selectedMessage.email,
         `Re: Message from ${selectedMessage.fullName}`,

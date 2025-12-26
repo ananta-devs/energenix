@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -13,7 +14,8 @@ import {
   LogOut,
   X, 
   Archive,
-  Ticket
+  Ticket,
+  Database
 } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 import logo from '../../assets/logo.svg';
@@ -22,6 +24,7 @@ const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
   { id: 'products', label: 'Products', icon: Gem, path: '/products' },
   { id: 'collections', label: 'Collections', icon: Archive, path: '/collections'},
+  { id: 'hsn-gst', label: 'Hsn & Gst', icon: Database, path: '/hsn-gst'},
   { id: 'coupons', label: 'Coupons', icon: Ticket, path: '/coupons' },
   { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/orders' },
   { id: 'customers', label: 'Customers', icon: Users, path: '/customers' },

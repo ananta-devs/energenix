@@ -1,7 +1,11 @@
 const Contact = require('../models/Contact');
-const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
+const { Resend } = require('resend');
+
+require('dotenv').config(); 
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const getContacts = async (req, res) => {
   try {
@@ -32,14 +36,6 @@ const replyToContact = async (req, res) => {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
     const templatePath = path.join(__dirname, '../templates/emailTemp.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
@@ -67,15 +63,12 @@ const replyToContact = async (req, res) => {
         template = template.replace(placeholderText, content);
     }
 
-    const mailOptions = {
-      from: `"EnergeniX" <${process.env.EMAIL_USER}>`,
-      to,
+    await resend.emails.send({
+      from: `EnergeniX <${process.env.EMAIL_USER}>`, // The 'from' email must be a verified domain in Resend
+      to: [to], // Resend expects an array for 'to'
       subject: subject || 'Reply from EnergeniX',
       html: template,
-    };
-
-    await transporter.sendMail(mailOptions);
-
+    });
     res.json({ message: 'Reply sent successfully' });
   } catch (error) {
     console.error('Email send error:', error);
