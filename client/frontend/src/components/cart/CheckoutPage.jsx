@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-import CheckoutLarge from "./checkoutPages/CheckoutLarge.jsx";
+import CheckoutLarge from "./checkoutpages/CheckoutLarge.jsx";
 
-import CheckoutSmall from "./checkoutPages/CheckoutSmall.jsx";
+import CheckoutSmall from "./checkoutpages/CheckoutSmall.jsx";
 
 const Checkout = () => {
     const [isSmall, setIsSmall] = useState(window.innerWidth <= 1024);

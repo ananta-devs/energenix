@@ -4,6 +4,7 @@ import { Filter, Grid, List, X } from 'lucide-react';
 import ProductCard from './ProductCard.jsx';
 import { useProducts } from '../../context/ProductContext.jsx';
 import { slugify } from '../../utils/slugify.js';
+import FullPageLoader from "../ui/FullPageLoader.jsx";
 
 export default function CategoryPage() {
   const { identifier } = useParams();
@@ -14,6 +15,8 @@ export default function CategoryPage() {
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showSortModal, setShowSortModal] = useState(false);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState([]);
+  const [isClosingFilterModal, setIsClosingFilterModal] = useState(false);
+  const [isClosingSortModal, setIsClosingSortModal] = useState(false);
 
   const priceRanges = useMemo(() => [
     { key: '<1000', label: 'Under 1,000' },
@@ -64,8 +67,12 @@ export default function CategoryPage() {
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape') {
-        setShowFilterModal(false);
-        setShowSortModal(false);
+        if (showFilterModal) {
+          handleCloseFilterModal();
+        }
+        if (showSortModal) {
+          handleCloseSortModal();
+        }
       }
     };
     
@@ -84,6 +91,24 @@ export default function CategoryPage() {
       document.removeEventListener('touchmove', handleTouchMove);
     };
   }, [showFilterModal, showSortModal]);
+
+  // Handle closing filter modal with animation
+  const handleCloseFilterModal = () => {
+    setIsClosingFilterModal(true);
+    setTimeout(() => {
+      setShowFilterModal(false);
+      setIsClosingFilterModal(false);
+    }, 300); // Match the CSS animation duration
+  };
+
+  // Handle closing sort modal with animation
+  const handleCloseSortModal = () => {
+    setIsClosingSortModal(true);
+    setTimeout(() => {
+      setShowSortModal(false);
+      setIsClosingSortModal(false);
+    }, 300); // Match the CSS animation duration
+  };
 
   const uniqueCategories = useMemo(() => {
     const categories = [];
@@ -158,14 +183,8 @@ export default function CategoryPage() {
     return 0;
   });
 
-  // Close modal handler
-  const closeModal = () => {
-    setShowFilterModal(false);
-    setShowSortModal(false);
-  };
-
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading products...</div>;
+    return <FullPageLoader />;
   }
 
   if (error) {
@@ -173,7 +192,67 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 mb-10 lg:mb-0">
+      <style>
+        {`
+          @keyframes slideUp {
+            from {
+              transform: translateY(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateY(0);
+              opacity: 1;
+            }
+          }
+          
+          @keyframes slideDown {
+            from {
+              transform: translateY(0);
+              opacity: 1;
+            }
+            to {
+              transform: translateY(100%);
+              opacity: 0;
+            }
+          }
+          
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 0.7;
+            }
+          }
+          
+          @keyframes fadeOut {
+            from {
+              opacity: 0.7;
+            }
+            to {
+              opacity: 0;
+            }
+          }
+          
+          .animate-slide-up {
+            animation: slideUp 0.3s ease-out forwards;
+          }
+          
+          .animate-slide-down {
+            animation: slideDown 0.3s ease-in forwards;
+          }
+          
+          .animate-fade-in {
+            animation: fadeIn 0.2s ease-out forwards;
+          }
+          
+          .animate-fade-out {
+            animation: fadeOut 0.2s ease-in forwards;
+          }
+        `}
+      </style>
+      
       <div className="container mx-auto px-0 sm:px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar - Hidden on small screens, shown on large */}
@@ -299,17 +378,18 @@ export default function CategoryPage() {
       </div>
 
       {/* Filter Modal for Small Screens */}
-      {showFilterModal && (
+      {(showFilterModal || isClosingFilterModal) && (
         <>
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black opacity-70 z-50 lg:hidden"
-            onClick={closeModal}
+            className={`fixed inset-0 bg-black z-50 lg:hidden ${isClosingFilterModal ? 'animate-fade-out' : 'animate-fade-in'}`}
+            style={{ opacity: isClosingFilterModal ? 0 : 0.7 }}
+            onClick={handleCloseFilterModal}
           />
           
           {/* Modal Content - Slides from bottom */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 lg:hidden animate-slideUp">
-            <div className="p-6 max-h-[80vh] overflow-y-auto">
+          <div className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 lg:hidden ${isClosingFilterModal ? 'animate-slide-down' : 'animate-slide-up'}`}>
+            <div className="p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-6 pb-4 border-b">
                 <h3 className="text-xl font-bold">Filters</h3>
@@ -322,7 +402,7 @@ export default function CategoryPage() {
                   </button>
                 )}
                 <button 
-                  onClick={closeModal}
+                  onClick={handleCloseFilterModal}
                   className="p-2 rounded-full hover:bg-gray-100"
                 >
                   <X className="w-6 h-6" />
@@ -341,7 +421,7 @@ export default function CategoryPage() {
                       checked={currentCategory?._id === 'all'}
                       onChange={() => {
                         navigate('/category/all');
-                        closeModal();
+                        handleCloseFilterModal();
                       }}
                     />
                     <span className="text-base">All Products</span>
@@ -355,7 +435,7 @@ export default function CategoryPage() {
                         checked={currentCategory?._id === cat._id}
                         onChange={() => {
                           navigate(`/category/${slugify(cat.name)}`);
-                          closeModal();
+                          handleCloseFilterModal();
                         }}
                       />
                       <span className="text-base">{cat.name}</span>
@@ -385,7 +465,7 @@ export default function CategoryPage() {
               {/* Action Button */}
               <div className="pt-4 border-t">
                 <button 
-                  onClick={closeModal}
+                  onClick={handleCloseFilterModal}
                   className="w-full bg-blue-950 text-white font-bold py-3 px-4 rounded-lg transition-colors"
                 >
                   Done
@@ -397,22 +477,23 @@ export default function CategoryPage() {
       )}
 
       {/* Sort Modal for Small Screens */}
-      {showSortModal && (
+      {(showSortModal || isClosingSortModal) && (
         <>
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black opacity-70 z-50 lg:hidden"
-            onClick={closeModal}
+            className={`fixed inset-0 bg-black z-50 lg:hidden ${isClosingSortModal ? 'animate-fade-out' : 'animate-fade-in'}`}
+            style={{ opacity: isClosingSortModal ? 0 : 0.7 }}
+            onClick={handleCloseSortModal}
           />
           
           {/* Modal Content - Slides from bottom */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 lg:hidden animate-slideUp">
+          <div className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 lg:hidden ${isClosingSortModal ? 'animate-slide-down' : 'animate-slide-up'}`}>
             <div className="p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-6 pb-4 border-b">
                 <h3 className="text-xl font-bold">Sort By</h3>
                 <button 
-                  onClick={closeModal}
+                  onClick={handleCloseSortModal}
                   className="p-2 rounded-full hover:bg-gray-100"
                 >
                   <X className="w-6 h-6" />
@@ -420,6 +501,7 @@ export default function CategoryPage() {
               </div>
 
               {/* Sort Options */}
+              <div className="space-y-3">
                 <label className="flex items-center cursor-pointer p-3 rounded-lg hover:bg-gray-50">
                   <input 
                     type="radio" 
@@ -429,7 +511,7 @@ export default function CategoryPage() {
                     checked={sortBy === 'price-low'}
                     onChange={(e) => {
                       setSortBy(e.target.value);
-                      closeModal();
+                      handleCloseSortModal();
                     }}
                   />
                   <span className="text-base">Price: Low to High</span>
@@ -444,13 +526,14 @@ export default function CategoryPage() {
                     checked={sortBy === 'price-high'}
                     onChange={(e) => {
                       setSortBy(e.target.value);
-                      closeModal();
+                      handleCloseSortModal();
                     }}
                   />
                   <span className="text-base">Price: High to Low</span>
                 </label>
               </div>
             </div>
+          </div>
         </>
       )}
     </div>

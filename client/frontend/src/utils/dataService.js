@@ -1,6 +1,9 @@
 import api from './api';
 
 export const dataService = {
+  // Products
+  validateStock: (items) => api.post('/products/validate-stock', { items }),
+
   // Auth
   checkEmail: (email) => api.post('/auth/check-email', { email }),
   signIn: (email) => api.post('/auth/signin', { email }),
@@ -13,9 +16,8 @@ export const dataService = {
   getMe: () => api.get('/auth/me'),
   updateMe: (userData) => api.put('/auth/me', userData),
 
-  // Pincode
-  getPinCodeInfo: (pin) => api.get(`/pincode/${pin}`),
-
+      // Pincode
+  
   // Contact
   sendContactMessage: (formData) => api.post('/contact', formData),
 

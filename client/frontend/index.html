@@ -1,14 +1,51 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EnergeniX</title>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>EnergeniX</title>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@graph": [
+                    {
+                        "@type": "Organization",
+                        "@id": "https://energenix.store/#organization",
+                        "name": "EnergeniX",
+                        "url": "https://energenix.store",
+                        "logo": "https://www.energenix.store/assets/logo-DNu9W0e-.svg",
+                        "description": "EnergeniX is an India-based spiritual wellness and energy lifestyle brand offering ethically presented belief-based spiritual products.",
+                        "foundingLocation": {
+                            "@type": "Country",
+                            "name": "India"
+                        },
+                        "contactPoint": {
+                            "@type": "ContactPoint",
+                            "telephone": "+91-9476156308",
+                            "contactType": "Customer Support",
+                            "areaServed": "IN",
+                            "availableLanguage": "English"
+                        },
+                        "sameAs": []
+                    },
+                    {
+                        "@type": "AboutPage",
+                        "@id": "https://energenix.store/about-us/#aboutpage",
+                        "url": "https://energenix.store/about-us",
+                        "name": "About EnergeniX",
+                        "description": "Learn about EnergeniX, a trusted Indian spiritual wellness brand built on generations of spiritual heritage and ethical belief-based practices.",
+                        "publisher": {
+                            "@id": "https://energenix.store/#organization"
+                        }
+                    }
+                ]
+            }
+        </script>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="module" src="/src/main.jsx"></script>
+    </body>
 </html>

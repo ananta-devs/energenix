@@ -1,13 +1,20 @@
-import React, { useMemo } from "react";
-import { TESTIMONIALS } from "../../data";
-import { Star } from "lucide-react";
+import React, { useMemo, useState, useEffect } from "react";
+import { TESTIMONIALS } from "../../data"; //for dummy reviews
+import { Star, Loader2 } from "lucide-react";
 import HeroSlider from "./HeroSlider.jsx";
 import ProductCard from "../product/ProductCard.jsx";
 import { useProducts } from "../../context/ProductContext.jsx";
 import about from "../../assets/aboutUs.webp";
+import FullPageLoader from "../ui/FullPageLoader.jsx";
 
 export default function HomePage() {
     const { products, loading, error } = useProducts();
+    const [heroSliderLoading, setHeroSliderLoading] = useState(true);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const randomTestimonials = useMemo(() => {
         return [...TESTIMONIALS].sort(() => 0.5 - Math.random()).slice(0, 3);
@@ -18,55 +25,69 @@ export default function HomePage() {
     const trendingProducts = products.filter((p) => p.trending);
     const displayedTrendingProducts = trendingProducts.slice(0, 3);
 
-    if (loading) {
-        return (
-            <div className="py-20 text-center">
-                Loading trending products...
-            </div>
-        );
-    }
+    // Handle HeroSlider loading completion
+    const handleHeroSliderLoad = () => {
+        setHeroSliderLoading(false);
+    };
+
+    const handleHeroSliderError = () => {
+        setHeroSliderLoading(false);
+    };
+
+    // Check if everything is loading
+    const isLoading = heroSliderLoading || loading;
 
     if (error) {
         return <div className="py-20 text-center">Error: {error.message}</div>;
     }
 
     return (
-        <div className="w-full ">
+        <div className="w-full relative">
+            {/* Full-page loading overlay - covers entire homepage except header/footer */}
+            {isLoading && isMounted && <FullPageLoader />}
+
             {/* HERO — FULL WIDTH, NO PADDING */}
-            <HeroSlider />
+            <div className={isLoading ? "opacity-0" : "opacity-100 transition-opacity duration-500"}>
+                <HeroSlider 
+                    onLoad={handleHeroSliderLoad}
+                    onError={handleHeroSliderError}
+                />
+            </div>
 
             {/* EVERYTHING BELOW — INSIDE CONTAINER */}
-            <div className="mx-auto w-full max-w-screen-xl px-4 space-y-20">
+            <div className={`mx-auto w-full max-w-screen-xl px-4 space-y-20 ${isLoading ? 'opacity-0' : 'opacity-100 transition-opacity duration-500 delay-300'}`}>
                 {/* TRENDING */}
-                <section>
-                    <div className="text-center mb-12 bg-white mt-6">
-                        <h2 className="text-3xl font-bold">Trending Now</h2>
-                        <p className="text-gray-600">
-                            Popular choices this season
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {displayedTrendingProducts.map((p) => (
-                            <ProductCard key={p._id} product={p} />
-                        ))}
-                    </div>
-
-                    {/* Optional: Show message if there are no trending products */}
-                    {displayedTrendingProducts.length === 0 && (
-                        <div className="text-center py-10">
-                            <p className="text-gray-500">
-                                No trending products available at the moment.
+                {!loading && (
+                    <section>
+                        <div className="text-center mb-12 bg-white mt-6">
+                            <h2 className="text-3xl font-bold">Trending Now</h2>
+                            <p className="text-gray-600">
+                                Popular choices this season
                             </p>
                         </div>
-                    )}
-                </section>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {displayedTrendingProducts.map((p) => (
+                                <ProductCard key={p._id} product={p} />
+                            ))}
+                        </div>
+
+                        {/* Optional: Show message if there are no trending products */}
+                        {displayedTrendingProducts.length === 0 && (
+                            <div className="text-center py-10">
+                                <p className="text-gray-500">
+                                    No trending products available at the moment.
+                                </p>
+                            </div>
+                        )}
+                    </section>
+                )}
 
                 {/* STORY */}
                 <section>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center lg:ml-30">
                         <div>
-                            <h2 className="text-3xl font-bold mb-6">
+                            <h2 className="text-3xl font-bold mb-6 text-center lg:text-left">
                                 Our Story
                             </h2>
                             <p className="text-gray-700 font-semibold mb-2">
@@ -86,7 +107,7 @@ export default function HomePage() {
                                 built our legacy.
                             </p>
 
-                            <h2 className="text-2xl font-semibold mb-4">
+                            <h2 className="text-2xl font-semibold mb-4 text-center lg:text-left">
                                 Mission
                             </h2>
                             <p className="text-gray-700 mb-2">
@@ -96,7 +117,7 @@ export default function HomePage() {
                                 real transformation in daily life.
                             </p>
 
-                            <h2 className="text-2xl font-semibold mb-4">
+                            <h2 className="text-2xl font-semibold mb-4 text-center lg:text-left">
                                 Vision
                             </h2>
                             <p className="text-gray-700 mb-2">
@@ -110,6 +131,7 @@ export default function HomePage() {
                         <img
                             src={about}
                             className="rounded-xl shadow-xl w-full max-w-sm"
+                            alt="About EnergeniX"
                         />
                     </div>
                 </section>

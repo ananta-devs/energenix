@@ -29,6 +29,7 @@ export function CartProvider({ children }) {
   };
 
   const addItem = useCallback((product, quantity = 1, selectedPack = "Pack of 1", options = {}) => {
+    if (product.current_stock === 0) return;
     const { shouldOpenDrawer = true, isBuyNow = false } = options;
 
     const hydratedProduct = { ...product };
@@ -38,16 +39,21 @@ export function CartProvider({ children }) {
     
     setItems(prev => {
       const cartItemId = generateCartItemId(hydratedProduct, selectedPack);
-      const existing = prev.find(item => item.cartItemId === cartItemId);
+      
+      // If this is a Buy Now, we reset isBuyNow for all other items
+      // If this is a regular Add to Cart, we also reset all isBuyNow flags to false
+      const updatedPrev = prev.map(item => ({ ...item, isBuyNow: false }));
+      
+      const existing = updatedPrev.find(item => item.cartItemId === cartItemId);
       
       if (existing) {
-        return prev.map(item =>
+        return updatedPrev.map(item =>
           item.cartItemId === cartItemId
-            ? { ...item, quantity: item.quantity + quantity, isBuyNow } // Update quantity and isBuyNow status
+            ? { ...item, quantity: isBuyNow ? quantity : item.quantity + quantity, isBuyNow } // For Buy Now, we use the selected quantity. For Add to Cart, we increment.
             : item
         );
       }
-      return [...prev, { 
+      return [...updatedPrev, { 
         ...hydratedProduct, 
         quantity, 
         selectedPack, // Use the passed in selectedPack
@@ -76,10 +82,22 @@ export function CartProvider({ children }) {
     });
   }, []);
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const clearCart = useCallback(() => {
+    setItems(prev => {
+      const hasBuyNow = prev.some(item => item.isBuyNow);
+      if (hasBuyNow) {
+        return prev.filter(item => !item.isBuyNow);
+      }
+      return [];
+    });
+  }, []);
   
   const clearBuyNowItems = useCallback(() => {
     setItems(prev => prev.filter(item => !item.isBuyNow));
+  }, []);
+
+  const resetBuyNowFlags = useCallback(() => {
+    setItems(prev => prev.map(item => ({ ...item, isBuyNow: false })));
   }, []);
 
   // Calculate item price based on selected pack
@@ -116,6 +134,11 @@ export function CartProvider({ children }) {
   const total = items.reduce((sum, item) => sum + calculateItemPrice(item) * item.quantity, 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Buy Now specific items and total for checkout
+  const buyNowItems = items.filter(item => item.isBuyNow);
+  const checkoutItems = buyNowItems.length > 0 ? buyNowItems : items;
+  const checkoutTotal = checkoutItems.reduce((sum, item) => sum + calculateItemPrice(item) * item.quantity, 0);
+
   // Save to localStorage on every change
   useEffect(() => {
     localStorage.setItem('cart_items', JSON.stringify(items));
@@ -125,11 +148,14 @@ export function CartProvider({ children }) {
     <CartContext.Provider
       value={{
         items,
+        checkoutItems,
+        checkoutTotal,
         addItem,
         removeItem,
         updateQuantity,
         clearCart,
         clearBuyNowItems, // Expose the new function
+        resetBuyNowFlags,
         total,
         itemCount,
         isOpen,

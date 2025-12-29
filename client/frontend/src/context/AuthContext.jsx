@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { decodeToken, saveToken, getToken, clearToken } from "./authService";
 import api, { setupInterceptors } from "../utils/api";
 import { dataService } from "../utils/dataService";
@@ -20,6 +21,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const logout = useCallback(() => {
+    clearToken();
+    setUser(null);
+    setIsAuthenticated(false);
+    setAuthHeader(null); // Clear Axios header on logout
+  }, []);
+
   useEffect(() => {
     const token = getToken();
     if (token) {
@@ -37,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
     setLoading(false);
     setupInterceptors(logout); // Setup interceptors after logout is defined
-  }, []);
+  }, [logout]);
 
   const login = async (email) => {
     try {
@@ -65,12 +73,6 @@ export const AuthProvider = ({ children }) => {
     setAuthHeader(token); // Set Axios header when token is updated
   };
 
-  const logout = () => {
-    clearToken();
-    setUser(null);
-    setIsAuthenticated(false);
-    setAuthHeader(null); // Clear Axios header on logout
-  };
 
   const showToast = (message, type = "info") => {
     switch (type) {

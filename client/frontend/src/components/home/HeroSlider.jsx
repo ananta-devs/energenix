@@ -4,7 +4,7 @@ import { slugify } from "../../utils/slugify";
 import api from "../../utils/api";
 import { Link } from "react-router-dom";
 
-export default function HeroSlider() {
+export default function HeroSlider({ onLoad, onError }) {
     const [slides, setSlides] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -86,18 +86,26 @@ export default function HeroSlider() {
                     img.src = formattedSlides[0].url;
                     img.onload = () => {
                         setLoadedImages(prev => new Set([...prev, 0]));
+                        onLoad?.(); // Call onLoad callback
                     };
+                    img.onerror = () => {
+                        onLoad?.(); // Still call onLoad even if image fails
+                    };
+                } else {
+                    onLoad?.(); // Call onLoad callback even if no slides
                 }
             } catch (err) {
                 setError("Failed to load slider data. Please try again later.");
                 console.error("API Error:", err);
+                onError?.(); // Call onError callback
+                onLoad?.(); // Also call onLoad to hide loading
             } finally {
                 setLoading(false);
             }
         };
 
         fetchHeroSlides();
-    }, []);
+    }, [onLoad, onError]);
 
     // Preload adjacent images
     useEffect(() => {
@@ -154,6 +162,7 @@ export default function HeroSlider() {
     // Touch handlers for mobile swipe
     const handleTouchStart = useCallback((e) => {
         touchStartX.current = e.touches[0].clientX;
+        touchEndX.current = e.touches[0].clientX;
     }, []);
 
     const handleTouchMove = useCallback((e) => {
@@ -202,11 +211,7 @@ export default function HeroSlider() {
     }, []);
 
     if (loading) {
-        return (
-            <div className="relative w-full h-[500px] sm:h-[600px] md:h-[700px] lg:h-[85vh] max-h-[900px] bg-gray-900 flex items-center justify-center">
-                <div className="text-white">Loading...</div>
-            </div>
-        );
+        return null;
     }
 
     if (error) {

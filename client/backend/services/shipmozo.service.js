@@ -60,7 +60,6 @@ async function loginAndCacheKeys() {
     cachedKeys.publicKey = publicKey;
     cachedKeys.privateKey = privateKey;
     loginInProgress = null;
-    if (shipmozoConfig.debug) console.log("Shipmozo keys obtained via login.");
     return cachedKeys;
   })();
 
@@ -90,11 +89,10 @@ async function getAxios() {
 
   if (shipmozoConfig.debug) {
     instance.interceptors.request.use(cfg => {
-      console.log("[Shipmozo Request]", cfg.method?.toUpperCase(), cfg.url, cfg.data ? JSON.stringify(cfg.data) : "");
       return cfg;
     });
     instance.interceptors.response.use(
-      r => { console.log("[Shipmozo Response]", r.status, r.config.url); return r; },
+      r => { return r; },
       e => { console.error("[Shipmozo Response Error]", e?.response?.status, e?.response?.data || e.message); throw e; }
     );
   }
@@ -144,10 +142,6 @@ async function fetchAndCacheWarehouse() {
   cachedWarehouse.id = String(chosen.id);
   cachedWarehouse.pincode = pincode ? String(pincode) : null;
   cachedWarehouse.raw = chosen;
-
-  if (shipmozoConfig.debug) {
-    console.log("Cached Shipmozo warehouse:", { id: cachedWarehouse.id, pincode: cachedWarehouse.pincode });
-  }
 
   return cachedWarehouse;
 }

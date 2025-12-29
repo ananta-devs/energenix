@@ -119,9 +119,14 @@ export default function ProductCard({
                 {!hideAddToCartOnMobile && (
                     <button
                         onClick={handleAddToCart}
-                        className="w-full py-3 rounded-lg font-semibold border-2 border-blue-950 text-blue-950 hover:bg-blue-950 hover:text-white transition cursor-pointer hidden sm:block"
+                        disabled={product.current_stock === 0}
+                        className={`w-full py-3 rounded-lg font-semibold border-2 transition hidden sm:block ${
+                            product.current_stock === 0
+                                ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
+                                : "border-blue-950 text-blue-950 hover:bg-blue-950 hover:text-white cursor-pointer"
+                        }`}
                     >
-                        Add to Cart
+                        {product.current_stock === 0 ? "Out of Stock" : "Add to Cart"}
                     </button>
                 )}
             </div>

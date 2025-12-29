@@ -18,6 +18,19 @@ const getStatusStyles = (status) => {
     return "bg-blue-100 text-blue-700 border-blue-200";
 };
 
+const isOrderCancelable = (order) => {
+    const isCreated = order.status === "CREATED" || order.status === "created";
+    if (!isCreated) return false;
+    
+    if (order.createdAt) {
+        const orderTime = new Date(order.createdAt).getTime();
+        const oneHour = 60 * 60 * 1000;
+        return (Date.now() - orderTime) < oneHour;
+    }
+    
+    return false;
+};
+
 // Cancel Order Modal Component
 const CancelOrderModal = ({ isOpen, onClose, orderId, onSubmit }) => {
     const [selectedReason, setSelectedReason] = useState("");
@@ -312,8 +325,8 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
                                                 </h3>
 
                                                 {/* mobile cancel button */}
-                                                <div className="flex flex-col items-end gap-2 sm:hidden">
-                                                    {(order.status === "CREATED" || order.status === "created") ? (
+                                                <div className="flex flex-col items-end gap-2 lg:hidden">
+                                                    {isOrderCancelable(order) ? (
                                                         <button
                                                             onClick={() => handleCancelClick(order._id)}
                                                             className="px-3 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 text-xs"
@@ -350,7 +363,7 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
 
                                         {/* Large Screen Cancel/Status */}
                                         <div className="hidden lg:flex items-center gap-3 mt-1">
-                                            {(order.status === "CREATED" || order.status === "created") ? (
+                                            {isOrderCancelable(order) ? (
                                                 <button
                                                     onClick={() => handleCancelClick(order._id)}
                                                     className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 text-sm font-medium"
@@ -370,7 +383,6 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
                                                                 rounded-full bg-transparent p-2
                                                                 text-gray-500 transition-all duration-300
                                                                 hover:bg-blue-50 hover:text-blue-600"
-                                                    title="Download Invoice"
                                                     >
                                                     {/* Icon */}
                                                     <Download size={20} className="shrink-0" />
@@ -467,20 +479,6 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
                                         </div>
 
                                         <div className="flex flex-row items-center gap-3 sm:gap-4 flex-wrap">
-                                            {/* Cancel Button */}
-                                            {(order.status === "CREATED" || order.status === "created") ? (
-                                                <button
-                                                    onClick={() => handleCancelClick(order._id)}
-                                                    className="hidden sm:block lg:hidden px-3 py-2 sm:py-1 rounded-lg bg-red-500 text-white hover:bg-red-600 text-xs sm:text-sm font-medium"
-                                                >
-                                                    Cancel Order
-                                                </button>
-                                            ) : (
-                                                <span className={`hidden sm:block lg:hidden px-3 py-1 rounded-lg text-xs sm:text-sm font-medium border ${getStatusStyles(order.status)}`}>
-                                                    {formatStatus(order.status)}
-                                                </span>
-                                            )}
-
                                             <div className="text-right">
                                                 <p className="text-xs sm:text-sm text-gray-600">
                                                     Total Amount

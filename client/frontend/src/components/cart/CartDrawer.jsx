@@ -4,7 +4,7 @@ import { useCart } from '../../hooks/useCart.js';
 import { ShoppingCart, X, Minus, Plus, Trash2 } from 'lucide-react';
 
 export default function CartDrawer() {
-  const { items, removeItem, updateQuantity, total, isOpen, setIsOpen, calculateItemPrice } = useCart();
+  const { items, removeItem, updateQuantity, total, isOpen, setIsOpen, calculateItemPrice, resetBuyNowFlags } = useCart();
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -19,6 +19,7 @@ export default function CartDrawer() {
   }, [isOpen]);
 
   const handleCheckout = () => {
+    resetBuyNowFlags();
     setIsOpen(false);
   };
 

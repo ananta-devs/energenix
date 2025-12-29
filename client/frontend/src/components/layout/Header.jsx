@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import api from '../../utils/api';
 import { slugify } from '../../utils/slugify';
 import logo from '../../assets/logo.svg';
-import { Search, ShoppingCart, User, X, LogIn, Home, ShoppingBag, Mail, UserCircle, LogOut } from 'lucide-react';
+import { Search, ShoppingCart, User, X, LogIn, Home, ShoppingBag, Mail, UserCircle, LogOut, Info } from 'lucide-react';
 
 // ============================ Memoized Components ============================
 const NavLink = React.memo(({ children, to, onClick }) => {
@@ -78,7 +78,7 @@ const Logo = React.memo(() => (
 const CartIcon = React.memo(({ itemCount, onClick }) => (
   <button
     onClick={onClick}
-    className="relative p-2 rounded-full cursor-pointer hover:bg-blue-900 transition focus:outline-none focus:ring-2 focus:ring-amber-300"
+    className="hidden md:flex relative p-2 rounded-full cursor-pointer hover:bg-blue-900 transition focus:outline-none focus:ring-2 focus:ring-amber-300"
     aria-label={`Open cart (${itemCount} items)`}
   >
     <ShoppingCart className="w-5 h-5 text-white" aria-hidden="true" />
@@ -393,6 +393,7 @@ const Header = () => {
   const navigationItems = useMemo(() => [
     { to: '/', label: 'Home' },
     { to: '/category/all', label: 'Shop' },
+    { to: '/about-us', label: 'About Us' },
     { to: '/contact', label: 'Contact' }
   ], []);
 
@@ -590,32 +591,58 @@ const Header = () => {
               Navigation
             </h3>
             <nav className="space-y-3" aria-label="Sidebar navigation">
-              <Link
+              <RouterNavLink
                 to="/"
+                end
                 onClick={handleNavClick}
-                className="flex items-center gap-3 text-white py-3 hover:text-amber-300 transition group focus:outline-none focus:text-amber-300"
+                className={({ isActive }) => `flex items-center gap-3 py-3 transition group focus:outline-none ${isActive ? 'text-amber-300' : 'text-white hover:text-amber-300'}`}
               >
-                <Home className="w-5 h-5 text-gray-400 group-hover:text-amber-300" aria-hidden="true" />
-                <span>Home</span>
-              </Link>
+                {({ isActive }) => (
+                  <>
+                    <Home className={`w-5 h-5 ${isActive ? 'text-amber-300' : 'text-gray-400 group-hover:text-amber-300'}`} aria-hidden="true" />
+                    <span>Home</span>
+                  </>
+                )}
+              </RouterNavLink>
               
-              <Link
+              <RouterNavLink
                 to="/category/all"
                 onClick={handleNavClick}
-                className="flex items-center gap-3 text-white py-3 hover:text-amber-300 transition group focus:outline-none focus:text-amber-300"
+                className={({ isActive }) => `flex items-center gap-3 py-3 transition group focus:outline-none ${isActive ? 'text-amber-300' : 'text-white hover:text-amber-300'}`}
               >
-                <ShoppingBag className="w-5 h-5 text-gray-400 group-hover:text-amber-300" aria-hidden="true" />
-                <span>Shop</span>
-              </Link>
+                {({ isActive }) => (
+                  <>
+                    <ShoppingBag className={`w-5 h-5 ${isActive ? 'text-amber-300' : 'text-gray-400 group-hover:text-amber-300'}`} aria-hidden="true" />
+                    <span>Shop</span>
+                  </>
+                )}
+              </RouterNavLink>
+
+              <RouterNavLink
+                to="/about-us"
+                onClick={handleNavClick}
+                className={({ isActive }) => `flex items-center gap-3 py-3 transition group focus:outline-none ${isActive ? 'text-amber-300' : 'text-white hover:text-amber-300'}`}
+              >
+                {({ isActive }) => (
+                  <>
+                    <Info className={`w-5 h-5 ${isActive ? 'text-amber-300' : 'text-gray-400 group-hover:text-amber-300'}`} aria-hidden="true" />
+                    <span>About Us</span>
+                  </>
+                )}
+              </RouterNavLink>
               
-              <Link
+              <RouterNavLink
                 to="/contact"
                 onClick={handleNavClick}
-                className="flex items-center gap-3 text-white py-3 hover:text-amber-300 transition group focus:outline-none focus:text-amber-300"
+                className={({ isActive }) => `flex items-center gap-3 py-3 transition group focus:outline-none ${isActive ? 'text-amber-300' : 'text-white hover:text-amber-300'}`}
               >
-                <Mail className="w-5 h-5 text-gray-400 group-hover:text-amber-300" aria-hidden="true" />
-                <span>Contact</span>
-              </Link>
+                {({ isActive }) => (
+                  <>
+                    <Mail className={`w-5 h-5 ${isActive ? 'text-amber-300' : 'text-gray-400 group-hover:text-amber-300'}`} aria-hidden="true" />
+                    <span>Contact</span>
+                  </>
+                )}
+              </RouterNavLink>
             </nav>
           </div>
 
@@ -626,24 +653,32 @@ const Header = () => {
             </h3>
             <div className="space-y-3">
               {!isAuthenticated ? (
-                <Link
+                <RouterNavLink
                   to="/login"
                   onClick={handleNavClick}
-                  className="flex items-center gap-3 text-white py-3 hover:text-amber-300 transition group focus:outline-none focus:text-amber-300"
+                  className={({ isActive }) => `flex items-center gap-3 py-3 transition group focus:outline-none ${isActive ? 'text-amber-300' : 'text-white hover:text-amber-300'}`}
                 >
-                  <LogIn className="w-5 h-5 text-gray-400 group-hover:text-amber-300" aria-hidden="true" />
-                  <span>Sign In</span>
-                </Link>
+                  {({ isActive }) => (
+                    <>
+                      <LogIn className={`w-5 h-5 ${isActive ? 'text-amber-300' : 'text-gray-400 group-hover:text-amber-300'}`} aria-hidden="true" />
+                      <span>Sign In</span>
+                    </>
+                  )}
+                </RouterNavLink>
               ) : (
                 <>
-                  <Link
+                  <RouterNavLink
                     to="/dashboard"
                     onClick={handleNavClick}
-                    className="flex items-center gap-3 text-white py-3 hover:text-amber-300 transition group focus:outline-none focus:text-amber-300"
+                    className={({ isActive }) => `flex items-center gap-3 py-3 transition group focus:outline-none ${isActive ? 'text-amber-300' : 'text-white hover:text-amber-300'}`}
                   >
-                    <UserCircle className="w-5 h-5 text-gray-400 group-hover:text-amber-300" aria-hidden="true" />
-                    <span>My Profile</span>
-                  </Link>
+                    {({ isActive }) => (
+                      <>
+                        <UserCircle className={`w-5 h-5 ${isActive ? 'text-amber-300' : 'text-gray-400 group-hover:text-amber-300'}`} aria-hidden="true" />
+                        <span>My Profile</span>
+                      </>
+                    )}
+                  </RouterNavLink>
                   
                   <button
                     onClick={handleLogout}

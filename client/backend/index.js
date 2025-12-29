@@ -12,67 +12,83 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contactRoutes');
 const productRoutes = require('./routes/productRoutes');
-const pincodeRoutes = require('./routes/pincode');
+
 const paymentRoutes = require('./routes/paymentRoutes');
 const shipmozoRoutes = require('./routes/shipmozo.routes');
 const orderRoutes = require('./routes/order.routes.js');
-const couponRoutes = require('./routes/coupon.routes.js'); // Import coupon routes
+const couponRoutes = require('./routes/coupon.routes.js');
 const heroSliderRoutes = require('./routes/heroSlider.routes.js');
 const errorHandler = require('./middleware/errorMiddleware');
 
 const app = express();
 
-// Connect Database
+/* ================= RENDER FIX ================= */
+app.set('trust proxy', 1);
+
+/* ================= DB ================= */
 connectDB();
 
-// Security Middleware
+/* ================= SECURITY ================= */
 app.use(helmet());
 
-// Rate Limiting
+/* ================= RATE LIMIT ================= */
 const limiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  windowMs: 10 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false
 });
-app.use('/api', limiter); // Apply to API routes
+app.use('/api', limiter);
 
-// CORS Configuration
+/* ================= CORS (FIXED) ================= */
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',')
+  : [];
+
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || '*', // Ideally restrict this in production
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    credentials: true
+  origin: (origin, callback) => {
+    // Allow Render health checks, Postman, server-to-server
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    console.error('❌ CORS blocked:', origin);
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
+
 app.use(cors(corsOptions));
 
-// Body Parser with limit
+/* ================= BODY PARSER ================= */
 app.use(express.json({ limit: '10kb' }));
 
-// Data Sanitization against NoSQL query injection
+/* ================= SANITIZATION ================= */
 app.use(mongoSanitize);
-
-// Data Sanitization against XSS
 app.use(xss);
-
-// Prevent Parameter Pollution
 app.use(hpp());
 
-// Compression
+/* ================= PERFORMANCE ================= */
 app.use(compression());
 
-// Routes
+/* ================= ROUTES ================= */
 app.use('/api/auth', authRoutes);
 app.use('/api', contactRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/pincode', pincodeRoutes);
+
 app.use('/api/payment', paymentRoutes);
 app.use('/api/shipmozo', shipmozoRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/coupons', couponRoutes); // Mount coupon routes
+app.use('/api/coupons', couponRoutes);
 app.use('/api/heroslider', heroSliderRoutes);
 
-// Error Handling Middleware (Must be last)
+/* ================= ERROR HANDLER ================= */
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 4000;
-
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+/* ================= SERVER ================= */
+const PORT = process.env.PORT;
+app.listen(PORT);

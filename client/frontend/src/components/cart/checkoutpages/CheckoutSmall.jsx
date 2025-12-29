@@ -137,12 +137,6 @@ const CouponModal = React.memo(({
     const [manualEntryMode, setManualEntryMode] = useState(false);
     const [manualCouponInput, setManualCouponInput] = useState("");
 
-    useEffect(() => {
-        if (isOpen && !manualEntryMode) {
-            fetchAvailableCoupons();
-        }
-    }, [isOpen, manualEntryMode]);
-
     const fetchAvailableCoupons = useCallback(async () => {
         setLoading(true);
         try {
@@ -155,6 +149,12 @@ const CouponModal = React.memo(({
             setLoading(false);
         }
     }, []);
+
+    useEffect(() => {
+        if (isOpen && !manualEntryMode) {
+            fetchAvailableCoupons();
+        }
+    }, [isOpen, manualEntryMode, fetchAvailableCoupons]);
 
     const handleApplySelected = useCallback(() => {
         if (selectedCoupon) {
@@ -438,9 +438,8 @@ const SuccessAnimation = React.memo(() => {
 
 // ============================ Main CheckoutSmall Component ============================
 const CheckoutSmall = () => {
-    const { items, total, clearCart, calculateItemPrice } = useCart();
+    const { checkoutItems: items, checkoutTotal: total, clearCart, calculateItemPrice, removeItem } = useCart();
     const { user } = useAuth();
-    const navigate = useNavigate();
 
     // State management
     const [step, setStep] = useState(1);
@@ -452,8 +451,29 @@ const CheckoutSmall = () => {
     const [showSuccess, setShowSuccess] = useState(false);
     const [showCouponModal, setShowCouponModal] = useState(false);
     const [isOrderItemsCollapsed, setIsOrderItemsCollapsed] = useState(true);
-    const [pinLoading, setPinLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [outOfStockItems, setOutOfStockItems] = useState([]);
+
+    // Validate stock on mount
+    useEffect(() => {
+        const validateCartStock = async () => {
+            if (items.length === 0) return;
+            try {
+                const stockItems = items.map(item => ({ _id: item._id, quantity: item.quantity }));
+                const { data } = await dataService.validateStock(stockItems);
+                
+                if (!data.valid) {
+                    setOutOfStockItems(data.outOfStockItems);
+                } else {
+                    setOutOfStockItems([]);
+                }
+            } catch (err) {
+                console.error("Stock validation failed", err);
+            }
+        };
+        
+        validateCartStock();
+    }, [items]);
 
     // Address form state
     const addressFormDefaults = useMemo(() => ({
@@ -491,42 +511,14 @@ const CheckoutSmall = () => {
         }
     }, [items.length]);
 
-    // API functions
-    const fetchCityState = useCallback(async (pin) => {
-        try {
-            const res = await dataService.getPinCodeInfo(pin);
-            return { 
-                city: res.data.city || "", 
-                state: res.data.state || "" 
-            };
-        } catch {
-            return { city: "", state: "" };
-        }
-    }, []);
-
-    const handlePinChange = useCallback(async (pin) => {
+    const handlePinChange = useCallback((pin) => {
         const cleanPin = pin.replace(/\D/g, "");
         setAddressForm(prev => ({
             ...prev,
             pinCode: cleanPin,
-            city: "",
-            state: "",
         }));
         setErrors(prev => ({ ...prev, pinCode: "" }));
-
-        if (cleanPin.length === 6) {
-            setPinLoading(true);
-            const { city, state } = await fetchCityState(cleanPin);
-            setAddressForm(prev => ({ ...prev, city, state }));
-            if (!city || !state) {
-                setErrors(prev => ({
-                    ...prev,
-                    pinCode: "Service not available in this area.",
-                }));
-            }
-            setPinLoading(false);
-        }
-    }, [fetchCityState]);
+    }, []);
 
     const handleChange = useCallback((e) => {
         const { name, value } = e.target;
@@ -592,57 +584,8 @@ const CheckoutSmall = () => {
         return Object.keys(newErrors).length === 0;
     }, [addressForm]);
 
-    // Step navigation
-    const handleNextStep = useCallback(() => {
-        if (step === 1) {
-            if (validateShipping()) setStep(2);
-        } else if (step === 2) {
-            setStep(3);
-        } else if (step === 3) {
-            if (paymentMethod === "online") handleOnlinePayment();
-            else handlePlaceOrder();
-        }
-    }, [step, validateShipping, paymentMethod]);
-
     // Payment handling
-    const handleOnlinePayment = useCallback(async () => {
-        setIsProcessing(true);
-        try {
-            const { data } = await dataService.createOrder(finalTotal);
-
-            const options = {
-                key: data.key,
-                amount: data.amount,
-                currency: "INR",
-                name: "EnergeniX",
-                image: "https://res.cloudinary.com/djva05hfi/image/upload/v1766247498/logo-razorp_sucina.jpg",
-                description: "Order Payment",
-                order_id: data.orderId,
-                handler: (response) => handlePlaceOrder(response.razorpay_payment_id),
-                prefill: {
-                    name: addressForm.fullName,
-                    email: user?.email,
-                    contact: addressForm.phone,
-                },
-                theme: { color: "#162556" },
-                modal: {
-                    ondismiss: () => setIsProcessing(false),
-                },
-            };
-
-            const rzp = new window.Razorpay(options);
-            rzp.open();
-            rzp.on("payment.failed", () => {
-                alert("Payment failed. Please try again.");
-                setIsProcessing(false);
-            });
-        } catch (error) {
-            alert("Error initializing payment. Please try again.");
-            setIsProcessing(false);
-        }
-    }, [finalTotal, addressForm, user]);
-
-    const handlePlaceOrder = useCallback(async (paymentId = null) => {
+    const handlePlaceOrder = useCallback(async () => {
         setIsProcessing(true);
         try {
             let totalWeightGrams = 0;
@@ -713,10 +656,105 @@ const CheckoutSmall = () => {
             alert(`An error occurred: ${error.response?.data?.error || error.message}`);
             setIsProcessing(false);
         }
-    }, [items, addressForm, user, paymentMethod, finalTotal, appliedCoupon, clearCart, navigate]);
+    }, [items, addressForm, user, paymentMethod, finalTotal, appliedCoupon, clearCart]);
+
+    const handleOnlinePayment = useCallback(async () => {
+        setIsProcessing(true);
+        try {
+            const { data } = await dataService.createOrder(finalTotal);
+
+            const options = {
+                key: data.key,
+                amount: data.amount,
+                currency: "INR",
+                name: "EnergeniX",
+                image: "https://res.cloudinary.com/djva05hfi/image/upload/v1766247498/logo-razorp_sucina.jpg",
+                description: "Order Payment",
+                order_id: data.orderId,
+                handler: (response) => handlePlaceOrder(response.razorpay_payment_id),
+                prefill: {
+                    name: addressForm.fullName,
+                    email: user?.email,
+                    contact: addressForm.phone,
+                },
+                theme: { color: "#162556" },
+                modal: {
+                    ondismiss: () => setIsProcessing(false),
+                },
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+            rzp.on("payment.failed", () => {
+                alert("Payment failed. Please try again.");
+                setIsProcessing(false);
+            });
+        } catch {
+            alert("Error initializing payment. Please try again.");
+            setIsProcessing(false);
+        }
+    }, [finalTotal, addressForm, user, handlePlaceOrder]);
+
+    // Step navigation
+    const handleNextStep = useCallback(() => {
+        if (outOfStockItems.length > 0) {
+            alert("Please remove out of stock items before proceeding.");
+            return;
+        }
+        if (step === 1) {
+            if (validateShipping()) setStep(2);
+        } else if (step === 2) {
+            setStep(3);
+        } else if (step === 3) {
+            if (paymentMethod === "online") handleOnlinePayment();
+            else handlePlaceOrder();
+        }
+    }, [step, validateShipping, paymentMethod, handleOnlinePayment, handlePlaceOrder, outOfStockItems]);
 
     // Render functions
     const renderStepContent = useCallback(() => {
+        if (outOfStockItems.length > 0) {
+             return (
+                <div className="space-y-4 animate-slide-up">
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                            <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-red-800 mb-2">Some items are out of stock</h3>
+                                <p className="text-sm text-red-600 mb-4">
+                                    Please remove the following items to proceed with your order.
+                                </p>
+                                <div className="space-y-3">
+                                    {outOfStockItems.map(oosItem => (
+                                        <div key={oosItem._id} className="flex items-center justify-between bg-white p-3 rounded-lg border border-red-100">
+                                            <div className="flex-1">
+                                                <p className="font-medium text-gray-900">{oosItem.name}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    Available: {oosItem.available}
+                                                </p>
+                                            </div>
+                                            <button 
+                                                onClick={() => {
+                                                    const cartItem = items.find(i => i._id === oosItem._id);
+                                                    if (cartItem) {
+                                                        removeItem(cartItem.cartItemId);
+                                                        setOutOfStockItems(prev => prev.filter(i => i._id !== oosItem._id));
+                                                    }
+                                                }}
+                                                className="px-3 py-1.5 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             );
+        }
+
         switch (step) {
             case 1: // Address Form
                 return (
@@ -778,23 +816,20 @@ const CheckoutSmall = () => {
                                         onChange={(e) => handlePinChange(e.target.value)}
                                         error={errors.pinCode}
                                     />
-                                    {pinLoading && (
-                                        <Loader2 className="absolute right-3 top-10 w-5 h-5 text-blue-900 animate-spin" />
-                                    )}
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <Input
                                         label="City"
                                         name="city"
                                         value={addressForm.city}
-                                        readOnly
+                                        onChange={handleChange}
                                         error={errors.city}
                                     />
                                     <Input
                                         label="State"
                                         name="state"
                                         value={addressForm.state}
-                                        readOnly
+                                        onChange={handleChange}
                                         error={errors.state}
                                     />
                                 </div>
@@ -998,11 +1033,12 @@ const CheckoutSmall = () => {
                 return null;
         }
     }, [
-        step, addressForm, errors, pinLoading, showCouponModal, 
+        step, addressForm, errors, showCouponModal, 
         couponCode, user, cartTotal, items, isOrderItemsCollapsed, 
         appliedCoupon, discount, paymentMethod, shippingCost, finalTotal,
         totalWithoutShipping, handleChange, handlePinChange, 
-        applyCoupon, removeCoupon, calculateItemPrice
+        applyCoupon, removeCoupon, calculateItemPrice,
+        outOfStockItems, removeItem
     ]);
 
     const footerButtonText = useMemo(() => {
@@ -1065,10 +1101,10 @@ const CheckoutSmall = () => {
                 <div className="fixed bottom-0 left-0 right-0 p-3 bg-white/80 backdrop-blur-sm border-t border-gray-100">
                     <button
                         onClick={handleNextStep}
-                        disabled={isProcessing || (step === 1 && pinLoading) || showSuccess}
+                        disabled={isProcessing || showSuccess || outOfStockItems.length > 0}
                         className={`w-full rounded-xl py-3.5 font-semibold text-lg transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-2
                             ${
-                                isProcessing || (step === 1 && pinLoading) || showSuccess
+                                isProcessing || showSuccess || outOfStockItems.length > 0
                                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                     : "bg-blue-950 text-white shadow-lg shadow-blue-200 hover:shadow-xl"
                             }`}

@@ -5,6 +5,7 @@ import { Minus, Plus, X, Share2, Link2 } from "lucide-react";
 import trust_badge from "../../assets/TRUST_BADGE.webp";
 import { useProducts } from "../../context/ProductContext.jsx";
 import { slugify } from "../../utils/slugify.js";
+import FullPageLoader from "../ui/FullPageLoader.jsx";
 
 // Import SVG icons from svg.js
 import {
@@ -24,10 +25,25 @@ export default function ProductDetailPage() {
     const [quantity, setQuantity] = useState(1);
     const [showLightbox, setShowLightbox] = useState(false);
     const [selectedPack, setSelectedPack] = useState("Pack of 1");
-    const [touchStart, setTouchStart] = useState(0);
-    const [touchEnd, setTouchEnd] = useState(0);
+    const touchStartX = useRef(0);
+    const touchStartY = useRef(0);
+    const touchEndX = useRef(0);
     const [showShareOptions, setShowShareOptions] = useState(false);
+    const [isClosingShareModal, setIsClosingShareModal] = useState(false);
     const imageContainerRef = useRef(null);
+
+    // Disable background scroll when modal is open
+    useEffect(() => {
+        if (showShareOptions) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [showShareOptions]);
 
     useEffect(() => {
         if (products.length > 0) {
@@ -108,8 +124,17 @@ export default function ProductDetailPage() {
         setShowShareOptions(!showShareOptions);
     };
 
+    // Handle closing share modal with animation
+    const handleCloseShareModal = () => {
+        setIsClosingShareModal(true);
+        setTimeout(() => {
+            setShowShareOptions(false);
+            setIsClosingShareModal(false);
+        }, 300); // Match the CSS animation duration
+    };
+
     if (loading) {
-        return <div className="py-20 text-center">Loading...</div>;
+        return <FullPageLoader />;
     }
 
     if (error) {
@@ -123,6 +148,66 @@ export default function ProductDetailPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 py-5">
+            <style>
+                {`
+                    @keyframes slideUp {
+                        from {
+                            transform: translateY(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateY(0);
+                            opacity: 1;
+                        }
+                    }
+                    
+                    @keyframes slideDown {
+                        from {
+                            transform: translateY(0);
+                            opacity: 1;
+                        }
+                        to {
+                            transform: translateY(100%);
+                            opacity: 0;
+                        }
+                    }
+                    
+                    @keyframes fadeIn {
+                        from {
+                            opacity: 0;
+                        }
+                        to {
+                            opacity: 0.7;
+                        }
+                    }
+                    
+                    @keyframes fadeOut {
+                        from {
+                            opacity: 0.7;
+                        }
+                        to {
+                            opacity: 0;
+                        }
+                    }
+                    
+                    .animate-slide-up {
+                        animation: slideUp 0.3s ease-out forwards;
+                    }
+                    
+                    .animate-slide-down {
+                        animation: slideDown 0.3s ease-in forwards;
+                    }
+                    
+                    .animate-fade-in {
+                        animation: fadeIn 0.2s ease-out forwards;
+                    }
+                    
+                    .animate-fade-out {
+                        animation: fadeOut 0.2s ease-in forwards;
+                    }
+                `}
+            </style>
+            
             <div className="container mx-auto px-0">
                 <div className="grid grid-cols-1 lg:grid-cols-2 mb-16">
                     {/* Image Gallery - Mobile Slider / Desktop Gallery */}
@@ -140,28 +225,32 @@ export default function ProductDetailPage() {
 
                                 <div
                                     ref={imageContainerRef}
-                                    className="relative w-full h-[400px] touch-none"
+                                    className="relative w-full h-[400px]"
                                     onTouchStart={(e) => {
                                         const touch = e.touches[0];
-                                        setTouchStart(touch.clientX);
+                                        touchStartX.current = touch.clientX;
+                                        touchStartY.current = touch.clientY;
+                                        touchEndX.current = touch.clientX; // Initialize end with start
                                     }}
                                     onTouchMove={(e) => {
-                                        if (e.touches.length === 1) {
-                                            e.preventDefault();
-                                        }
                                         const touch = e.touches[0];
-                                        setTouchEnd(touch.clientX);
-                                    }}
-                                    onTouchEnd={(e) => {
-                                        if (!touchStart || !touchEnd) return;
+                                        const deltaX = touchStartX.current - touch.clientX;
+                                        const deltaY = touchStartY.current - touch.clientY;
 
-                                        const distance = touchStart - touchEnd;
+                                        // If horizontal swipe is dominant, prevent scrolling and track swipe
+                                        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+                                            if (e.cancelable) {
+                                                e.preventDefault();
+                                            }
+                                            touchEndX.current = touch.clientX;
+                                        }
+                                    }}
+                                    onTouchEnd={() => {
+                                        if (!touchStartX.current || !touchEndX.current) return;
+
+                                        const distance = touchStartX.current - touchEndX.current;
                                         const isLeftSwipe = distance > 50;
                                         const isRightSwipe = distance < -50;
-
-                                        if (isLeftSwipe || isRightSwipe) {
-                                            e.preventDefault();
-                                        }
 
                                         if (isLeftSwipe) {
                                             setCurrentImage((prev) =>
@@ -179,8 +268,10 @@ export default function ProductDetailPage() {
                                             );
                                         }
 
-                                        setTouchStart(0);
-                                        setTouchEnd(0);
+                                        // Reset
+                                        touchStartX.current = 0;
+                                        touchStartY.current = 0;
+                                        touchEndX.current = 0;
                                     }}
                                     onClick={() => setShowLightbox(true)}
                                 >
@@ -194,11 +285,10 @@ export default function ProductDetailPage() {
                                         {product.image_urls.map((_, idx) => (
                                             <div
                                                 key={idx}
-                                                className={`w-2 h-2 rounded-full transition ${
-                                                    currentImage === idx
+                                                className={`w-2 h-2 rounded-full transition ${currentImage === idx
                                                         ? "bg-white"
                                                         : "bg-white/50"
-                                                }`}
+                                                    }`}
                                             />
                                         ))}
                                     </div>
@@ -234,11 +324,10 @@ export default function ProductDetailPage() {
                                     <button
                                         key={idx}
                                         onClick={() => setCurrentImage(idx)}
-                                        className={`rounded-lg overflow-hidden border-2 transition ${
-                                            currentImage === idx
+                                        className={`rounded-lg overflow-hidden border-2 transition ${currentImage === idx
                                                 ? "border-purple-600"
                                                 : "border-transparent"
-                                        }`}
+                                            }`}
                                     >
                                         <img
                                             src={img}
@@ -299,11 +388,10 @@ export default function ProductDetailPage() {
                                             onClick={() =>
                                                 setSelectedPack(pack)
                                             }
-                                            className={`px-4 py-2 rounded-lg border-2 transition ${
-                                                selectedPack === pack
+                                            className={`px-4 py-2 rounded-lg border-2 transition ${selectedPack === pack
                                                     ? "border-blue-600 bg-purple-50 text-blue-700"
                                                     : "border-gray-300 hover:border-gray-400 cursor-pointer"
-                                            }`}
+                                                }`}
                                         >
                                             {pack}
                                         </button>
@@ -317,15 +405,15 @@ export default function ProductDetailPage() {
                                 )}
                                 {selectedPack ===
                                     "Pack of 4 (Family Discount)" && (
-                                    <p className="text-sm text-emerald-600 mt-2">
-                                        🎉 Save 20% with Family Discount!
-                                    </p>
-                                )}
+                                        <p className="text-sm text-emerald-600 mt-2">
+                                            🎉 Save 20% with Family Discount!
+                                        </p>
+                                    )}
                             </div>
 
                             {/* Quantity Selector - Hidden on mobile (moved to fixed buttons area) */}
                             <div className="hidden lg:flex gap-4 mb-6">
-                                <div className="flex items-center border rounded-lg">
+                                <div className={`flex items-center border rounded-lg ${product.current_stock === 0 ? 'opacity-50 pointer-events-none' : ''}`}>
                                     <button
                                         onClick={() =>
                                             setQuantity(
@@ -351,23 +439,33 @@ export default function ProductDetailPage() {
 
                                 <button
                                     onClick={handleAddToCart}
-                                    className="flex-1 bg-gradient-to-r from-blue-800 to-blue-950 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition"
+                                    disabled={product.current_stock === 0}
+                                    className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                                        product.current_stock === 0
+                                            ? "bg-gray-400 text-white cursor-not-allowed"
+                                            : "bg-gradient-to-r from-blue-800 to-blue-950 text-white hover:from-blue-700 hover:to-indigo-700"
+                                    }`}
                                 >
-                                    Add to Cart
+                                    {product.current_stock === 0 ? "Out of Stock" : "Add to Cart"}
                                 </button>
 
                                 <button
                                     onClick={handleBuyNow}
-                                    className="flex-1 bg-gradient-to-r from-green-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-green-700 hover:to-teal-700 transition"
+                                    disabled={product.current_stock === 0}
+                                    className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                                        product.current_stock === 0
+                                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                            : "bg-gradient-to-r from-green-600 to-teal-600 text-white hover:from-green-700 hover:to-teal-700"
+                                    }`}
                                 >
-                                    Buy Now
+                                    {product.current_stock === 0 ? "Sold Out" : "Buy Now"}
                                 </button>
                             </div>
 
                             {/* Quantity Selector for Mobile - Only the selector, buttons are fixed */}
                             <div className="lg:hidden mb-6">
                                 <h3 className="font-semibold mb-3">Quantity</h3>
-                                <div className="flex items-center border rounded-lg w-fit">
+                                <div className={`flex items-center border rounded-lg w-fit ${product.current_stock === 0 ? 'opacity-50 pointer-events-none' : ''}`}>
                                     <button
                                         onClick={() =>
                                             setQuantity(
@@ -410,24 +508,25 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Share Options Modal for Small Screens - Matching CategoryPage modals */}
-            {showShareOptions && (
+            {(showShareOptions || isClosingShareModal) && (
                 <>
                     {/* Backdrop */}
                     <div
-                        className="fixed inset-0 bg-black opacity-70 z-50 lg:hidden"
-                        onClick={() => setShowShareOptions(false)}
+                        className={`fixed inset-0 bg-black z-50 lg:hidden ${isClosingShareModal ? 'animate-fade-out' : 'animate-fade-in'}`}
+                        style={{ opacity: isClosingShareModal ? 0 : 0.7 }}
+                        onClick={handleCloseShareModal}
                     />
 
                     {/* Modal Content - Slides from bottom */}
-                    <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 lg:hidden animate-slideUp">
-                        <div className="p-6 max-h-[80vh] overflow-y-auto">
+                    <div className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 lg:hidden ${isClosingShareModal ? 'animate-slide-down' : 'animate-slide-up'}`}>
+                        <div className="p-6">
                             {/* Header */}
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-xl font-bold text-gray-900">
                                     Share
                                 </h3>
                                 <button
-                                    onClick={() => setShowShareOptions(false)}
+                                    onClick={handleCloseShareModal}
                                     className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                                 >
                                     <X className="w-5 h-5 text-gray-700" />
@@ -447,7 +546,7 @@ export default function ProductDetailPage() {
                                             {product.p_name}
                                         </p>
                                         <p className="text-xs text-gray-600 line-clamp-2 mt-1">
-                                            Buy {product.p_name.split(" ")[0]}{" "}
+                                            Buy {product.p_name.split(" ")[0]}
                                             online at best price with offers in
                                             India.{" "}
                                             {product.p_name.split(" ")[0]} ...
@@ -463,7 +562,7 @@ export default function ProductDetailPage() {
                             </div>
 
                             {/* Share Options Grid - 4 columns */}
-                            <div className="grid grid-cols-4 gap-4 mb-6">
+                            <div className="grid grid-cols-4 gap-4">
                                 {/* Copy Link */}
                                 <button
                                     onClick={async (e) => {
@@ -552,7 +651,7 @@ export default function ProductDetailPage() {
                                                 text: product.p_subtitle,
                                                 url: window.location.href,
                                             });
-                                            setShowShareOptions(false);
+                                            handleCloseShareModal();
                                         }}
                                         className="flex flex-col items-center p-3 rounded-lg hover:bg-purple-50 transition-colors active:scale-95"
                                     >
@@ -687,12 +786,12 @@ export default function ProductDetailPage() {
                                     alt={product.p_name}
                                     className="w-16 h-16 rounded-lg object-cover border-2 border-white shadow-sm"
                                 />
-                                <div className="flex-1">
+                                <div className="flex-1 min-w-0">
                                     <h4 className="font-semibold text-gray-900 truncate">
-                                        {product.p_name}
+                                        {product.p_name.slice(0, 25)}...
                                     </h4>
-                                    <p className="text-sm text-gray-600 line-clamp-2">
-                                        {product.p_subtitle}
+                                    <p className="text-sm text-gray-600 truncate">
+                                        {product.p_subtitle.slice(0, 50)}...
                                     </p>
                                     <p className="text-lg font-bold text-blue-800 mt-1">
                                         ₨.{" "}
@@ -709,8 +808,8 @@ export default function ProductDetailPage() {
                             <button
                                 onClick={() => {
                                     navigator.share({
-                                        title: product.p_name,
-                                        text: product.p_subtitle,
+                                        title: product.p_name.slice(0, 25) + "...",
+                                        text: product.p_subtitle.slice(0, 50) + "...",
                                         url: window.location.href,
                                     });
                                     setShowShareOptions(false);
@@ -725,19 +824,29 @@ export default function ProductDetailPage() {
             )}
 
             {/* Mobile Fixed Bottom Buttons */}
-            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white  shadow-lg p-4 z-40">
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg p-4 z-40">
                 <div className="flex gap-4">
                     <button
                         onClick={handleAddToCart}
-                        className="flex-1 bg-gradient-to-r from-blue-800 to-indigo-950 text-white py-3 rounded-lg font-semibold transition"
+                        disabled={product.current_stock === 0}
+                        className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                            product.current_stock === 0
+                                ? "bg-gray-400 text-white cursor-not-allowed"
+                                : "bg-gradient-to-r from-blue-800 to-indigo-950 text-white"
+                        }`}
                     >
-                        Add to Cart
+                        {product.current_stock === 0 ? "Out of Stock" : "Add to Cart"}
                     </button>
                     <button
                         onClick={handleBuyNow}
-                        className="flex-1 bg-gradient-to-r from-green-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-green-700 hover:to-teal-700 transition"
+                        disabled={product.current_stock === 0}
+                        className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                            product.current_stock === 0
+                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                : "bg-gradient-to-r from-green-600 to-teal-600 text-white hover:from-green-700 hover:to-teal-700"
+                        }`}
                     >
-                        Buy Now
+                        {product.current_stock === 0 ? "Sold Out" : "Buy Now"}
                     </button>
                 </div>
             </div>

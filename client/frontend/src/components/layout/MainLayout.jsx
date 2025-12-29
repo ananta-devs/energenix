@@ -12,7 +12,9 @@ export default function MainLayout() {
         location.pathname.startsWith("/dashboard");
 
     // Home page should NOT wrap the top section (HeroSlider)
-    const isHomePage = location.pathname === "/";
+    const isFullWidthPage = 
+        location.pathname === "/" || 
+        location.pathname === "/about-us";
     const isDashboard = location.pathname.startsWith("/dashboard");
 
     return (
@@ -20,7 +22,7 @@ export default function MainLayout() {
             {!hideLayout && <Header />}
 
             <main className="flex-1 w-full bg-gray-50">
-                {isHomePage ? (
+                {isFullWidthPage ? (
                     <div className="bg-white">
                         <Outlet />
                     </div>

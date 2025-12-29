@@ -55,10 +55,10 @@ input[type="password"]::-webkit-inner-spin-button {
     scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
-/* Smooth scrolling */
-html {
+/* Smooth scrolling - REMOVED to prevent navigation scroll jump */
+/* html {
     scroll-behavior: smooth;
-}
+} */
 
 /* Dark scrollbars */
 .dark-scrollbar::-webkit-scrollbar-track {

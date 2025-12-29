@@ -14,13 +14,17 @@ import { Toaster } from 'react-hot-toast';
 import ScrollToTop from './components/layout/ScrollToTop.jsx';
 import PrivacyPolicy from './pages/Privacy.jsx';
 import TermsOfService from './pages/Terms.jsx';
+import ShippingInfo from './pages/ShippingInfo';
+import ReturnExchange from './pages/ReturnExchange';
+import CookiePolicy from './pages/CookiePolicy.jsx';
+import AboutUs from './pages/AboutUs.jsx';
 
 function App() {
   return (
     <>
       <ScrollToTop />
       <CartDrawer />
-      <Toaster />
+      <Toaster position="top-center" reverseOrder={false} />
 
       <Routes>
         <Route element={<MainLayout />}>
@@ -44,12 +48,16 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-and-conditions" element={<TermsOfService />} />
+          <Route path="/shipping-information" element={<ShippingInfo />} />
+          <Route path="/returns-exchanges" element={<ReturnExchange />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/about-us" element={<AboutUs />} />
         </Route>
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<LoginPage />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
       </Routes>
 
     </>

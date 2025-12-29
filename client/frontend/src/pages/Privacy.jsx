@@ -1,9 +1,27 @@
-// components/PrivacyPolicy.jsx
+// pages/PrivacyPolicy.jsx
 import React from 'react';
+import { ArrowLeft } from 'lucide-react'
+import { useNavigate } from 'react-router-dom';
 
 const PrivacyPolicy = () => {
+
+  const navigate = useNavigate();
+  
+  const handleBackClick = () => {
+    navigate('/');
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
+      {/* Back Button */}
+      <button
+        onClick={handleBackClick}
+        className="mb-6 ml-2 flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 group"
+      >
+        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" />
+        <span>Back to Homepage</span>
+      </button>
+
       <div className="bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Privacy Policy – EnergeniX</h1>

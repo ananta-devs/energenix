@@ -18,6 +18,7 @@ import {
     Ticket,
     X,
     ShoppingCart,
+    AlertTriangle
 } from "lucide-react";
 
 // ============================ Constants ============================
@@ -50,12 +51,6 @@ const CouponModal = React.memo(({
     const [manualEntryMode, setManualEntryMode] = useState(false);
     const [manualCouponInput, setManualCouponInput] = useState("");
 
-    useEffect(() => {
-        if (isOpen && !manualEntryMode) {
-            fetchAvailableCoupons();
-        }
-    }, [isOpen, manualEntryMode]);
-
     const fetchAvailableCoupons = useCallback(async () => {
         setLoading(true);
         try {
@@ -68,6 +63,12 @@ const CouponModal = React.memo(({
             setLoading(false);
         }
     }, []);
+
+    useEffect(() => {
+        if (isOpen && !manualEntryMode) {
+            fetchAvailableCoupons();
+        }
+    }, [isOpen, manualEntryMode, fetchAvailableCoupons]);
 
     const handleApplySelected = useCallback(() => {
         if (selectedCoupon) {
@@ -302,9 +303,9 @@ const ShippingForm = React.memo(({
     addressForm,
     setAddressForm,
     errors,
-    pinLoading,
     handlePinChange,
     handleNext,
+    hasOOSItems, // Add this prop
 }) => {
     const handleChange = useCallback((e) => {
         const { name, value } = e.target;
@@ -410,15 +411,10 @@ const ShippingForm = React.memo(({
                                 name="pinCode"
                                 value={addressForm.pinCode}
                                 onChange={(e) => handlePinChange(e.target.value)}
-                                className={`w-full p-3 border rounded-lg pr-10 ${errors.pinCode ? "border-red-500" : "border-gray-300"}`}
+                                className={`w-full p-3 border rounded-lg ${errors.pinCode ? "border-red-500" : "border-gray-300"}`}
                                 placeholder="6 digits pin"
                                 maxLength="6"
                             />
-                            {pinLoading && (
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                    <Loader2 className="w-4 h-4 text-blue-900 animate-spin" />
-                                </div>
-                            )}
                         </div>
                         {errors.pinCode && <p className="text-red-500 text-sm mt-1">{errors.pinCode}</p>}
                     </div>
@@ -430,17 +426,12 @@ const ShippingForm = React.memo(({
                                 type="text"
                                 name="city"
                                 value={addressForm.city}
-                                readOnly
-                                className={`w-full p-3 border rounded-lg bg-gray-50 ${
-                                    addressForm.city ? "border-green-300 text-green-800" : "border-gray-300"
+                                onChange={handleChange}
+                                className={`w-full p-3 border rounded-lg ${
+                                    errors.city ? "border-red-500" : "border-gray-300"
                                 }`}
-                                placeholder="Auto-filled"
+                                placeholder="Enter City"
                             />
-                            {addressForm.city && (
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600">
-                                    <Check className="w-4 h-4" />
-                                </div>
-                            )}
                         </div>
                         {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
                     </div>
@@ -452,17 +443,12 @@ const ShippingForm = React.memo(({
                                 type="text"
                                 name="state"
                                 value={addressForm.state}
-                                readOnly
-                                className={`w-full p-3 border rounded-lg bg-gray-50 ${
-                                    addressForm.state ? "border-green-300 text-green-800" : "border-gray-300"
+                                onChange={handleChange}
+                                className={`w-full p-3 border rounded-lg ${
+                                    errors.state ? "border-red-500" : "border-gray-300"
                                 }`}
-                                placeholder="Auto-filled"
+                                placeholder="Enter State"
                             />
-                            {addressForm.state && (
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600">
-                                    <Check className="w-4 h-4" />
-                                </div>
-                            )}
                         </div>
                         {errors.state && <p className="text-red-500 text-sm mt-1">{errors.state}</p>}
                     </div>
@@ -472,7 +458,12 @@ const ShippingForm = React.memo(({
             <div className="flex justify-end mt-8">
                 <button
                     onClick={handleNext}
-                    className="px-8 py-3 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors flex items-center gap-2"
+                    disabled={hasOOSItems}
+                    className={`px-8 py-3 rounded-lg transition-colors flex items-center gap-2 ${
+                        hasOOSItems 
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed" 
+                        : "bg-blue-950 text-white hover:bg-blue-900"
+                    }`}
                 >
                     Continue to Payment
                     <ChevronRight className="w-5 h-5" />
@@ -483,7 +474,7 @@ const ShippingForm = React.memo(({
 });
 
 // ============================ PaymentMethod Component ============================
-const PaymentMethod = React.memo(({ paymentMethod, setPaymentMethod, handleBack, handleNext }) => (
+const PaymentMethod = React.memo(({ paymentMethod, setPaymentMethod, handleBack, handleNext, hasOOSItems }) => (
     <div className="bg-white rounded-xl shadow-sm p-6">
         <div className="flex items-center gap-3 mb-6">
             <CreditCard className="w-6 h-6 text-blue-900" />
@@ -532,7 +523,12 @@ const PaymentMethod = React.memo(({ paymentMethod, setPaymentMethod, handleBack,
             </button>
             <button
                 onClick={handleNext}
-                className="px-8 py-3 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors"
+                disabled={hasOOSItems}
+                className={`px-8 py-3 rounded-lg transition-colors ${
+                    hasOOSItems 
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed" 
+                    : "bg-blue-950 text-white hover:bg-blue-900"
+                }`}
             >
                 Continue
             </button>
@@ -548,6 +544,7 @@ const OrderReview = React.memo(({
     handlePlaceOrder,
     isProcessing,
     calculateItemPrice,
+    hasOOSItems,
 }) => {
     const itemTotal = useCallback((item) => Math.round(calculateItemPrice(item) * item.quantity), [calculateItemPrice]);
 
@@ -611,8 +608,12 @@ const OrderReview = React.memo(({
                 </button>
                 <button
                     onClick={handlePlaceOrder}
-                    disabled={isProcessing}
-                    className="px-8 py-3 bg-blue-950 text-white rounded-lg hover:bg-blue-900 transition-colors disabled:opacity-50 flex items-center gap-2"
+                    disabled={isProcessing || hasOOSItems}
+                    className={`px-8 py-3 rounded-lg transition-colors flex items-center gap-2 ${
+                        (isProcessing || hasOOSItems)
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed" 
+                        : "bg-blue-950 text-white hover:bg-blue-900"
+                    }`}
                 >
                     {isProcessing ? (
                         <>
@@ -723,7 +724,7 @@ const OrderSummary = React.memo(({
 
 // ============================ Main CheckoutFlow Component ============================
 const CheckoutLarge = () => {
-    const { items, total, clearCart, calculateItemPrice } = useCart();
+    const { checkoutItems: items, checkoutTotal: total, clearCart, calculateItemPrice, removeItem } = useCart();
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -733,8 +734,30 @@ const CheckoutLarge = () => {
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [paymentMethod, setPaymentMethod] = useState("online");
     const [isProcessing, setIsProcessing] = useState(false);
-    const [pinLoading, setPinLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [outOfStockItems, setOutOfStockItems] = useState([]);
+
+    // Validate stock on mount
+    useEffect(() => {
+        const validateCartStock = async () => {
+            if (items.length === 0) return;
+            try {
+                const stockItems = items.map(item => ({ _id: item._id, quantity: item.quantity }));
+                const { data } = await dataService.validateStock(stockItems);
+                
+                if (!data.valid) {
+                    setOutOfStockItems(data.outOfStockItems);
+                    // Optionally alert the user immediately
+                } else {
+                    setOutOfStockItems([]);
+                }
+            } catch (err) {
+                console.error("Stock validation failed", err);
+            }
+        };
+        
+        validateCartStock();
+    }, [items]); // Re-validate if items change (e.g. quantity update)
 
     const addressFormDefaults = useMemo(() => ({
         fullName: user?.name || "",
@@ -760,32 +783,11 @@ const CheckoutLarge = () => {
         [cartTotal, shippingCost, discount]
     );
 
-    const fetchCityState = useCallback(async (pin) => {
-        try {
-            const res = await dataService.getPinCodeInfo(pin);
-            return { 
-                city: res.data.city || "", 
-                state: res.data.state || "" 
-            };
-        } catch {
-            return { city: "", state: "" };
-        }
-    }, []);
-
-    const handlePinChange = useCallback(async (pin) => {
+    const handlePinChange = useCallback((pin) => {
         const cleanPin = pin.replace(/\D/g, "");
         setAddressForm(prev => ({ ...prev, pinCode: cleanPin }));
         setErrors(prev => ({ ...prev, pinCode: "" }));
-
-        if (cleanPin.length === 6) {
-            setPinLoading(true);
-            const { city, state } = await fetchCityState(cleanPin);
-            setAddressForm(prev => ({ ...prev, city, state }));
-            setPinLoading(false);
-        } else {
-            setAddressForm(prev => ({ ...prev, city: "", state: "" }));
-        }
-    }, [fetchCityState]);
+    }, []);
 
     const applyCoupon = useCallback(async (code = couponCode) => {
         if (!code) {
@@ -842,19 +844,6 @@ const CheckoutLarge = () => {
         return Object.keys(newErrors).length === 0;
     }, [addressForm]);
 
-    const handleNext = useCallback(() => {
-        if (step === 1 && !validateShipping()) return;
-        if (step === 2 && paymentMethod === "online") {
-            handleOnlinePayment();
-            return;
-        }
-        setStep(step + 1);
-    }, [step, validateShipping, paymentMethod]);
-
-    const handleBack = useCallback(() => {
-        if (step > 1) setStep(step - 1);
-    }, [step]);
-
     const handleOnlinePayment = useCallback(async () => {
         setIsProcessing(true);
         try {
@@ -880,7 +869,7 @@ const CheckoutLarge = () => {
                         } else {
                             alert("Payment verification failed");
                         }
-                    } catch (error) {
+                    } catch {
                         alert("Payment verification failed");
                     } finally {
                         setIsProcessing(false);
@@ -961,12 +950,29 @@ const CheckoutLarge = () => {
             setTimeout(() => {
                 window.location.replace("/dashboard");
             }, 2000);
-        } catch (error) {
+        } catch {
             alert("Order placement failed. Please try again.");
         } finally {
             setIsProcessing(false);
         }
-    }, [items, addressForm, user, paymentMethod, finalTotal, clearCart, navigate]);
+    }, [items, addressForm, user, paymentMethod, finalTotal, clearCart]);
+
+    const handleNext = useCallback(() => {
+        if (outOfStockItems.length > 0) {
+            alert("Please remove out of stock items before proceeding.");
+            return;
+        }
+        if (step === 1 && !validateShipping()) return;
+        if (step === 2 && paymentMethod === "online") {
+            handleOnlinePayment();
+            return;
+        }
+        setStep(step + 1);
+    }, [step, validateShipping, paymentMethod, handleOnlinePayment, outOfStockItems]);
+
+    const handleBack = useCallback(() => {
+        if (step > 1) setStep(step - 1);
+    }, [step]);
 
     if (items.length === 0) {
         return (
@@ -990,6 +996,50 @@ const CheckoutLarge = () => {
         <div className="min-h-screen bg-gray-50 py-8 px-4">
             <div className="max-w-6xl mx-auto">
                 <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+                
+                {outOfStockItems.length > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-8">
+                        <div className="flex items-start gap-3">
+                            <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-red-800 mb-2">Some items are out of stock</h3>
+                                <p className="text-sm text-red-600 mb-4">
+                                    The following items are no longer available in the requested quantity. 
+                                    Please remove them to proceed.
+                                </p>
+                                <div className="space-y-3">
+                                    {outOfStockItems.map(oosItem => (
+                                        <div key={oosItem._id} className="flex items-center justify-between bg-white p-3 rounded-lg border border-red-100">
+                                            <div className="flex-1">
+                                                <p className="font-medium text-gray-900">{oosItem.name}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    Requested: {oosItem.requested} | Available: {oosItem.available}
+                                                </p>
+                                            </div>
+                                            <button 
+                                                onClick={() => {
+                                                    // Find the cart item ID to remove
+                                                    // Since we only have product ID in oosItem, we need to find the matching cart item(s)
+                                                    // Ideally validateStock should return product ID, but items use cartItemId
+                                                    // We can filter items by product _id
+                                                    const cartItem = items.find(i => i._id === oosItem._id);
+                                                    if (cartItem) {
+                                                        removeItem(cartItem.cartItemId);
+                                                        // Update local OOS state
+                                                        setOutOfStockItems(prev => prev.filter(i => i._id !== oosItem._id));
+                                                    }
+                                                }}
+                                                className="px-3 py-1.5 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="grid lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-8">
@@ -1000,9 +1050,9 @@ const CheckoutLarge = () => {
                                 addressForm={addressForm}
                                 setAddressForm={setAddressForm}
                                 errors={errors}
-                                pinLoading={pinLoading}
                                 handlePinChange={handlePinChange}
                                 handleNext={handleNext}
+                                hasOOSItems={outOfStockItems.length > 0}
                             />
                         )}
 
@@ -1012,6 +1062,7 @@ const CheckoutLarge = () => {
                                 setPaymentMethod={setPaymentMethod}
                                 handleBack={handleBack}
                                 handleNext={handleNext}
+                                hasOOSItems={outOfStockItems.length > 0}
                             />
                         )}
 
@@ -1023,6 +1074,7 @@ const CheckoutLarge = () => {
                                 handlePlaceOrder={handlePlaceOrder}
                                 isProcessing={isProcessing}
                                 calculateItemPrice={calculateItemPrice}
+                                hasOOSItems={outOfStockItems.length > 0}
                             />
                         )}
                     </div>

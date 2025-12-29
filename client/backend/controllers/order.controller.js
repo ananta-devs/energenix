@@ -105,7 +105,6 @@ module.exports = {
    * 5. Update coupon usage (if applicable)
    */
   async createOrder(req, res) {
-    console.log("--- CREATE ORDER START ---");
     try {
       const body = req.body;
       const { coupon: appliedCouponFromFrontend } = body; // Get coupon details from frontend
@@ -117,16 +116,13 @@ module.exports = {
       // Check duplicate order_id
       const existing = await orderService.findByOrderId(body.order_id);
       if (existing) {
-        console.log("Error: Duplicate order_id");
         return res
           .status(400)
           .json({ error: "Order already exists with this order_id" });
       }
 
-      console.log("2. Getting warehouse and Axios instance...");
       const warehouse = await getWarehouse();
       const axiosInstance = await getAxios();
-      console.log("... Warehouse and Axios instance obtained.");
 
       // Enrich items with product details from DB
       const enrichedItems = await Promise.all(
@@ -199,26 +195,17 @@ module.exports = {
 
       // DIAGNOSTIC: Enforce a minimum weight of 100g
       if (payload.weight < 100) {
-        console.log(`Weight ${payload.weight}g is below minimum, setting to 100g for Shipmozo.`);
         payload.weight = 100;
       }
       
-      console.log(
-        "3. Built Shipmozo Payload:",
-        JSON.stringify(payload, null, 2)
-      );
-
-      console.log("4. Calling Shipmozo /push-order...");
       const shipmozoResponse = await axiosInstance.post(
         "/push-order",
         payload
       );
       const resBody = shipmozoResponse.data;
-      console.log("5. Shipmozo Response:", JSON.stringify(resBody, null, 2));
 
       // If Shipmozo failed
       if (resBody.result !== "1") {
-        console.log("Error: Shipmozo order creation failed.");
         return res.status(500).json({
           error: "Shipmozo order creation failed",
           details: resBody,
@@ -227,9 +214,7 @@ module.exports = {
 
       // Extract AWB
       const awb = resBody.data?.awb_number || "";
-      console.log("6. Extracted AWB:", awb);
 
-      console.log("7. Saving order to database...");
       // Save in DB
       const createdOrder = await orderService.create({
         order_id: body.order_id,
@@ -251,7 +236,6 @@ module.exports = {
         shipmozo_create_response: resBody,
         coupon_code: appliedCouponFromFrontend?.code, // Store applied coupon code
       });
-      console.log("8. Order saved to database:", createdOrder._id);
 
       // Send confirmation email
       emailService.sendOrderConfirmation(createdOrder);
@@ -282,7 +266,6 @@ module.exports = {
               }
             }
             await coupon.save();
-            console.log(`9. Coupon ${coupon.code} usage updated.`);
           }
         } catch (couponUpdateErr) {
           console.error("Error updating coupon usage:", couponUpdateErr);
@@ -290,7 +273,6 @@ module.exports = {
         }
       }
 
-      console.log("--- CREATE ORDER END ---");
       return res.json({
         message: "Order created successfully",
         order: createdOrder,
