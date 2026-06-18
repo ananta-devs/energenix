@@ -5,6 +5,7 @@ import ProductCard from './ProductCard.jsx';
 import { useProducts } from '../../context/ProductContext.jsx';
 import { slugify } from '../../utils/slugify.js';
 import FullPageLoader from "../ui/FullPageLoader.jsx";
+import Maintenance from "../../pages/Maintenance.jsx";
 
 export default function CategoryPage() {
   const { identifier } = useParams();
@@ -188,7 +189,7 @@ export default function CategoryPage() {
   }
 
   if (error) {
-    return <div className="min-h-screen flex items-center justify-center text-red-500">Error: {error.message}</div>;
+    return <Maintenance />;
   }
 
   return (

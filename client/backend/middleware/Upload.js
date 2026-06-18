@@ -1,17 +1,14 @@
 // middleware/upload.js
 const multer = require('multer');
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-
-// Cloudinary configuration
-cloudinary.config(process.env.CLOUDINARY_URL);
+const cloudinary = require('../config/cloudinary');
+const CloudinaryStorage = require('multer-storage-cloudinary');
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'user-profile-pics',
-    format: async (req, file) => 'png', // supports promises as well
-    public_id: (req, file) => 'user-profile-pic-' + Date.now(),
+  folder: 'user-profile-pics',
+  allowedFormats: ['jpg', 'jpeg', 'png'],
+  filename: (req, file, cb) => {
+    cb(null, 'user-profile-pic-' + Date.now());
   },
 });
 

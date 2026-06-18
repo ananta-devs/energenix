@@ -22,7 +22,7 @@ export const dataService = {
   sendContactMessage: (formData) => api.post('/contact', formData),
 
   // Coupons
-  getAvailableCoupons: () => api.get('/coupons/available'),
+  getAvailableCoupons: (phone, email) => api.get('/coupons/available', { params: { phone, email } }),
   applyCoupon: (couponCode, totalAmount) => api.post('/coupons/apply', { couponCode, cartTotal: totalAmount }),
 
   // Payment
@@ -31,6 +31,8 @@ export const dataService = {
 
   // Orders
   createClientOrder: (orderPayload) => api.post('/orders/create', orderPayload),
+  stageClientOrder: (orderPayload) => api.post('/orders/stage', orderPayload),
+  finalizeClientOrder: (finalizePayload) => api.post('/orders/finalize', finalizePayload),
   getOrders: () => api.get('/orders'),
   cancelOrder: (order_id) => api.post('/orders/cancel', { order_id }),
 };

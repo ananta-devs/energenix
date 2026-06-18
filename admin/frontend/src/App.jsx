@@ -9,6 +9,7 @@ import CollectionData from './pages/CollectionData';
 import HsnGstData from './pages/HsnGstData';
 import CouponData from './pages/CouponsData';
 import OrdersData from './pages/OrdersData';
+import TempOrdersData from './pages/TempOrdersData';
 import CustomersData from './pages/CustomersData';
 import InventoryData from './pages/InventoryData';
 import ReportsData from './pages/ReportsData';
@@ -50,6 +51,7 @@ const AppContent = () => {
               <Route path="/collections" element={<CollectionData />} />
               <Route path="/hsn-gst" element={<HsnGstData />} />
               <Route path="/orders" element={<OrdersData />} />
+              <Route path="/temp-orders" element={<TempOrdersData />} />
               <Route path="/customers" element={<CustomersData />} />
               <Route path="/inventory" element={<InventoryData />} />
               <Route path="/reports" element={<ReportsData />} />

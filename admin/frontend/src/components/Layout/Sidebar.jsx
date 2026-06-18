@@ -11,7 +11,6 @@ import {
   BarChart3,
   Mail,
   Settings,
-  LogOut,
   X, 
   Archive,
   Ticket,
@@ -27,6 +26,7 @@ const menuItems = [
   { id: 'hsn-gst', label: 'Hsn & Gst', icon: Database, path: '/hsn-gst'},
   { id: 'coupons', label: 'Coupons', icon: Ticket, path: '/coupons' },
   { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/orders' },
+  { id: 'temp-orders', label: 'Temp Orders', icon: ShoppingCart, path: '/temp-orders' },
   { id: 'customers', label: 'Customers', icon: Users, path: '/customers' },
   { id: 'inventory', label: 'Inventory', icon: Package, path: '/inventory' },
   { id: 'reports', label: 'Reports', icon: BarChart3, path: '/reports' },
@@ -158,19 +158,6 @@ const Sidebar = () => {
               );
             })}
           </nav>
-
-          {/* Footer */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center space-x-3 p-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
-            >
-              <LogOut size={20} />
-              {(sidebarOpen || isLargeScreen) && (
-                <span className="font-medium">Logout</span>
-              )}
-            </button>
-          </div>
         </div>
       </motion.div>
     </>

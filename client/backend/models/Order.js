@@ -87,6 +87,14 @@ const OrderSchema = new mongoose.Schema({
   cancelled: { type: Boolean, default: false },
   cancelled_at: { type: Date, default: null },
 
+  // Razorpay Details (Finalized)
+  razorpay_order_id: { type: String, default: "" },
+  razorpay_payment_id: { type: String, default: "" },
+  razorpay_signature: { type: String, default: "" },
+
 }, { timestamps: true });
+
+// Enforce unique payment ID to prevent duplicate orders
+OrderSchema.index({ razorpay_payment_id: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model("Order", OrderSchema);

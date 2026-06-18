@@ -79,7 +79,13 @@ export default function LoginPage() {
             const message =
                 err.response?.data?.msg ||
                 "Failed to send OTP. Please try again.";
-            toast.error(message);
+            
+            if (message === "This email is not registered.") {
+                toast.error("Email not found. Please register.");
+                setIsRegistering(true);
+            } else {
+                toast.error(message);
+            }
         } finally {
             setLoading(false);
         }

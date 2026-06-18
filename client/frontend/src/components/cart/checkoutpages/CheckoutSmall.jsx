@@ -130,6 +130,8 @@ const CouponModal = React.memo(({
     setCouponCode,
     applyCoupon,
     cartTotal,
+    phone,
+    email
 }) => {
     const [coupons, setCoupons] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -140,7 +142,7 @@ const CouponModal = React.memo(({
     const fetchAvailableCoupons = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await dataService.getAvailableCoupons();
+            const response = await dataService.getAvailableCoupons(phone, email);
             setCoupons(response.data || []);
         } catch (error) {
             console.error("Error fetching coupons:", error);
@@ -148,7 +150,7 @@ const CouponModal = React.memo(({
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [phone, email]);
 
     useEffect(() => {
         if (isOpen && !manualEntryMode) {
@@ -453,6 +455,39 @@ const CheckoutSmall = () => {
     const [isOrderItemsCollapsed, setIsOrderItemsCollapsed] = useState(true);
     const [errors, setErrors] = useState({});
     const [outOfStockItems, setOutOfStockItems] = useState([]);
+    const navigate = useNavigate();
+
+    // Check for pending order on mount (Handle Refresh)
+    useEffect(() => {
+        const checkPendingOrder = async () => {
+            const pendingId = sessionStorage.getItem('enx_active_order_id');
+            if (pendingId) {
+                setIsProcessing(true);
+                try {
+                    const { data } = await dataService.getOrders();
+                    const orderExists = data.orders.find(o => o.order_id === pendingId);
+                    
+                    if (orderExists) {
+                        clearCart();
+                        sessionStorage.removeItem('enx_active_order_id');
+                        navigate('/dashboard');
+                    } else {
+                        // Order not found (failed stage?), allow retry
+                        sessionStorage.removeItem('enx_active_order_id');
+                        setIsProcessing(false);
+                    }
+                } catch (error) {
+                    console.error("Failed to check pending order", error);
+                    sessionStorage.removeItem('enx_active_order_id');
+                    setIsProcessing(false);
+                }
+            }
+        };
+
+        if (user) {
+            checkPendingOrder();
+        }
+    }, [user, navigate, clearCart]);
 
     // Validate stock on mount
     useEffect(() => {
@@ -503,6 +538,16 @@ const CheckoutSmall = () => {
     );
 
     // Effects
+    useEffect(() => {
+    document.documentElement.style.overscrollBehaviorY = "contain";
+    document.body.style.overscrollBehaviorY = "contain";
+
+    return () => {
+        document.documentElement.style.overscrollBehaviorY = "auto";
+        document.body.style.overscrollBehaviorY = "auto";
+    };
+    }, []);
+
     useEffect(() => {
         if (items.length > 2) {
             setIsOrderItemsCollapsed(true);
@@ -608,8 +653,11 @@ const CheckoutSmall = () => {
                 }
             });
 
+            const currentOrderId = `ENX-${Date.now()}`;
+            sessionStorage.setItem('enx_active_order_id', currentOrderId);
+
             const orderPayload = {
-                order_id: `ENX-${Date.now()}`,
+                order_id: currentOrderId,
                 customer: {
                     name: addressForm.fullName,
                     email: user?.email,
@@ -639,61 +687,101 @@ const CheckoutSmall = () => {
                 } : undefined,
             };
 
-            const { data } = await dataService.createClientOrder(orderPayload);
+            // 1. Stage Order
+            const stageResponse = await dataService.stageClientOrder(orderPayload);
+            const { success, tempOrderId, razorpay: razorpayData } = stageResponse.data;
 
-            if (data.order) {
-                clearCart();
-                setShowSuccess(true);
+            if (!success) {
+                throw new Error("Failed to stage order");
+            }
 
-                setTimeout(() => {
-                    window.location.replace("/dashboard");
-                }, 2000);
+            // 2. Handle Payment Flow
+            if (paymentMethod === "cod") {
+                // Finalize immediately for COD
+                const finalizeResponse = await dataService.finalizeClientOrder({
+                    order_id: currentOrderId,
+                    customer_email: user?.email || addressForm.email
+                });
+                
+                if (finalizeResponse.data.success) {
+                    clearCart();
+                    setShowSuccess(true);
+                    setTimeout(() => {
+                        sessionStorage.removeItem('enx_active_order_id');
+                        navigate("/dashboard");
+                    }, 2000);
+                } else {
+                    throw new Error(finalizeResponse.data.error || "Order finalization failed");
+                }
             } else {
-                throw new Error(data.error || "Order creation failed");
+                // Online Payment (Razorpay)
+                const options = {
+                    key: razorpayData.key,
+                    amount: razorpayData.amount,
+                    currency: "INR",
+                    name: "EnergeniX",
+                    image: "https://res.cloudinary.com/djva05hfi/image/upload/v1766247498/logo-razorp_sucina.jpg",
+                    description: "Order Payment",
+                    order_id: razorpayData.orderId,
+                    handler: async (response) => {
+                        try {
+                            setIsProcessing(true);
+                            const finalizeResponse = await dataService.finalizeClientOrder({
+                                order_id: currentOrderId,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                customer_email: user?.email || addressForm.email
+                            });
+
+                            if (finalizeResponse.data.success) {
+                                clearCart();
+                                setShowSuccess(true);
+                                setTimeout(() => {
+                                    sessionStorage.removeItem('enx_active_order_id');
+                                    navigate("/dashboard");
+                                }, 2000);
+                            } else {
+                                alert("Payment successful but order finalization failed. Please contact support.");
+                                setIsProcessing(false);
+                            }
+                        } catch (err) {
+                            console.error("Finalization error:", err);
+                            alert("Error finalizing order: " + (err.response?.data?.error || err.message));
+                            setIsProcessing(false);
+                        }
+                    },
+                    prefill: {
+                        name: addressForm.fullName,
+                        email: user?.email,
+                        contact: addressForm.phone,
+                    },
+                    theme: { color: "#162556" },
+                    modal: {
+                        ondismiss: () => setIsProcessing(false),
+                    },
+                };
+
+                const rzp = new window.Razorpay(options);
+                rzp.open();
+                rzp.on("payment.failed", () => {
+                    alert("Payment failed. Please try again.");
+                    setIsProcessing(false);
+                });
             }
         } catch (error) {
-            console.error("Order placement error:", error);
+            console.error("Order processing error:", error);
+            // Only remove session ID if we haven't successfully redirected (which clears it anyway)
+            // If it was a staging error or payment error, we want to allow retry, so clear the flag.
+            sessionStorage.removeItem('enx_active_order_id');
             alert(`An error occurred: ${error.response?.data?.error || error.message}`);
             setIsProcessing(false);
         }
     }, [items, addressForm, user, paymentMethod, finalTotal, appliedCoupon, clearCart]);
 
-    const handleOnlinePayment = useCallback(async () => {
-        setIsProcessing(true);
-        try {
-            const { data } = await dataService.createOrder(finalTotal);
-
-            const options = {
-                key: data.key,
-                amount: data.amount,
-                currency: "INR",
-                name: "EnergeniX",
-                image: "https://res.cloudinary.com/djva05hfi/image/upload/v1766247498/logo-razorp_sucina.jpg",
-                description: "Order Payment",
-                order_id: data.orderId,
-                handler: (response) => handlePlaceOrder(response.razorpay_payment_id),
-                prefill: {
-                    name: addressForm.fullName,
-                    email: user?.email,
-                    contact: addressForm.phone,
-                },
-                theme: { color: "#162556" },
-                modal: {
-                    ondismiss: () => setIsProcessing(false),
-                },
-            };
-
-            const rzp = new window.Razorpay(options);
-            rzp.open();
-            rzp.on("payment.failed", () => {
-                alert("Payment failed. Please try again.");
-                setIsProcessing(false);
-            });
-        } catch {
-            alert("Error initializing payment. Please try again.");
-            setIsProcessing(false);
-        }
-    }, [finalTotal, addressForm, user, handlePlaceOrder]);
+    const handleOnlinePayment = useCallback(() => {
+        // Deprecated - consolidated into handlePlaceOrder
+        handlePlaceOrder();
+    }, [handlePlaceOrder]);
 
     // Step navigation
     const handleNextStep = useCallback(() => {
@@ -706,10 +794,9 @@ const CheckoutSmall = () => {
         } else if (step === 2) {
             setStep(3);
         } else if (step === 3) {
-            if (paymentMethod === "online") handleOnlinePayment();
-            else handlePlaceOrder();
+            handlePlaceOrder();
         }
-    }, [step, validateShipping, paymentMethod, handleOnlinePayment, handlePlaceOrder, outOfStockItems]);
+    }, [step, validateShipping, handlePlaceOrder, outOfStockItems]);
 
     // Render functions
     const renderStepContent = useCallback(() => {
@@ -848,6 +935,8 @@ const CheckoutSmall = () => {
                             applyCoupon={applyCoupon}
                             user={user}
                             cartTotal={cartTotal}
+                            phone={addressForm.phone}
+                            email={user?.email}
                         />
 
                         <div className="space-y-4 animate-slide-up">

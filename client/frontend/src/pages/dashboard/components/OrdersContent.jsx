@@ -6,6 +6,7 @@ import { downloadInvoice } from "../../../utils/invoiceGenerator";
 const formatStatus = (status) => {
     if (!status) return "";
     if (status === "reqForCancel") return "Cancellation Requested";
+    if (status === "PAYMENT_PROCESSING") return "Payment Processing";
     return status.split('_').map(word => 
         word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     ).join(' ');
@@ -15,6 +16,7 @@ const getStatusStyles = (status) => {
     const s = status?.toUpperCase();
     if (s === "CANCELLED" || status === "reqForCancel") return "bg-red-100 text-red-700 border-red-200";
     if (s === "DELIVERED") return "bg-green-100 text-green-700 border-green-200";
+    if (s === "PAYMENT_PROCESSING") return "bg-yellow-100 text-yellow-700 border-yellow-200";
     return "bg-blue-100 text-blue-700 border-blue-200";
 };
 
@@ -282,33 +284,27 @@ const OrdersContent = ({ orders, loading, onCancel }) => {
                 ) : (
                     <div className="space-y-6">
                         {orders.map((order) => {
-                            let total = order.items.reduce(
+                            const isCOD = order.payment_type === "COD";
+                            const shippingCost = isCOD ? 100 : 0;
+
+                            const totalProductAmount = order.items.reduce(
                                 (acc, item) =>
                                     acc + item.unit_price * item.quantity,
                                 0
                             );
                             
-                            const isCOD = order.payment_type === "COD";
-                            if (isCOD) {
-                                total += 100;
-                            }
-                            
                             // Calculate Discount
                             let discount = 0;
-                            const totalProductAmount = order.items.reduce(
-                                (acc, item) => acc + item.unit_price * item.quantity,
-                                0
-                            );
-
                             if (order.payment_type === "PREPAID") {
                                 discount = totalProductAmount - (Number(order.prepaid_amount) || 0);
                             } else if (isCOD) {
-                                discount = totalProductAmount - (Number(order.cod_amount) || 0);
+                                discount = (totalProductAmount + shippingCost) - (Number(order.cod_amount) || 0);
                             }
 
-                            if (discount > 0) {
-                                total -= discount;
-                            }
+                            // Ensure discount isn't negative
+                            if (discount < 0) discount = 0;
+
+                            const total = totalProductAmount + shippingCost - discount;
 
                             return (
                                 <div

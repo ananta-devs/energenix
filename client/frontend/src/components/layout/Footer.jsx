@@ -242,6 +242,13 @@ export default function Footer() {
                     <p className="mb-4 md:mb-0">
                         &copy; 2025 Energenix. All rights reserved.
                     </p>
+                    
+                    <p className="mb-4 md:mb-0">
+                        Build with <Link to="https://dorium.vercel.app/" target="blank"><span className="text-amber-300">
+                            Dorium
+                            </span>
+                        </Link>
+                    </p>
 
                     <div className="flex space-x-6">
                         <Link

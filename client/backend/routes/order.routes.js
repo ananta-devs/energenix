@@ -10,6 +10,15 @@ router.get("/", auth, orderController.getOrders);
 // CREATE ORDER
 router.post("/create", orderController.createOrder);
 
+// STAGE ORDER
+router.post("/stage", orderController.stageOrder);
+
+// FINALIZE ORDER
+router.post("/finalize", orderController.finalizeOrder);
+
+// RAZORPAY WEBHOOK
+router.post("/webhook", orderController.handleRazorpayWebhook);
+
 // TRACK ORDER (real-time)
 router.get("/track", orderController.trackOrder);
 

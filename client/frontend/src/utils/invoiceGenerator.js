@@ -15,7 +15,7 @@ export const downloadInvoice = (order) => {
     if (order.payment_type === "PREPAID") {
         discount = subtotal - (Number(order.prepaid_amount) || 0);
     } else if (order.payment_type === "COD") {
-        discount = subtotal - (Number(order.cod_amount) || 0);
+        discount = (subtotal + shippingCost) - (Number(order.cod_amount) || 0);
     }
     if (discount < 0) discount = 0;
 
@@ -50,7 +50,7 @@ export const downloadInvoice = (order) => {
             <tr>
                 <td>${index + 1}</td>
                 <td>
-                    <div class="item-name">${item.name}</div>
+                    <div class="item-name">${item.name.length > 60 ? item.name.substring(0, 60) + '...' : item.name}</div>
                     <div class="pack-type">${item.pack_type || 'Pack of 1'}</div>
                     <div class="pack-type">HSN: ${item.hsn || 'N/A'}</div>
                 </td>

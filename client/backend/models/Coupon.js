@@ -62,6 +62,10 @@ const couponSchema = new mongoose.Schema({
     type: [String], // Array of phone numbers (strings)
     default: [],
   },
+  used_emails: { 
+    type: [String],
+    default: [],
+  },
 }, { timestamps: true });
 
 // Pre-save hook to ensure valid_from is before valid_until

@@ -12,6 +12,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contactRoutes');
 const productRoutes = require('./routes/productRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const paymentRoutes = require('./routes/paymentRoutes');
 const shipmozoRoutes = require('./routes/shipmozo.routes');
@@ -54,7 +55,6 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    console.error('❌ CORS blocked:', origin);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -79,6 +79,7 @@ app.use(compression());
 app.use('/api/auth', authRoutes);
 app.use('/api', contactRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 app.use('/api/payment', paymentRoutes);
 app.use('/api/shipmozo', shipmozoRoutes);

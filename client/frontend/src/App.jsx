@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import HomePage from './components/home/HomePage.jsx';
 import CategoryPage from './components/product/CategoryPage.jsx';
 import ProductDetailPage from './components/product/ProductDetailPage.jsx';
@@ -18,8 +18,21 @@ import ShippingInfo from './pages/ShippingInfo';
 import ReturnExchange from './pages/ReturnExchange';
 import CookiePolicy from './pages/CookiePolicy.jsx';
 import AboutUs from './pages/AboutUs.jsx';
+import Maintenance from './pages/Maintenance.jsx';
+import { useProducts } from './context/ProductContext.jsx';
 
 function App() {
+  const { error } = useProducts();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Redirect to maintenance if there's a global error and we're not already there
+  useEffect(() => {
+    if (error && location.pathname !== "/maintenance") {
+      navigate("/maintenance", { replace: true });
+    }
+  }, [error, location.pathname, navigate]);
+
   return (
     <>
       <ScrollToTop />
@@ -27,6 +40,7 @@ function App() {
       <Toaster position="top-center" reverseOrder={false} />
 
       <Routes>
+        <Route path="/maintenance" element={<Maintenance />} />
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/category/:identifier" element={<CategoryPage />} />

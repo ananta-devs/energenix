@@ -1,5 +1,6 @@
 const Order = require("../models/Order");
 const Product = require("../models/Product");
+const TempOrder = require("../models/TempOrder");
 
 module.exports = {
 
@@ -7,7 +8,16 @@ module.exports = {
    * Find all orders by email
    */
   async findAll(email) {
+    // 1. Fetch Real Orders
     const orders = await Order.find({ 'customer.email': email }).sort({ createdAt: -1 }).lean();
+
+    // 2. Fetch Pending Temp Orders (Using userId as requested)
+    const tempOrders = await TempOrder.find({ 
+      userId: email,
+      status: { $in: ["PENDING_PAYMENT", "PAYMENT_SUCCESS"] } 
+    }).sort({ createdAt: -1 }).lean();
+
+    // 3. Enrich Real Orders
     for (const order of orders) {
       for (const item of order.items) {
         const product = await Product.findById(item.sku_number).lean();
@@ -16,7 +26,34 @@ module.exports = {
         }
       }
     }
-    return orders;
+
+    // 4. Enrich & Format Temp Orders
+    const formattedTempOrders = [];
+    for (const tOrder of tempOrders) {
+      // Basic enrichment for items
+      for (const item of tOrder.items) {
+          // If items in TempOrder don't have images (they should based on creation logic, but double check)
+          if (!item.image_urls || item.image_urls.length === 0) {
+             const product = await Product.findById(item.sku_number).lean();
+             if (product && product.image_urls) {
+               item.image_urls = product.image_urls;
+             }
+          }
+      }
+
+      // Map to Order interface
+      formattedTempOrders.push({
+          ...tOrder,
+          _id: tOrder._id, // Keep temp ID
+          status: "PAYMENT_PROCESSING", // Visual status for frontend
+          is_temp: true // Flag for frontend if needed
+      });
+    }
+
+    // 5. Combine and Sort
+    const combined = [...formattedTempOrders, ...orders];
+    combined.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return combined;
   },
 
   /**

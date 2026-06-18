@@ -1,4 +1,4 @@
-// src/utils/slugify.js
+//utils/slugify.js
 
 export function slugify(text) {
   return text

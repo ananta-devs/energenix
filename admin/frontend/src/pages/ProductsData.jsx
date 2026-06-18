@@ -1,4 +1,4 @@
-// components/DataDisplay/ProductsData.jsx
+// pages/ProductsData.jsx
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
     Package,
@@ -396,7 +396,7 @@ const ProductsData = () => {
         return errors;
     }, [formData]);
 
-    // Image upload handler
+    // Image upload handler with 20MB size
     const handleImageUpload = useCallback((e) => {
         const files = Array.from(e.target.files);
 
@@ -405,8 +405,8 @@ const ProductsData = () => {
                 alert(`${file.name} is not an image file`);
                 return false;
             }
-            if (file.size > 5 * 1024 * 1024) {
-                alert(`${file.name} is too large (max 5MB)`);
+            if (file.size > 20 * 1024 * 1024) {
+                alert(`${file.name} is too large (max 20MB)`);
                 return false;
             }
             return true;
@@ -1483,7 +1483,7 @@ const ImageUploadSection = ({
                     Click to upload images or drag and drop
                 </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    Maximum 5MB per image
+                    Maximum 20MB per image
                 </p>
             </label>
             {formData.image_urls.length > 0 && (

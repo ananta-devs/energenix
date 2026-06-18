@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>EnergeniX Order Confirmation</title>
+    </head>
+
+    <body
+        style="
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            font-family: Arial, Helvetica, sans-serif;
+        "
+    >
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+            <tr>
+                <td align="center" style="padding: 40px 0">
+                    <!-- MAIN CONTAINER -->
+                    <table
+                        width="600"
+                        cellpadding="0"
+                        cellspacing="0"
+                        role="presentation"
+                        style="background: #ffffff; border-radius: 8px"
+                    >
+                        <!-- HEADER -->
+                        <tr>
+                            <td
+                                align="center"
+                                style="
+                                    padding: 40px 30px;
+                                    background: #162556;
+                                    border-radius: 8px 8px 0 0;
+                                "
+                            >
+                                
+                                <h1
+                                    style="
+                                        margin: 0;
+                                        color: #ffffff;
+                                        font-size: 26px;
+                                        font-weight: bold;
+                                    "
+                                >
+                                    EnergeniX
+                                </h1>
+                            </td>
+                        </tr>
+
+                        <!-- SUCCESS -->
+                        <tr>
+                            <td align="center" style="padding: 40px 30px 20px">
+                                <table
+                                    width="60"
+                                    height="60"
+                                    role="presentation"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    style="
+                                        background: #28a745;
+                                        border-radius: 50%;
+                                    "
+                                >
+                                    <tr>
+                                        <td
+                                            align="center"
+                                            valign="middle"
+                                            style="
+                                                color: #ffffff;
+                                                font-size: 32px;
+                                                font-weight: bold;
+                                                rotate: 20deg;
+                                            "
+                                        >
+                                            ✓
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <h2
+                                    style="
+                                        margin: 20px 0 10px;
+                                        color: #333;
+                                        font-size: 22px;
+                                    "
+                                >
+                                    Order Confirmed!
+                                </h2>
+                                <p
+                                    style="
+                                        margin: 0;
+                                        color: #666;
+                                        font-size: 15px;
+                                        line-height: 1.6;
+                                    "
+                                >
+                                    Thank you for your purchase. Your order has
+                                    been confirmed.
+                                </p>
+                            </td>
+                        </tr>
+
+                        <!-- ORDER INFO -->
+                        <tr>
+                            <td style="padding: 0 30px 30px">
+                                <table
+                                    width="100%"
+                                    role="presentation"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    style="
+                                        background: #f8f9fa;
+                                        border-radius: 8px;
+                                    "
+                                >
+                                    <tr>
+                                        <td style="padding: 20px">
+                                            <table
+                                                width="100%"
+                                                role="presentation"
+                                            >
+                                                <tr>
+                                                    <td
+                                                        style="
+                                                            font-size: 14px;
+                                                            color: #666;
+                                                        "
+                                                    >
+                                                        Order Number
+                                                    </td>
+                                                    <td
+                                                        align="right"
+                                                        style="
+                                                            font-size: 14px;
+                                                            font-weight: bold;
+                                                        "
+                                                    >
+                                                        #{{order_id}}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td
+                                                        style="
+                                                            padding-top: 8px;
+                                                            font-size: 14px;
+                                                            color: #666;
+                                                        "
+                                                    >
+                                                        Order Date
+                                                    </td>
+                                                    <td
+                                                        align="right"
+                                                        style="
+                                                            padding-top: 8px;
+                                                            font-size: 14px;
+                                                            font-weight: bold;
+                                                        "
+                                                    >
+                                                        {{order_date}}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td
+                                                        style="
+                                                            padding-top: 8px;
+                                                            font-size: 14px;
+                                                            color: #666;
+                                                        "
+                                                    >
+                                                        Estimated Delivery
+                                                    </td>
+                                                    <td
+                                                        align="right"
+                                                        style="
+                                                            padding-top: 8px;
+                                                            font-size: 14px;
+                                                            font-weight: bold;
+                                                        "
+                                                    >
+                                                        5-7 Days
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- ORDER SUMMARY -->
+                                <h3
+                                    style="
+                                        margin: 30px 0 15px;
+                                        text-align: center;
+                                        font-size: 18px;
+                                        color: #333;
+                                    "
+                                >
+                                    Order Summary
+                                </h3>
+
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
+                                    role="presentation"
+                                >
+                                    {{items_html}}
+
+                                    <tr>
+                                        <td style="padding-top: 15px">
+                                            <table width="100%">
+                                                <tr>
+                                                    <td>Subtotal</td>
+                                                    <td align="right">
+                                                        ₹{{subtotal}}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Shipping</td>
+                                                    <td align="right">
+                                                        {{shipping_cost}}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td
+                                                        style="
+                                                            padding-top: 10px;
+                                                            font-size: 16px;
+                                                            font-weight: bold;
+                                                        "
+                                                    >
+                                                        Total
+                                                    </td>
+                                                    <td
+                                                        align="right"
+                                                        style="
+                                                            padding-top: 10px;
+                                                            font-size: 18px;
+                                                            font-weight: bold;
+                                                            color: #667eea;
+                                                        "
+                                                    >
+                                                        ₹{{total_amount}}
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <!-- FOOTER -->
+                        <tr>
+                            <td
+                                align="center"
+                                style="
+                                    padding: 25px;
+                                    background: #f8f9fa;
+                                    border-radius: 0 0 8px 8px;
+                                "
+                            >
+                                <a href="https://www.energenix.store/"
+                                    >Website</a
+                                >
+                                |
+                                <a
+                                    href="https://www.facebook.com/share/172iW9tyXi/"
+                                    >Facebook</a
+                                >
+                                |
+                                <a
+                                    href="https://www.instagram.com/official_energenix?igsh=MWd2bWE2eXRkajJyOQ=="
+                                    >Instagram</a
+                                >
+                                |
+                                <a href="mailto:energenix.0@gmail.com"
+                                    >Support</a
+                                >
+                                <p
+                                    style="
+                                        margin: 10px 0 0;
+                                        font-size: 12px;
+                                        color: #999;
+                                    "
+                                >
+                                    © 2025 EnergeniX
+                                </p>
+                                <p
+                                    style="
+                                        margin: 5px 0 0;
+                                        font-size: 12px;
+                                        color: #999;
+                                    "
+                                >
+                                    Automated email — do not reply
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

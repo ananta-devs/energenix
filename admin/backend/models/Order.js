@@ -51,6 +51,7 @@ const OrderSchema = new mongoose.Schema(
     customer: CustomerSchema,
     items: [OrderItemSchema],
     payment_type: String,
+    prepaid_amount: Number,
     cod_amount: Number,
     weight_grams: Number,
     length_cm: Number,

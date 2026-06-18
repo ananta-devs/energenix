@@ -5,7 +5,7 @@ import SalesChart from '../components/Charts/SalesChart';
 import GemstonePieChart from '../components/Charts/GemstonePieChart';
 import RecentActivity from '../components/Dashboard/RecentActivity';
 import TopSellingProducts from '../components/Dashboard/TopSellingProducts';
-import { dataService } from '../utils/dataService'; // Make sure this path is correct
+import { dataService } from '../utils/dataService';
 
 const Dashboard = () => {
   const [reports, setReports] = useState(null);

@@ -13,6 +13,7 @@ const uploadRoutes = require('./routes/uploadRoutes'); // Import uploadRoutes
 const couponRoutes = require('./routes/couponRoutes');
 const shipmozoRoutes = require('./routes/shipmozoRoutes');
 const hsnGstRoutes = require('./routes/hsnGstRoutes');
+const tempOrderRoutes = require('./routes/tempOrderRoutes');
 const connectDB = require('./config/db');
 const Collection = require('./models/Collection');
 
@@ -38,8 +39,14 @@ app.use('/api/upload', uploadRoutes); // Add uploadRoutes
 app.use('/api/coupons', couponRoutes);
 app.use('/api/shipmozo', shipmozoRoutes);
 app.use('/api/hsn-gst', hsnGstRoutes);
+app.use('/api/admin/temp-orders', tempOrderRoutes);
 const analyticsRoutes = require('./routes/analyticsRoutes'); // Import analyticsRoutes
 app.use('/api', analyticsRoutes); // Add analyticsRoutes
+
+// Health check for Render + UptimeRobot
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

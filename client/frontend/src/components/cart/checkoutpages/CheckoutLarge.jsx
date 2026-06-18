@@ -44,6 +44,8 @@ const CouponModal = React.memo(({
     setCouponCode,
     applyCoupon,
     cartTotal,
+    phone,
+    email
 }) => {
     const [coupons, setCoupons] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -54,7 +56,7 @@ const CouponModal = React.memo(({
     const fetchAvailableCoupons = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await dataService.getAvailableCoupons();
+            const response = await dataService.getAvailableCoupons(phone, email);
             setCoupons(response.data || []);
         } catch (error) {
             console.error("Error fetching coupons:", error);
@@ -62,7 +64,7 @@ const CouponModal = React.memo(({
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [phone, email]);
 
     useEffect(() => {
         if (isOpen && !manualEntryMode) {
@@ -646,6 +648,8 @@ const OrderSummary = React.memo(({
     finalTotal,
     user,
     cartTotal,
+    phone,
+    email
 }) => {
     const [showCouponModal, setShowCouponModal] = useState(false);
 
@@ -659,6 +663,8 @@ const OrderSummary = React.memo(({
                 applyCoupon={applyCoupon}
                 user={user}
                 cartTotal={cartTotal}
+                phone={phone}
+                email={email}
             />
             <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-6">Order Summary</h3>
@@ -847,30 +853,89 @@ const CheckoutLarge = () => {
     const handleOnlinePayment = useCallback(async () => {
         setIsProcessing(true);
         try {
-            const { data } = await dataService.createOrder(finalTotal);
+            let totalWeightGrams = 0;
+            let maxTotalLengthCm = 0;
+            let maxTotalWidthCm = 0;
+            let maxTotalHeightCm = 0;
+
+            items.forEach((item) => {
+                let actualPackKey = item.selectedPack || "Pack of 1";
+                if (actualPackKey === "Pack of 4 (Family Discount)") {
+                    actualPackKey = "Pack of 4";
+                }
+                const packDimensions = item["weight&dimensio"]?.[actualPackKey];
+
+                if (packDimensions) {
+                    totalWeightGrams += packDimensions.weight * item.quantity;
+                    maxTotalLengthCm = Math.max(maxTotalLengthCm, packDimensions.length || 0);
+                    maxTotalWidthCm = Math.max(maxTotalWidthCm, packDimensions.width || 0);
+                    maxTotalHeightCm = Math.max(maxTotalHeightCm, packDimensions.height || 0);
+                }
+            });
+
+            const currentOrderId = `ENX-${Date.now()}`;
+
+            const orderPayload = {
+                order_id: currentOrderId,
+                customer: {
+                    name: addressForm.fullName,
+                    email: user?.email,
+                    phone: addressForm.phone,
+                    alternativePhone: addressForm.alternativePhone || "",
+                    address_line_one: addressForm.addressLine1,
+                    address_line_two: addressForm.addressLine2,
+                    city: addressForm.city,
+                    state: addressForm.state,
+                    pincode: addressForm.pinCode,
+                },
+                items: items.map((item) => ({
+                    sku_number: item._id,
+                    quantity: item.quantity,
+                    pack_type: item.selectedPack || "Pack of 1",
+                })),
+                payment_type: "PREPAID",
+                cod_amount: "0",
+                prepaid_amount: String(finalTotal),
+                weight: totalWeightGrams,
+                length_cm: maxTotalLengthCm,
+                width_cm: maxTotalWidthCm,
+                height_cm: maxTotalHeightCm,
+                coupon: appliedCoupon
+            };
+
+            const stageResponse = await dataService.stageClientOrder(orderPayload);
+            const { success, razorpay: razorpayData } = stageResponse.data;
+
+            if (!success) {
+                throw new Error("Failed to stage order");
+            }
 
             const options = {
-                key: data.key,
-                amount: finalTotal * 100,
+                key: razorpayData.key,
+                amount: razorpayData.amount,
                 currency: "INR",
                 name: "EnergeniX",
                 image: "https://res.cloudinary.com/djva05hfi/image/upload/v1766247498/logo-razorp_sucina.jpg",
-                order_id: data.orderId,
+                order_id: razorpayData.orderId,
                 handler: async function (response) {
-                    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
                     try {
-                        const { data } = await dataService.verifyPayment({
-                            razorpay_payment_id,
-                            razorpay_order_id,
-                            razorpay_signature,
+                        const { data } = await dataService.finalizeClientOrder({
+                            order_id: currentOrderId,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            customer_email: user?.email || addressForm.email
                         });
                         if (data.success) {
                             setStep(3);
+                            clearCart();
+                            setTimeout(() => {
+                                window.location.replace("/dashboard");
+                            }, 2000);
                         } else {
-                            alert("Payment verification failed");
+                            alert("Payment verification failed: " + (data.error || "Unknown error"));
                         }
-                    } catch {
-                        alert("Payment verification failed");
+                    } catch (err) {
+                        alert("Payment verification failed: " + (err.response?.data?.error || err.message));
                     } finally {
                         setIsProcessing(false);
                     }
@@ -888,11 +953,11 @@ const CheckoutLarge = () => {
 
             const rzp = new window.Razorpay(options);
             rzp.open();
-        } catch {
-            alert("Error creating payment order");
+        } catch (error) {
+            alert("Error creating payment order: " + (error.response?.data?.error || error.message));
             setIsProcessing(false);
         }
-    }, [finalTotal, addressForm, user]);
+    }, [finalTotal, addressForm, user, items, appliedCoupon, clearCart]);
 
     const handlePlaceOrder = useCallback(async () => {
         setIsProcessing(true);
@@ -918,8 +983,10 @@ const CheckoutLarge = () => {
                 }
             });
 
+            const currentOrderId = `ENX-${Date.now()}`;
+
             const orderPayload = {
-                order_id: `ENX-${Date.now()}`,
+                order_id: currentOrderId,
                 customer: {
                     name: addressForm.fullName,
                     email: user?.email,
@@ -936,26 +1003,42 @@ const CheckoutLarge = () => {
                     quantity: item.quantity,
                     pack_type: item.selectedPack || "Pack of 1",
                 })),
-                payment_type: paymentMethod === "cod" ? "COD" : "PREPAID",
-                cod_amount: paymentMethod === "cod" ? String(finalTotal) : "0",
-                prepaid_amount: paymentMethod === "online" ? String(finalTotal) : "0",
+                payment_type: "COD",
+                cod_amount: String(finalTotal),
+                prepaid_amount: "0",
                 weight: totalWeightGrams,
                 length_cm: maxTotalLengthCm,
                 width_cm: maxTotalWidthCm,
                 height_cm: maxTotalHeightCm,
+                coupon: appliedCoupon
             };
 
-            await dataService.createClientOrder(orderPayload);
-            clearCart();
-            setTimeout(() => {
-                window.location.replace("/dashboard");
-            }, 2000);
-        } catch {
-            alert("Order placement failed. Please try again.");
+            // 1. Stage Order
+            const stageResponse = await dataService.stageClientOrder(orderPayload);
+            if (!stageResponse.data.success) {
+                throw new Error("Failed to stage order");
+            }
+
+            // 2. Finalize Order
+            const finalizeResponse = await dataService.finalizeClientOrder({
+                order_id: currentOrderId,
+                customer_email: user?.email || addressForm.email
+            });
+
+            if (finalizeResponse.data.success) {
+                clearCart();
+                setTimeout(() => {
+                    window.location.replace("/dashboard");
+                }, 2000);
+            } else {
+                throw new Error(finalizeResponse.data.error || "Order finalization failed");
+            }
+        } catch (error) {
+            alert("Order placement failed: " + (error.response?.data?.error || error.message));
         } finally {
             setIsProcessing(false);
         }
-    }, [items, addressForm, user, paymentMethod, finalTotal, clearCart]);
+    }, [items, addressForm, user, paymentMethod, finalTotal, appliedCoupon, clearCart]);
 
     const handleNext = useCallback(() => {
         if (outOfStockItems.length > 0) {
@@ -1094,6 +1177,8 @@ const CheckoutLarge = () => {
                             finalTotal={finalTotal}
                             user={user}
                             cartTotal={cartTotal}
+                            phone={addressForm.phone}
+                            email={user?.email}
                         />
                     </div>
                 </div>

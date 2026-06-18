@@ -1,4 +1,4 @@
-// components/DataDisplay/CollectionData.jsx
+// pages/CollectionData.jsx
 import React, { useState, useEffect } from 'react';
 import { FileText, Plus, Search, X, Edit, Trash2, AlertTriangle, ImageIcon, Upload, ChevronDown } from 'lucide-react';
 import { dataService } from '../utils/dataService';
@@ -141,10 +141,10 @@ const CollectionData = () => {
         return;
       }
 
-      // Validate file size (max 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      // Validate file size (max 20MB)
+      const maxSize = 20 * 1024 * 1024; // 20MB in bytes
       if (file.size > maxSize) {
-        setMessage({ type: 'error', text: 'Image size should be less than 5MB' });
+        setMessage({ type: 'error', text: 'Image size should be less than 20MB' });
         return;
       }
 
@@ -505,7 +505,7 @@ const CollectionData = () => {
                           <span className="font-semibold">Click to upload</span> or drag and drop
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          PNG, JPG, GIF, WebP (Max. 5MB)
+                          PNG, JPG, GIF, WebP (Max. 20MB) {/* maximum 20MB */}
                         </p>
                       </div>
                       <input 

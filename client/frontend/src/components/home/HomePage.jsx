@@ -6,6 +6,7 @@ import ProductCard from "../product/ProductCard.jsx";
 import { useProducts } from "../../context/ProductContext.jsx";
 import about from "../../assets/aboutUs.webp";
 import FullPageLoader from "../ui/FullPageLoader.jsx";
+import Maintenance from "../../pages/Maintenance.jsx";
 
 export default function HomePage() {
     const { products, loading, error } = useProducts();
@@ -38,7 +39,7 @@ export default function HomePage() {
     const isLoading = heroSliderLoading || loading;
 
     if (error) {
-        return <div className="py-20 text-center">Error: {error.message}</div>;
+        return <Maintenance />;
     }
 
     return (

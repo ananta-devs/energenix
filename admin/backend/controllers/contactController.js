@@ -36,7 +36,7 @@ const replyToContact = async (req, res) => {
   }
 
   try {
-    const templatePath = path.join(__dirname, '../templates/emailTemp.html');
+    const templatePath = path.join(__dirname, '../templates/replyTemp.html');
     let template = fs.readFileSync(templatePath, 'utf8');
 
     // Replace placeholders

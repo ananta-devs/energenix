@@ -11,7 +11,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://energenix-client.onrender.com/api',
+        // target: 'https://energenix-client.onrender.com/api',
+        target: 'http://localhost:4000/api',
         changeOrigin: true,
       },
     },

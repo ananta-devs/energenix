@@ -2,14 +2,18 @@ import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
+import { useProducts } from "../../context/ProductContext.jsx";
 
-export default function MainLayout() {
+function MainLayout() {
     const location = useLocation();
+    const { error } = useProducts();
 
     // Pages that should NOT show header/footer
     const hideLayout =
         location.pathname.startsWith("/checkout") ||
-        location.pathname.startsWith("/dashboard");
+        location.pathname.startsWith("/dashboard") ||
+        location.pathname === "/maintenance" ||
+        !!error;
 
     // Home page should NOT wrap the top section (HeroSlider)
     const isFullWidthPage = 
@@ -42,3 +46,5 @@ export default function MainLayout() {
         </div>
     );
 }
+
+export default MainLayout;

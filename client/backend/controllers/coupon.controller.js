@@ -14,9 +14,31 @@ module.exports = {
 
       // Filter out coupons that have reached their global usage limit
       const availableCoupons = coupons.filter(coupon => {
-        if (coupon.usage_limit !== null) {
-          return coupon.usage_count < coupon.usage_limit;
+        // Check global usage limit
+        if (coupon.usage_limit !== null && coupon.usage_count >= coupon.usage_limit) {
+          return false;
         }
+
+        // Check per-user usage limit if user is logged in OR phone is provided in query
+        const userPhone = req.query.phone ? String(req.query.phone) : (req.user && req.user.phone ? String(req.user.phone) : null);
+        const userEmail = req.query.email ? String(req.query.email) : (req.user && req.user.email ? String(req.user.email) : null);
+        
+        if (coupon.per_user_limit !== null) {
+          if (userPhone) {
+            const phoneUsageCount = coupon.used_phone_numbers.filter(
+              (phone) => phone === userPhone
+            ).length;
+            if (phoneUsageCount >= coupon.per_user_limit) return false;
+          }
+
+          if (userEmail) {
+            const emailUsageCount = coupon.used_emails.filter(
+              (email) => email === userEmail
+            ).length;
+            if (emailUsageCount >= coupon.per_user_limit) return false;
+          }
+        }
+
         return true; // No usage limit or limit not reached
       });
 
